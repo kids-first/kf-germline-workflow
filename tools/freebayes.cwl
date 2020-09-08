@@ -2,6 +2,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: freebayes
 doc: |-
+  From [freebayes github](https://github.com/ekg/freebayes/blob/master/README.md):
   freebayes is a Bayesian genetic variant detector designed to find small polymorphisms, specifically
   SNPs (single-nucleotide polymorphisms), indels (insertions and deletions), MNPs (multi-nucleotide
   polymorphisms), and complex events (composite insertion and substitution events) smaller than the
