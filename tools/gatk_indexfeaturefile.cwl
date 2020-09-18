@@ -15,14 +15,14 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      $(inputs.input_index ? 'echo /gatk' : '/gatk')
+      $(inputs.input_index ? 'echo /gatk' : inputs.input_file ? '/gatk' : 'echo /gatk')
   - position: 1
     shellQuote: false
     valueFrom: >-
       IndexFeatureFile 
 inputs:
   input_file:
-    type: File
+    type: 'File?'
     doc: "Feature file (eg., VCF or BED file) to index. Must be in a tribble-supported format"
     inputBinding:
       position: 2
@@ -32,7 +32,7 @@ inputs:
     doc: "Index file for the input_file, if one exists"
 outputs:
   output:
-    type: File
+    type: 'File?'
     outputBinding:
       glob: $(inputs.input_file.basename)
     secondaryFiles: [.idx] 
