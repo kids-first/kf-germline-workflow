@@ -35,11 +35,19 @@ outputs:
   bps: { type: 'File', outputBinding: { glob: $(inputs.output_basename).bps.txt.gz } }
   configs: { type: 'File', outputBinding: { glob: $(inputs.output_basename).contigs.bam } }
   log: { type: 'File', outputBinding: { glob: $(inputs.output_basename).log } }
-  germline_indel_vcf: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.$(inputs.normal_bams ? 'germline.' : '')indel.vcf.gz" }, secondaryFiles: [.tbi] }
-  germline_indel_unfiltered_vcf: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.unfiltered.$(inputs.normal_bams ? 'germline.' : '')indel.vcf.gz" }, secondaryFiles: [.tbi] }
-  germline_sv_vcf: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.$(inputs.normal_bams ? 'germline.' : '')sv.vcf.gz" }, secondaryFiles: [.tbi] }
-  germline_sv_unfiltered_vcf: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.unfiltered.$(inputs.normal_bams ? 'germline.' : '')sv.vcf.gz" }, secondaryFiles: [.tbi] }
-  somatic_indel_vcf: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.somatic.indel.vcf.gz }, secondaryFiles: [.tbi] }
-  somatic_indel_unfiltered_vcf: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.unfiltered.somatic.indel.vcf.gz }, secondaryFiles: [.tbi] }
-  somatic_sv_vcf: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.somatic.sv.vcf.gz }, secondaryFiles: [.tbi] }
-  somatic_sv_unfiltered_vcf: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.unfiltered.somatic.sv.vcf.gz },  secondaryFiles: [.tbi] }
+  germline_indel_vcf_gz: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.$(inputs.normal_bams ? 'germline.' : '')indel.vcf.gz" }, secondaryFiles: [.tbi] }
+  germline_indel_unfiltered_vcf_gz: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.unfiltered.$(inputs.normal_bams ? 'germline.' : '')indel.vcf.gz" }, secondaryFiles: [.tbi] }
+  germline_sv_vcf_gz: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.$(inputs.normal_bams ? 'germline.' : '')sv.vcf.gz" }, secondaryFiles: [.tbi] }
+  germline_sv_unfiltered_vcf_gz: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.unfiltered.$(inputs.normal_bams ? 'germline.' : '')sv.vcf.gz" }, secondaryFiles: [.tbi] }
+  somatic_indel_vcf_gz: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.somatic.indel.vcf.gz }, secondaryFiles: [.tbi] }
+  somatic_indel_unfiltered_vcf_gz: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.unfiltered.somatic.indel.vcf.gz }, secondaryFiles: [.tbi] }
+  somatic_sv_vcf_gz: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.somatic.sv.vcf.gz }, secondaryFiles: [.tbi] }
+  somatic_sv_unfiltered_vcf_gz: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.unfiltered.somatic.sv.vcf.gz },  secondaryFiles: [.tbi] }
+  germline_indel_vcf: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.$(inputs.normal_bams ? 'germline.' : '')indel.vcf" } }
+  germline_indel_unfiltered_vcf: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.unfiltered.$(inputs.normal_bams ? 'germline.' : '')indel.vcf" } }
+  germline_sv_vcf: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.$(inputs.normal_bams ? 'germline.' : '')sv.vcf" } }
+  germline_sv_unfiltered_vcf: { type: 'File?', outputBinding: { glob: "$(inputs.output_basename).svaba.unfiltered.$(inputs.normal_bams ? 'germline.' : '')sv.vcf" } }
+  somatic_indel_vcf: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.somatic.indel.vcf } }
+  somatic_indel_unfiltered_vcf: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.unfiltered.somatic.indel.vcf } }
+  somatic_sv_vcf: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.somatic.sv.vcf } }
+  somatic_sv_unfiltered_vcf: { type: 'File?', outputBinding: { glob: $(inputs.output_basename).svaba.unfiltered.somatic.sv.vcf } }
