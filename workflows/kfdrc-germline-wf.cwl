@@ -147,7 +147,6 @@ steps:
     out: [output]
   dynamicallycombineintervals:
     run: ../tools/script_dynamicallycombineintervals.cwl
-    label: 'Combine intervals'
     doc: 'Merge interval lists based on number of gVCF inputs'
     in:
       input_vcfs: input_vcfs
@@ -155,7 +154,6 @@ steps:
     out: [out_intervals]
   gatk_import_genotype_filtergvcf_merge:
     run: ../tools/gatk_import_genotype_filtergvcf_merge.cwl
-    label: 'Genotype, filter, & merge'
     doc: 'Use GATK GenomicsDBImport, VariantFiltration GenotypeGVCFs, and picard MakeSitesOnlyVcf
       to genotype, filter and merge gVCF based on known sites'
     in:
@@ -167,14 +165,12 @@ steps:
     out: [variant_filtered_vcf, sites_only_vcf]
   gatk_gathervcfs:
     run: ../tools/gatk_gathervcfs.cwl
-    label: 'Gather VCFs'
     doc: 'Merge VCFs scattered from previous step'
     in:
       input_vcfs: gatk_import_genotype_filtergvcf_merge/sites_only_vcf
     out: [output]
   gatk_snpsvariantrecalibratorcreatemodel:
     run: ../tools/gatk_snpsvariantrecalibratorcreatemodel.cwl
-    label: 'GATK VariantRecalibrator SNPs'
     doc: 'Create recalibration model for snps using GATK VariantRecalibrator, tranch
       values, and known site VCFs'
     in:
@@ -186,7 +182,6 @@ steps:
     out: [model_report]
   gatk_indelsvariantrecalibrator:
     run: ../tools/gatk_indelsvariantrecalibrator.cwl
-    label: 'GATK VariantRecalibrator Indels'
     doc: 'Create recalibration model for indels using GATK VariantRecalibrator, tranch
       values, and known site VCFs'
     in:
@@ -197,7 +192,6 @@ steps:
     out: [recalibration, tranches]
   gatk_snpsvariantrecalibratorscattered:
     run: ../tools/gatk_snpsvariantrecalibratorscattered.cwl
-    label: 'GATK VariantRecalibrator Scatter'
     doc: 'Create recalibration model for known sites from input data using GATK VariantRecalibrator,
       tranch values, and known site VCFs'
     in:
@@ -211,14 +205,12 @@ steps:
     out: [recalibration, tranches]
   gatk_gathertranches:
     run: ../tools/gatk_gathertranches.cwl
-    label: 'GATK GatherTranches'
     doc: 'Gather tranches from SNP variant recalibrate scatter'
     in:
       tranches: gatk_snpsvariantrecalibratorscattered/tranches
     out: [output]
   gatk_applyrecalibration:
     run: ../tools/gatk_applyrecalibration.cwl
-    label: 'GATK ApplyVQSR'
     doc: 'Apply recalibration to snps and indels'
     in:
       indels_recalibration: gatk_indelsvariantrecalibrator/recalibration
@@ -231,7 +223,6 @@ steps:
     out: [recalibrated_vcf]
   gatk_gatherfinalvcf:
     run: ../tools/gatk_gatherfinalvcf.cwl
-    label: 'GATK GatherVcfsCloud'
     doc: 'Combine resultant VQSR VCFs'
     in:
       input_vcfs: gatk_applyrecalibration/recalibrated_vcf
@@ -245,7 +236,6 @@ steps:
     out: [hardfiltered_vcf]
   peddy:
     run: ../tools/kfdrc_peddy_tool.cwl
-    label: 'Peddy'
     doc: 'QC family relationships and sex assignment'
     in:
       ped: ped
@@ -254,7 +244,6 @@ steps:
     out: [output_html, output_csv, output_peddy]
   picard_collectvariantcallingmetrics:
     run: ../tools/picard_collectvariantcallingmetrics.cwl
-    label: 'CollectVariantCallingMetrics'
     doc: 'picard calculate variant calling metrics'
     in:
       input_vcf: gatk_gatherfinalvcf/output
