@@ -47,7 +47,7 @@ inputs:
 
   # Input Variables
 
-  input_bams: { type: 'File[]', doc: "BAM files to be analyzed" }
+  input_bams: { type: 'File[]', secondaryFiles: [^.bai], doc: "BAM files to be analyzed" }
   reference_fasta: { type: 'File', inputBinding: { prefix: "--fasta-reference" }, secondaryFiles: [.fai], doc: "Reference fasta and fai index" }
   targets_file: { type: 'File?', inputBinding: { prefix: "--targets" }, doc: "BED file containing targets for analysis" }
   region_strings: { type: 'string[]?', inputBinding: { prefix: "--region", itemSeparator: ".." }, doc: "List containing BED-formatted strings (<chrom>:<start_position>-<end_position>;0-base coordinates, end_position not included) detailing target locations for analysis. Either '-' or '..' maybe used as a separator" }
