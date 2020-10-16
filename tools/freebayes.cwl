@@ -155,4 +155,4 @@ inputs:
   cpu: { type: int?, default: 4, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
 
 outputs:
-  output: { type: 'File', outputBinding: { glob: $(inputs.vcf_out) } }
+  output: { type: 'File', outputBinding: { glob: $(inputs.output_basename) } }
