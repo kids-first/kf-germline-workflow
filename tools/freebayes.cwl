@@ -32,7 +32,7 @@ requirements:
       - entryname: bams.txt
         entry: |-
           ${
-              text = ""
+              var text = ""
               for (var i = 0; i < inputs.input_bams.length; i++) {
                   text += inputs.input_bams[i].path + "\n"
               }
@@ -151,8 +151,8 @@ inputs:
   debug: { type: 'boolean?', default: false, inputBinding: { prefix: "--debug" }, doc: "Print debugging output." }
 
   # Resource Control
-  ram: { type: int?, default: 16, doc: "Minimum reserved RAM for the task. default: 16" }
-  cpu: { type: int?, default: 4, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
+  ram: { type: int?, default: 2, doc: "Minimum reserved RAM for the task. default: 16" }
+  cpu: { type: int?, default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
 
 outputs:
-  output: { type: 'File', outputBinding: { glob: $(inputs.output_basename) } }
+  output: { type: 'File', outputBinding: { glob: "*.freebayes.vcf" } }
