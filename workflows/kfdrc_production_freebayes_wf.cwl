@@ -10,7 +10,7 @@ inputs:
   reference_fai: { type: 'File?' }
   reference_dict: { type: 'File?' }
   generate_bwa_indexes: { type: 'boolean?', default: false }
-  input_bams: { type: 'File[]' }
+  input_bams: { type: 'File[]', secondaryFiles: [^.bai] }
   input_regions: { type: 'File?', doc: "GATK intervals list-style, or bed file, of the regions contained in the input BAMs. Recommend canocical chromosomes with N regions removed" }
   output_basename: { type: string, doc: "String value to use as basename for outputs" }
   exome_flag: { type: 'string?', doc: "Whether to run in exome mode for callers. Y for WXS, N for WGS. Defaults to N" }
