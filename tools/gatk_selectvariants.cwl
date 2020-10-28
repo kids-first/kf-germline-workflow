@@ -18,6 +18,7 @@ arguments:
       -XX:GCTimeLimit=50
       -XX:GCHeapFreeLimit=10"
       SelectVariants
+      $(inputs.selection == "INDEL" ? "-select-type MIXED" : "")
       -select-type $(inputs.selection)
       -O $(inputs.output_basename).$(inputs.selection.toLowerCase()).vcf.gz
       -V $(inputs.input_vcf.path)
