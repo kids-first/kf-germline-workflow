@@ -4,7 +4,7 @@ id: svaba
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: 'kfdrc/svaba:1.1.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/svaba:1.1.0'
   - class: ResourceRequirement
     ramMin: $(inputs.ram)
     coresMin: $(inputs.cores)

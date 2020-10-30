@@ -39,7 +39,7 @@ requirements:
               return text
           }
   - class: DockerRequirement
-    dockerPull: 'kfdrc/freebayes:v1.3.2'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/freebayes:v1.3.2'
 
 baseCommand: [freebayes, --bam-list, bams.txt]
 

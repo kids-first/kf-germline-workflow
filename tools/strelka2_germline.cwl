@@ -8,7 +8,7 @@ requirements:
     ramMin: ${ return inputs.ram * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'kfdrc/strelka:v2.9.10'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/strelka:v2.9.10'
 
 baseCommand: [/strelka-2.9.10.centos6_x86_64/bin/configureStrelkaGermlineWorkflow.py, --runDir=./]
 arguments:

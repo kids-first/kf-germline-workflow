@@ -8,7 +8,7 @@ requirements:
     ramMin: ${ return inputs.ram * 1000 }
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
-    dockerPull: 'kfdrc/vcfutils:latest'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest'
 
 baseCommand: []
 arguments:
