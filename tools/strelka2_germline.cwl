@@ -9,6 +9,38 @@ requirements:
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/strelka:v2.9.10'
+  - class: InitialWorkDirRequirement
+    listing:
+      - writable: false
+        entryname: "filenames.txt"
+        entry: >-
+          ${
+              function get_file_prefix(f) {
+                  if (f.metadata) {
+                      if (f.metadata['sample_id']) {
+                          return f.metadata['sample_id'];
+                      } else {
+                          return f.nameroot;
+                      }
+                  } else {
+                      return f.nameroot;
+                  }
+              }
+              var input_files = [].concat(inputs.input_bams,inputs.input_crams).filter(function (el) {return el != null}) 
+              if (input_files.length > 1) {
+                  var file_content = [];
+                  for (var i = 0; i < input_files.length; i++) {
+                      var prefix = get_file_prefix(input_files[i]);
+                      file_content.push(prefix + ".strelka_genome.S" + (i + 1));
+                  }
+                  return file_content.join("\n");
+              } else if (input_files.length == 1) {
+                  return get_file_prefix(input_files[0]) + ".strelka_genome.S1";
+              } else {
+                  return "";
+              }
+          }
+>>>>>>> c1a20e6... :construction: wip adding output basenames
 
 baseCommand: [/strelka-2.9.10.centos6_x86_64/bin/configureStrelkaGermlineWorkflow.py, --runDir=./]
 arguments:
@@ -18,6 +50,10 @@ arguments:
       && ./runWorkflow.py
       -m local
       -j $(inputs.cores)
+  - position: 3
+    shellQuote: false
+    valueFrom: >-
+      && bash ${return "-c 'for i in results/variants/*; do if [[ $i =~ .+.S[0-9]+.vcf.gz$ ]]; then filename=$(awk \"NR==$(basename=$(basename $i .vcf.gz); IFS='.S' read -ra NAMES <<< $basename; echo ${NAMES[-1]})\" filenames.txt); mv $i "+inputs.output_basename+".${filename}.g.vcf.gz; mv ${i}.tbi  "+inputs.output_basename+".${filename}.g.vcf.gz.tbi; fi done' && mv results/variants/variants.vcf.gz "+inputs.output_basename+".strelka_variants.vcf.gz && mv results/variants/variants.vcf.gz.tbi "+inputs.output_basename+".strelka_variants.vcf.gz.tbi"}
 
 inputs:
   input_bams: { type: ['null', { type: 'array', items: File, inputBinding: { prefix: '--bam=', separate: false }}], secondaryFiles: [.bai], inputBinding: { position: 1 }, doc: "List of one or more BAMs" }
@@ -33,15 +69,15 @@ inputs:
   exome: { type: 'boolean?', default: false, inputBinding: { position: 1, prefix: '--exome' }, doc: "Set options for exome or other targeted input: note in particular that this flag turns off high-depth filters." }
   cores: { type: 'int?', default: 4, doc: "Number of cores to allocate to this task." }
   ram: { type: 'int?', default: 8, doc: "GB of memory to allocate to this task." }
+  output_basename: {type: 'string?', default: 'output', doc: "Basename for the output files"}
 outputs:
-  output_snv:
+  variants_vcf_gz:
     type: 'File'
     outputBinding:
-      glob: 'results/variants/*.snvs.vcf.gz'
+      glob: '$(inputs.output_basename).strelka_variants.vcf.gz'
     secondaryFiles: [.tbi]
-  output_indel:
-    type: 'File'
+  genome_vcf_gzs:
+    type: 'File[]'
     outputBinding:
-      glob: 'results/variants/*.indels.vcf.gz'
+      glob: '$(inputs.output_basename).*.g.vcf.gz'
     secondaryFiles: [.tbi]
-
