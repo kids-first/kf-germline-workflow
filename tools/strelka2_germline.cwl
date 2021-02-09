@@ -40,7 +40,6 @@ requirements:
                   return "";
               }
           }
->>>>>>> c1a20e6... :construction: wip adding output basenames
 
 baseCommand: [/strelka-2.9.10.centos6_x86_64/bin/configureStrelkaGermlineWorkflow.py, --runDir=./]
 arguments:
