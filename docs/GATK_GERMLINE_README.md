@@ -6,7 +6,13 @@ Unlike the Joint Genotyping Workflow, a simple GATK hard filtering process is pe
 If you would like to run this workflow using the cavatica public app, a basic primer on running public apps can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-Cavatica-af5ebb78c38a4f3190e32e67b4ce12bb).
 Alternatively, if you'd like to run it locally using `cwltool`, a basic primer on that can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-CWLtool-b8dbbde2dc7742e4aff290b0a878344d) and combined with app-specific info from the readme below.
 ![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
+
 ### Runtime Estimates
+1. Trio of 6-7 GB gVCFs on spot instances: 210 minutes & $5.50
+1. Trio of 1-2 GB gVCFs on spot instances: 180 minutes & $3.25
+1. Single 6 GB gVCF on spot instances: 125 minutes & $1.25
+1. Single 1.5 GB gVCF on spot instances: 130 minutes & $1.00
+
 ### Tips To Run:
 1. inputs vcf files are the gVCF files from GATK Haplotype Caller, need to have the index **.tbi** files copy to the same project too.
 1. ped file in the input shows the family relationship between samples, the format should be the same as in GATK website [link](https://gatkforums.broadinstitute.org/gatk/discussion/7696/pedigree-ped-files), the Individual ID, Paternal ID and Maternal ID must be the same as in the inputs vcf files header.
