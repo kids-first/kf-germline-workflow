@@ -19,7 +19,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      IndexFeatureFile 
+      IndexFeatureFile
 inputs:
   input_file:
     type: 'File?'
@@ -34,5 +34,5 @@ outputs:
   output:
     type: 'File?'
     outputBinding:
-      glob: $(inputs.input_file.basename)
-    secondaryFiles: [.idx] 
+      glob: "$(inputs.input_file ? inputs.input_file.basename : '')"
+    secondaryFiles: [.idx]

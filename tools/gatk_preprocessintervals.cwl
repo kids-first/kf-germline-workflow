@@ -10,19 +10,19 @@ requirements:
 baseCommand: ['/bin/bash', '-c']
 arguments:
   - position: 0
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
       set -eu
 
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" PreprocessIntervals \\
-          $(inputs.intervals_list ? "-L " + inputs.intervals_list.path : '') \\
-          $(inputs.blacklist_intervals_list ? "-XL " + inputs.blacklist_intervals_list.path : '') \\
-          --reference $(inputs.reference.path) \\
-          --sequence-dictionary $(inputs.sequence_dictionary.path) \\
-          --padding $(inputs.padding) \\
-          --bin-length $(inputs.bin_length) \\
-          --interval-merging-rule $(inputs.interval_merging_rule) \\
-          --output $(inputs.intervals_list ? inputs.intervals_list.nameroot : 'wgs').preprocessed.interval_list
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" PreprocessIntervals
+      --reference $(inputs.reference.path)
+      --sequence-dictionary $(inputs.sequence_dictionary.path)
+      --padding $(inputs.padding)
+      --bin-length $(inputs.bin_length)
+      --interval-merging-rule $(inputs.interval_merging_rule)
+      --output $(inputs.intervals_list ? inputs.intervals_list.nameroot : 'wgs').preprocessed.interval_list
+      $(inputs.intervals_list ? "-L " + inputs.intervals_list.path : '')
+      $(inputs.blacklist_intervals_list ? "-XL " + inputs.blacklist_intervals_list.path : '')
 inputs:
   reference: { type: File , secondaryFiles: ['.fai'] , doc: "Reference fasta" }
   sequence_dictionary: { type: 'File?', doc: "Use the given sequence dictionary as the master/canonical sequence dictionary. Must be a .dict file." }

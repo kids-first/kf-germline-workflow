@@ -13,28 +13,28 @@ requirements:
 baseCommand: ['/bin/bash', '-c']
 arguments:
   - position: 0
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
       set -eu
 
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" FilterIntervals \\
-          -L $(inputs.intervals_list.path) \\
-          $(inputs.blacklist_intervals_list ? "-XL " + inputs.blacklist_intervals_list.path : '') \\
-          $(inputs.annotated_intervals ? "--annotated-intervals " + inputs.annotated_intervals.path : '') \\
-          ${var arr=[]; for (var x = 0; x < inputs.read_count_files.length; x++) {arr.push(inputs.read_count_files[x].path)}; return (inputs.read_count_files.length > 0 ? '--input ' + arr.join(' --input ') : '')} \\
-          --minimum-gc-content $(inputs.gc_content_min) \\
-          --maximum-gc-content $(inputs.gc_content_max) \\
-          --minimum-mappability $(inputs.mappability_min) \\
-          --maximum-mappability $(inputs.mappability_max) \\
-          --minimum-segmental-duplication-content $(inputs.sd_content_min) \\
-          --maximum-segmental-duplication-content $(inputs.sd_content_max) \\
-          --low-count-filter-count-threshold $(inputs.lc_filter_count) \\
-          --low-count-filter-percentage-of-samples $(inputs.lc_filter_percent) \\
-          --extreme-count-filter-minimum-percentile $(inputs.ec_filter_min) \\
-          --extreme-count-filter-maximum-percentile $(inputs.ec_filter_max) \\
-          --extreme-count-filter-percentage-of-samples $(inputs.ec_filter_percent) \\
-          --interval-merging-rule $(inputs.interval_merging_rule) \\
-          --output $(inputs.intervals_list.nameroot).filtered.interval_list
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" FilterIntervals
+      -L $(inputs.intervals_list.path)
+      --minimum-gc-content $(inputs.gc_content_min)
+      --maximum-gc-content $(inputs.gc_content_max)
+      --minimum-mappability $(inputs.mappability_min)
+      --maximum-mappability $(inputs.mappability_max)
+      --minimum-segmental-duplication-content $(inputs.sd_content_min)
+      --maximum-segmental-duplication-content $(inputs.sd_content_max)
+      --low-count-filter-count-threshold $(inputs.lc_filter_count)
+      --low-count-filter-percentage-of-samples $(inputs.lc_filter_percent)
+      --extreme-count-filter-minimum-percentile $(inputs.ec_filter_min)
+      --extreme-count-filter-maximum-percentile $(inputs.ec_filter_max)
+      --extreme-count-filter-percentage-of-samples $(inputs.ec_filter_percent)
+      --interval-merging-rule $(inputs.interval_merging_rule)
+      --output $(inputs.intervals_list.nameroot).filtered.interval_list
+      ${var arr= []; if (inputs.read_count_files) {for (var x = 0; x < inputs.read_count_files.length; x++) {arr.push(inputs.read_count_files[x].path)}; if (arr.length > 0) {return '--input ' + arr.join(' --input ');} else {return '';}} else { return '';}}
+      $(inputs.blacklist_intervals_list ? "-XL " + inputs.blacklist_intervals_list.path : '')
+      $(inputs.annotated_intervals ? "--annotated-intervals " + inputs.annotated_intervals.path : '')
 inputs:
   intervals_list: { type: 'File', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   blacklist_intervals_list: { type: 'File?', doc: "One or more genomic intervals to exclude from processing. Use this input when providing interval list files or other file based inputs." }

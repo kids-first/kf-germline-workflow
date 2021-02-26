@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: collect_model_quality_metrics 
+id: collect_model_quality_metrics
 doc: "Determines if all values for ARD components are negative"
 requirements:
   - class: InlineJavascriptRequirement
@@ -10,12 +10,12 @@ requirements:
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'kfdrc/gatk:4.1.7.0R'
-baseCommand: ['/bin/bash/','-c']
+baseCommand: ['/bin/bash','-c']
 arguments:
   - position: 0
-    shellQuote: false
-    valueFrom: >-
-        sed -e 
+    shellQuote: true
+    valueFrom: |-
+        sed -e
         qc_status="PASS"
 
         gcnv_model_tar_array=(${var arr=[]; for (var x = 0; x < inputs.gcnv_model_tars.length; x++) {arr.push(inputs.gcnv_model_tars[x].path)}; return arr.join(' ')})
@@ -33,7 +33,7 @@ arguments:
         done
         echo $qc_status >> qcStatus.txt
 inputs:
-  gcnv_model_tars: { type: 'File[]', doc: "One or more tar files output from GATK GermlineCNVCaller run in Cohort Mode" } 
+  gcnv_model_tars: { type: 'File[]', doc: "One or more tar files output from GATK GermlineCNVCaller run in Cohort Mode" }
   ram: { type: int?, default: 4, doc: "GB of RAM to allocate to the task. default: 4" }
   cores: { type: int?, default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 1" }
 outputs:

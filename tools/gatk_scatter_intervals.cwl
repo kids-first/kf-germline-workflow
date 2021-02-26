@@ -13,9 +13,9 @@ requirements:
 baseCommand: [/bin/bash, -c]
 arguments:
   - position: 0
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
-      set -e
+      set -e pipefail
 
       mkdir out
 
@@ -27,17 +27,18 @@ arguments:
           >&2 echo "Not running IntervalListTools because only a single shard is required. Copying original interval list..."
           cp $(inputs.intervals_list.path) out/$(inputs.intervals_list.nameroot).scattered.0001.interval_list
       else
-          /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" IntervalListTools \\
-              --INPUT $(inputs.intervals_list.path) \\
-              --SUBDIVISION_MODE INTERVAL_COUNT \\
-              --SCATTER_CONTENT $(inputs.num_intervals_per_scatter) \\
-              --OUTPUT out
+          /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" IntervalListTools \
+          --INPUT $(inputs.intervals_list.path) \
+          --SUBDIVISION_MODE INTERVAL_COUNT \
+          --SCATTER_CONTENT $(inputs.num_intervals_per_scatter) \
+          --OUTPUT out
 
-          ls -v out/*/scattered.interval_list | \\
-              cat -n | \\
-              while read n filename; do mv $filename out/$(inputs.intervals_list.nameroot).scattered.${ return "$(printf \"%04d\" $n)"}.interval_list; done
+          ls -v out/*/scattered.interval_list | \
+          cat -n | \
+          while read n filename; do mv $filename out/$(inputs.intervals_list.nameroot).scattered.${ return "$(printf \"%04d\" $n)"}.interval_list; done
+
           rm -rf out/temp_*_of_*
-      fi 
+      fi
 inputs:
   intervals_list: { type: 'File', doc: "A set of genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   num_intervals_per_scatter: { type: int, doc: "Total number of intervals to include in each scattered interval list" }
