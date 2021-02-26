@@ -9,7 +9,7 @@ requirements:
     ramMin: ${ return inputs.ram * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'kfdrc/gatk:4.1.7.0R'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.7.0R'
 baseCommand: ['/bin/bash','-c']
 arguments:
   - position: 0
@@ -28,7 +28,6 @@ inputs:
   genotyped_segments_vcf: { type: File }
   maximum_number_events: { type: int }
   entity_id: { type: string }
-
   ram: { type: int?, default: 1, doc: "GB of RAM to allocate to the task. default: 1" }
   cores: { type: int?, default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 1" }
 outputs:

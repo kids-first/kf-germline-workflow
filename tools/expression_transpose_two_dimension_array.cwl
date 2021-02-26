@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: ExpressionTool
-id: expression_create_index_array
+id: expression_transpose_two_dimension_array
 doc: "Take any two dimensional array and transpose it. From: https://gist.github.com/femto113/1784503#gistcomment-2163931"
 requirements:
   - class: InlineJavascriptRequirement

@@ -6,7 +6,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'kfdrc/gatk:4.1.7.0R'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.7.0R'
 baseCommand: ['/bin/bash', '-c']
 arguments:
   - position: 0
@@ -28,8 +28,8 @@ inputs:
   sequence_dictionary: { type: 'File?', doc: "Use the given sequence dictionary as the master/canonical sequence dictionary. Must be a .dict file." }
   intervals_list: { type: 'File?', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   blacklist_intervals_list: { type: 'File?', doc: "One or more genomic intervals to exclude from processing. Use this input when providing interval list files or other file based inputs." }
-  padding: { type: int?, default: 250, doc: "Length (in bp) of the padding regions on each side of the intervals." }
-  bin_length: { type: int?, default: 1000, doc: "Length (in bp) of the bins. If zero, no binning will be performed." }
+  padding: { type: 'int?', default: 250, doc: "Length (in bp) of the padding regions on each side of the intervals." }
+  bin_length: { type: 'int?', default: 1000, doc: "Length (in bp) of the bins. If zero, no binning will be performed." }
   interval_merging_rule:
     type:
       - 'null'

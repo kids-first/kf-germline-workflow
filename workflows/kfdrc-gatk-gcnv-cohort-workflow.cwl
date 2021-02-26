@@ -2,7 +2,23 @@ cwlVersion: v1.0
 class: Workflow
 id: kfdrc-gatk-cnv-germline-cohort-workflow
 label: Kids First DRC GATK Germline CNV Cohort Workflow
-doc: "hello"
+doc: |
+  # Kids First DRC GATK gCNV Cohort Workflow
+  Kids First Data Resource Center gCNV Cohort Workflow. This workflow is a direct liftover of the [Broad WDL](https://github.com/broadinstitute/gatk/tree/4.2.0.0/scripts/cnv_wdl/germline).
+
+  ![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
+
+  ### Runtime Estimates
+  1. 23 ~6 GB BAMs on chr20, X, and Y: 150 minutes & $1.75
+
+  ### Tips To Run:
+  1. Additional documentation about the workflow from Broad can be found here: https://github.com/broadinstitute/gatk/tree/4.2.0.0/scripts/cnv_wdl/germline
+  1. Additional documentation about the gCNV calling process fro Broad can be found here: https://gatk.broadinstitute.org/hc/en-us/articles/360035531152--How-to-Call-common-and-rare-germline-copy-number-variants
+
+  ## Other Resources
+  - DOCKERFILEs: https://github.com/d3b-center/bixtools
+  - Broad GATK Docker: https://github.com/broadinstitute/gatk/blob/master/Dockerfile
+
 
 requirements:
 - class: ScatterFeatureRequirement
@@ -11,135 +27,274 @@ requirements:
 
 inputs:
   # Multistep
-  reference_tar: File
-  intervals: File
-  blacklist_intervals: File?
-  normal_bams: { type: 'File[]', secondaryFiles: [.bai] }
-  cohort_entity_id: string
-  contig_ploidy_priors: File
-  num_intervals_per_scatter: int
+  reference_tar: {type: 'File', doc: "TAR containing reference fasta and associated\
+      \ indecies. Must include FAI and DICT!", sbg:fileTypes: "TAR, TAR.GZ, TGZ"}
+  intervals: {type: 'File', doc: "Picard or GATK-style interval list of regions to\
+      \ process. For WGS, this should typically only include the chromosomes of interest.",
+    sbg:fileTypes: "INTERVALS, INTERVAL_LIST, LIST"}
+  blacklist_intervals: {type: 'File?', doc: "Picard or GATK-style interval list of\
+      \ regions to ignore", sbg:fileTypes: "INTERVALS, INTERVAL_LIST, LIST"}
+  normal_bams: {type: 'File[]', secondaryFiles: [.bai], doc: "List of normal BAMs,\
+      \ and their associated BAIs, that comprise the cohort.", sbg:fileTypes: "BAM"}
+  cohort_entity_id: {type: 'string', doc: "Name of the cohort. Will be used as a prefix\
+      \ for output filenames."}
+  contig_ploidy_priors: {type: 'File', doc: "TSV file containing prior probabilities\
+      \ for the ploidy of each contig, with column headers: CONTIG_NAME, PLOIDY_PRIOR_0,\
+      \ PLOIDY_PRIOR_1, ...", sbg:fileTypes: "TSV"}
+  num_intervals_per_scatter: {type: 'int', doc: "Number of intervals (i.e., targets\
+      \ or bins) in each scatter for GermlineCNVCaller. If total number of intervals\
+      \ is not divisible by the value provided, the last scatter will contain the\
+      \ remainder."}
 
   # Preprocess intervals
-  padding: int?
-  bin_length: int?
+  padding: {type: 'int?', doc: "Length (in bp) of the padding regions on each side\
+      \ of the intervals. This must be the same value used for all case samples. Defaults\
+      \ to 250 for use in targetted analysis. For WGS, set to 0"}
+  bin_length: {type: 'int?', doc: "Length (in bp) of the bins. If zero, no binning\
+      \ will be performed. Defaults to 0 for use in targetted analysis. For WGS, set\
+      \ to 1000."}
 
   # Annotate intervals
-  do_explicit_gc_correction: boolean?
-  mappability_track_bed: File?
-  mappability_track_bed_idx: File?
-  segmental_duplication_track_bed: File?
-  segmental_duplication_track_bed_idx: File?
-  feature_query_lookahead: int?
+  do_explicit_gc_correction: {type: 'boolean?', doc: "If true, perform explicit GC-bias\
+      \ correction when creating PoN and in subsequent denoising of case samples.\
+      \ If false, rely on PCA-based denoising to correct for GC bias. Tool will default\
+      \ to true."}
+  mappability_track_bed: {type: 'File?', doc: "Umap single-read mappability track\
+      \ in .bed format. Overlapping intervals must be merged.", sbg:fileTypes: "BED"}
+  mappability_track_bed_idx: {type: 'File?', doc: "IDX index for mappability_track_bed.",
+    sbg:fileTypes: "IDX"}
+  segmental_duplication_track_bed: {type: 'File?', doc: "Segmental-duplication track\
+      \ in .bed format. Overlapping intervals must be merged.", sbg:fileTypes: "BED"}
+  segmental_duplication_track_bed_idx: {type: 'File?', doc: "IDX index for segmental_duplication_track_bed.",
+    sbg:fileTypes: "IDX"}
+  feature_query_lookahead: {type: 'int?', doc: "Number of bases to cache when querying\
+      \ feature tracks."}
 
   # Collect read counts
-  disabled_read_filters_for_collect_counts: string[]?
+  disabled_read_filters_for_collect_counts: {type: 'string[]?', doc: "Read filters\
+      \ to be disabled before analysis by GATK CollectReadCounts."}
 
   # Filter intervals
-  blacklist_intervals_for_filter_intervals: File?
-  extreme_count_filter_maximum_percentile: float?
-  extreme_count_filter_minimum_percentile: float?
-  extreme_count_filter_percentage_of_samples: float?
-  maximum_gc_content: float?
-  minimum_gc_content: float?
-  low_count_filter_count_threshold: int?
-  low_count_filter_percentage_of_samples: float?
-  maximum_mappability: float?
-  minimum_mappability: float?
-  maximum_segmental_duplication_content: float?
-  minimum_segmental_duplication_content: float?
+  blacklist_intervals_for_filter_intervals: {type: 'File?', doc: "File containing\
+      \ one or more genomic intervals to exclude from processing."}
+  extreme_count_filter_maximum_percentile: {type: 'float?', doc: "Maximum-percentile\
+      \ parameter for the extreme-count filter. Intervals with a count that has a\
+      \ percentile strictly greater than this in a percentage of samples strictly\
+      \ greater than extreme-count-filter-percentage-of-samples will be filtered out.\
+      \ (This is the second count-based filter applied.)"}
+  extreme_count_filter_minimum_percentile: {type: 'float?', doc: "Minimum-percentile\
+      \ parameter for the extreme-count filter. Intervals with a count that has a\
+      \ percentile strictly less than this in a percentage of samples strictly greater\
+      \ than extreme-count-filter-percentage-of-samples will be filtered out. (This\
+      \ is the second count-based filter applied.)"}
+  extreme_count_filter_percentage_of_samples: {type: 'float?', doc: "Percentage-of-samples\
+      \ parameter for the extreme-count filter. Intervals with a count that has a\
+      \ percentile outside of [extreme-count-filter-minimum-percentile, extreme-count-filter-maximum-percentile]\
+      \ in a percentage of samples strictly greater than this will be filtered out.\
+      \ (This is the second count-based filter applied.)"}
+  maximum_gc_content: {type: 'float?', doc: "Maximum allowed value for GC-content\
+      \ annotation (inclusive)."}
+  minimum_gc_content: {type: 'float?', doc: "Minimum allowed value for GC-content\
+      \ annotation (inclusive)."}
+  low_count_filter_count_threshold: {type: 'int?', doc: "Count-threshold parameter\
+      \ for the low-count filter. Intervals with a count strictly less than this threshold\
+      \ in a percentage of samples strictly greater than low-count-filter-percentage-of-samples\
+      \ will be filtered out. (This is the first count-based filter applied.)"}
+  low_count_filter_percentage_of_samples: {type: 'float?', doc: "Percentage-of-samples\
+      \ parameter for the low-count filter. Intervals with a count strictly less than\
+      \ low-count-filter-count-threshold in a percentage of samples strictly greater\
+      \ than this will be filtered out. (This is the first count-based filter applied.)"}
+  maximum_mappability: {type: 'float?', doc: "Maximum allowed value for mappability\
+      \ annotation (inclusive)."}
+  minimum_mappability: {type: 'float?', doc: "Minimum allowed value for mappability\
+      \ annotation (inclusive)."}
+  maximum_segmental_duplication_content: {type: 'float?', doc: "Maximum allowed value\
+      \ for segmental-duplication-content annotation (inclusive)."}
+  minimum_segmental_duplication_content: {type: 'float?', doc: "Minimum allowed value\
+      \ for segmental-duplication-content annotation (inclusive)."}
 
   # Determine Germline Contig Ploidy
-  ploidy_mapping_error_rate: float?
-  ploidy_mean_bias_standard_deviation: float?
-  ploidy_global_psi_scale: float?
-  ploidy_sample_psi_scale: float?
+  ploidy_mapping_error_rate: {type: 'float?', doc: "Typical mapping error rate."}
+  ploidy_mean_bias_standard_deviation: {type: 'float?', doc: "Prior standard deviation\
+      \ of the contig-level mean coverage bias. If a single sample is provided, this\
+      \ input will be ignored."}
+  ploidy_global_psi_scale: {type: 'float?', doc: "Prior scale of contig coverage unexplained\
+      \ variance. If a single sample is provided, this input will be ignored."}
+  ploidy_sample_psi_scale: {type: 'float?', doc: "Prior scale of the sample-specific\
+      \ correction to the coverage unexplained variance."}
 
   # Germline CNV Caller
-  gcvn_p_alt: float?
-  gcnv_p_active: float?
-  gcnv_cnv_coherence_length: float?
-  gcnv_class_coherence_length: float?
-  gcnv_max_copy_number: int?
-  gcnv_max_bias_factors: int?
-  gcnv_mapping_error_rate: float?
-  gcnv_interval_psi_scale: float?
-  gcnv_sample_psi_scale: float?
-  gcnv_depth_correction_tau: float?
-  gcnv_log_mean_bias_standard_deviation: float?
-  gcnv_init_ard_rel_unexplained_variance: float?
-  gcnv_num_gc_bins: int?
-  gcnv_gc_curve_standard_deviation: float?
-  gcnv_copy_number_posterior_expectation_mode: string?
-  gcnv_enable_bias_factors: boolean?
-  gcnv_active_class_padding_hybrid_mode: int?
-  gcnv_learning_rate: float?
-  gcnv_adamax_beta_1: float?
-  gcnv_adamax_beta_2: float?
-  gcnv_log_emission_samples_per_round: int?
-  gcnv_log_emission_sampling_median_rel_error: float?
-  gcnv_log_emission_sampling_rounds: int?
-  gcnv_max_advi_iter_first_epoch: int?
-  gcnv_max_advi_iter_subsequent_epochs: int?
-  gcnv_min_training_epochs: int?
-  gcnv_max_training_epochs: int?
-  gcnv_initial_temperature: float?
-  gcnv_num_thermal_advi_iters: int?
-  gcnv_convergence_snr_averaging_window: int?
-  gcnv_convergence_snr_trigger_threshold: float?
-  gcnv_convergence_snr_countdown_window: int?
-  gcnv_max_calling_iters: int?
-  gcnv_caller_update_convergence_threshold: float?
-  gcnv_caller_internal_admixing_rate: float?
-  gcnv_caller_external_admixing_rate: float?
-  gcnv_disable_annealing: boolean?
+  gcvn_p_alt: {type: 'float?', doc: "Total prior probability of alternative copy-number\
+      \ states (the reference copy-number is set to the contig integer ploidy)"}
+  gcnv_p_active: {type: 'float?', doc: "Prior probability of treating an interval\
+      \ as CNV-active (in a CNV-active domains, all copy-number states are equally\
+      \ likely to be called)."}
+  gcnv_cnv_coherence_length: {type: 'float?', doc: "Coherence length of CNV events\
+      \ (in the units of bp)."}
+  gcnv_class_coherence_length: {type: 'float?', doc: "Coherence length of CNV-active\
+      \ and CNV-silent domains (in the units of bp)."}
+  gcnv_max_copy_number: {type: 'int?', doc: "Highest allowed copy-number state."}
+  gcnv_max_bias_factors: {type: 'int?', doc: "Maximum number of bias factors."}
+  gcnv_mapping_error_rate: {type: 'float?', doc: "Typical mapping error rate."}
+  gcnv_interval_psi_scale: {type: 'float?', doc: "Typical scale of interval-specific\
+      \ unexplained variance."}
+  gcnv_sample_psi_scale: {type: 'float?', doc: "Typical scale of sample-specific correction\
+      \ to the unexplained variance."}
+  gcnv_depth_correction_tau: {type: 'float?', doc: "Precision of read depth pinning\
+      \ to its global value."}
+  gcnv_log_mean_bias_standard_deviation: {type: 'float?', doc: "Standard deviation\
+      \ of log mean bias."}
+  gcnv_init_ard_rel_unexplained_variance: {type: 'float?', doc: "Initial value of\
+      \ ARD prior precisions relative to the scale of interval-specific unexplained\
+      \ variance."}
+  gcnv_num_gc_bins: {type: 'int?', doc: "Number of bins used to represent the GC-bias\
+      \ curves."}
+  gcnv_gc_curve_standard_deviation: {type: 'float?', doc: "Prior standard deviation\
+      \ of the GC curve from flat."}
+  gcnv_copy_number_posterior_expectation_mode: {type: 'string?', doc: "The strategy\
+      \ for calculating copy number posterior expectations in the coverage denoising\
+      \ model."}
+  gcnv_enable_bias_factors: {type: 'boolean?', doc: "Enable discovery of bias factors."}
+  gcnv_active_class_padding_hybrid_mode: {type: 'int?', doc: "If copy-number-posterior-expectation-mode\
+      \ is set to HYBRID, CNV-active intervals determined at any time will be padded\
+      \ by this value (in the units of bp) in order to obtain the set of intervals\
+      \ on which copy number posterior expectation is performed exactly."}
+  gcnv_learning_rate: {type: 'float?', doc: "Adamax optimizer learning rate."}
+  gcnv_adamax_beta_1: {type: 'float?', doc: "Adamax optimizer first moment estimation\
+      \ forgetting factor."}
+  gcnv_adamax_beta_2: {type: 'float?', doc: "Adamax optimizer second moment estimation\
+      \ forgetting factor."}
+  gcnv_log_emission_samples_per_round: {type: 'int?', doc: "Log emission samples drawn\
+      \ per round of sampling."}
+  gcnv_log_emission_sampling_median_rel_error: {type: 'float?', doc: "Maximum tolerated\
+      \ median relative error in log emission sampling."}
+  gcnv_log_emission_sampling_rounds: {type: 'int?', doc: "Log emission maximum sampling\
+      \ rounds."}
+  gcnv_max_advi_iter_first_epoch: {type: 'int?', doc: "Maximum ADVI iterations in\
+      \ the first epoch."}
+  gcnv_max_advi_iter_subsequent_epochs: {type: 'int?', doc: "Maximum ADVI iterations\
+      \ in subsequent epochs."}
+  gcnv_min_training_epochs: {type: 'int?', doc: "Minimum number of training epochs."}
+  gcnv_max_training_epochs: {type: 'int?', doc: "Maximum number of training epochs."}
+  gcnv_initial_temperature: {type: 'float?', doc: "Initial temperature (for DA-ADVI)."}
+  gcnv_num_thermal_advi_iters: {type: 'int?', doc: "Number of thermal ADVI iterations\
+      \ (for DA-ADVI)."}
+  gcnv_convergence_snr_averaging_window: {type: 'int?', doc: "Averaging window for\
+      \ calculating training signal-to-noise ratio (SNR) for convergence checking."}
+  gcnv_convergence_snr_trigger_threshold: {type: 'float?', doc: "The number of ADVI\
+      \ iterations during which the SNR is required to stay below the set threshold\
+      \ for convergence."}
+  gcnv_convergence_snr_countdown_window: {type: 'int?', doc: "The SNR threshold to\
+      \ be reached before triggering the convergence countdown."}
+  gcnv_max_calling_iters: {type: 'int?', doc: "Maximum number of internal self-consistency\
+      \ iterations within each calling step."}
+  gcnv_caller_update_convergence_threshold: {type: 'float?', doc: "Maximum tolerated\
+      \ calling update size for convergence."}
+  gcnv_caller_internal_admixing_rate: {type: 'float?', doc: "Admixing ratio of new\
+      \ and old called posteriors (between 0 and 1; larger values implies using more\
+      \ of the new posterior and less of the old posterior) for internal convergence\
+      \ loops."}
+  gcnv_caller_external_admixing_rate: {type: 'float?', doc: "Admixing ratio of new\
+      \ and old called posteriors (between 0 and 1; larger values implies using more\
+      \ of the new posterior and less of the old posterior) after convergence."}
+  gcnv_disable_annealing: {type: 'boolean?', doc: "(advanced) Disable annealing."}
 
   # PostprocessGermlineCNVCalls
-  ref_copy_number_autosomal_contigs: int
-  allosomal_contigs_args: string[]?
+  ref_copy_number_autosomal_contigs: {type: 'int?', doc: "Reference copy-number on\
+      \ autosomal intervals."}
+  allosomal_contigs_args: {type: 'string[]?', doc: "Contigs to treat as allosomal\
+      \ (i.e. choose their reference copy-number allele according to the sample karyotype)."}
 
   # arguments for QC
-  maximum_number_events_per_sample: int
+  maximum_number_events_per_sample: {type: 'int', doc: "Maximum number of events threshold\
+      \ for doing sample QC (recommended for WES is ~100)"}
 
   # Resource Control
-  preprocess_intervals_max_memory: int?
-  preprocess_intervals_cores: int?
-  annotate_intervals_max_memory: int?
-  annotate_intervals_cores: int?
-  collect_read_counts_max_memory: int?
-  collect_read_counts_cores: int?
-  filter_intervals_max_memory: int?
-  filter_intervals_cores: int?
-  dgcp_max_memory: int?
-  dgcp_cores: int?
-  scatter_intervals_max_memory: int?
-  scatter_intervals_cores: int?
-  germline_cnv_caller_max_memory: int?
-  germline_cnv_caller_cores: int?
-  postprocess_max_memory: int?
-  postporcess_cores: int?
-  collect_sample_metrics_ram: int?
-  collect_sample_metrics_cores: int?
-  collect_model_metrics_ram: int?
-  collect_model_metrics_cores: int?
+  preprocess_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate to preprocess\
+      \ intervals"}
+  preprocess_intervals_cores: {type: 'int?', doc: "Minimum reserved number of CPU\
+      \ cores for preprocess intervals"}
+  annotate_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate to annotate\
+      \ intervals"}
+  annotate_intervals_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores\
+      \ for annotate intervals"}
+  collect_read_counts_max_memory: {type: 'int?', doc: "GB of RAM to allocate to collect\
+      \ read counts"}
+  collect_read_counts_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores\
+      \ for collect read counts"}
+  filter_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate to filter\
+      \ intervals"}
+  filter_intervals_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores\
+      \ for filter intervals"}
+  dgcp_max_memory: {type: 'int?', doc: "GB of RAM to allocate to determine germline\
+      \ contig ploidy"}
+  dgcp_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for determine\
+      \ germline contig ploidy"}
+  scatter_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate to scatter\
+      \ intervals"}
+  scatter_intervals_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores\
+      \ for scatter intervals"}
+  germline_cnv_caller_max_memory: {type: 'int?', doc: "GB of RAM to allocate to gCNV\
+      \ caller"}
+  germline_cnv_caller_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores\
+      \ for gCNV caller"}
+  postprocess_max_memory: {type: 'int?', doc: "GB of RAM to allocate to postprocess\
+      \ gCNV"}
+  postprocess_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for\
+      \ postprocess gCNV"}
+  collect_sample_metrics_ram: {type: 'int?', doc: "GB of RAM to allocate to collect\
+      \ sample metrics"}
+  collect_sample_metrics_cores: {type: 'int?', doc: "Minimum reserved number of CPU\
+      \ cores for collect sample metrics"}
+  collect_model_metrics_ram: {type: 'int?', doc: "GB of RAM to allocate to collect\
+      \ model metrics"}
+  collect_model_metrics_cores: {type: 'int?', doc: "Minimum reserved number of CPU\
+      \ cores for collect model metrics"}
 
 outputs:
-  preprocessed_intervals: { type: 'File', outputSource: preprocess_intervals/preprocessed_intervals}
-  read_counts_entity_ids: { type: 'string[]', outputSource: collect_read_counts/entity_id}
-  read_counts: { type: 'File[]', outputSource: collect_read_counts/counts}
-  annotated_intervals: { type: 'File?', outputSource: annotate_intervals/annotated_intervals}
-  filtered_intervals: { type: 'File', outputSource: filter_intervals/filtered_intervals}
-  contig_ploidy_model_tar: { type: 'File', outputSource: determine_germline_contig_ploidy_cohort/contig_ploidy_model_tar}
-  contig_ploidy_calls_tar: { type: 'File', outputSource: determine_germline_contig_ploidy_cohort/contig_ploidy_calls_tar}
-  gcnv_model_tars: { type: 'File[]', outputSource: germline_cnv_caller_cohort/gcnv_model_tar}
-  gcnv_calls_tars: { type: { type: array, items: { type: array, items: File } }, outputSource: germline_cnv_caller_cohort/gcnv_call_tars}
-  gcnv_tracking_tars: { type: 'File[]', outputSource: germline_cnv_caller_cohort/gcnv_tracking_tar}
-  genotyped_intervals_vcfs: { type: 'File[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/genotyped_intervals_vcf}
-  genotyped_segments_vcfs: { type: 'File[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/genotyped_segments_vcf}
-  denoised_copy_ratios: { type: 'File[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/denoised_copy_ratios}
-  sample_qc_status_files: { type: 'File[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/qc_status_file}
-  sample_qc_status_strings: { type: 'string[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/qc_status_string}
-  model_qc_status_file: { type: 'File', outputSource: collect_model_quality_metrics/qc_status_file}
-  model_qc_string: { type: 'string', outputSource: collect_model_quality_metrics/qc_status_string}
+  preprocessed_intervals: {type: 'File', outputSource: preprocess_intervals/preprocessed_intervals,
+    doc: "Preprocessed Picard interval-list file."}
+  read_counts_entity_ids: {type: 'string[]', outputSource: collect_read_counts/entity_id,
+    doc: "List of file basename that were processed by CollectReadCounts"}
+  read_counts: {type: 'File[]', outputSource: collect_read_counts/counts, doc: "Counts\
+      \ file for each normal BAM input. This workflow produces HDF5 format results."}
+  annotated_intervals: {type: 'File?', outputSource: annotate_intervals/annotated_intervals,
+    doc: "Annotated-intervals file. This is a tab-separated values (TSV) file with\
+      \ a SAM-style header containing a sequence dictionary, a row specifying the\
+      \ column headers for the contained annotations, and the corresponding entry\
+      \ rows."}
+  filtered_intervals: {type: 'File', outputSource: filter_intervals/filtered_intervals,
+    doc: "Filtered Picard interval-list file."}
+  contig_ploidy_model_tar: {type: 'File', outputSource: determine_germline_contig_ploidy_cohort/contig_ploidy_model_tar,
+    doc: "TAR.GZ file of the model directory output by DetermineGermlineContigPloidy"}
+  contig_ploidy_calls_tar: {type: 'File', outputSource: determine_germline_contig_ploidy_cohort/contig_ploidy_calls_tar,
+    doc: "TAR.GZ file of the calls directory output by DetermineGermlineContigPloidy"}
+  gcnv_model_tars: {type: 'File[]', outputSource: germline_cnv_caller_cohort/gcnv_model_tar,
+    doc: "TAR.GZ files containing the model directory output by each shard of GermlineCNVCaller"}
+  gcnv_calls_tars: {type: {type: 'array', items: {type: 'array', items: File}}, outputSource: germline_cnv_caller_cohort/gcnv_call_tars,
+    doc: "TAR.GZ files containing the calls for each sample in each shard of GermlineCNVCaller"}
+  gcnv_tracking_tars: {type: 'File[]', outputSource: germline_cnv_caller_cohort/gcnv_tracking_tar,
+    doc: "TAR.GZ files containing the tracking directory output by each shard of GermlineCNVCaller"}
+  genotyped_intervals_vcfs: {type: 'File[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/genotyped_intervals_vcf,
+    doc: "Per sample VCF files provides a detailed listing of the most likely copy-number\
+      \ call for each genomic interval included in the call-set, along with call quality,\
+      \ call genotype, and the phred-scaled posterior probability vector for all integer\
+      \ copy-number states."}
+  genotyped_segments_vcfs: {type: 'File[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/genotyped_segments_vcf,
+    doc: "Per sample VCF files containing coalesced contiguous intervals that share\
+      \ the same copy-number call"}
+  denoised_copy_ratios: {type: 'File[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/denoised_copy_ratios,
+    doc: "Per sample files concatenates posterior means for denoised copy ratios from\
+      \ all the call shards produced by the GermlineCNVCaller."}
+  sample_qc_status_files: {type: 'File[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/qc_status_file,
+    doc: "Per sample files containing the sample's QC status. Either PASS or EXCESSIVE_NUMBER_OF_EVENTS\
+      \ as determined by maximum_number_events_per_sample input"}
+  sample_qc_status_strings: {type: 'string[]', outputSource: postprocess_gcnv_and_collectsamplequalitymetrics/qc_status_string,
+    doc: "String value contained within the sample_qc_status_files outputs"}
+  model_qc_status_file: {type: 'File', outputSource: collect_model_quality_metrics/qc_status_file,
+    doc: "File containing the QC status for the model. Either PASS or ALL_PRINCIPAL_COMPONENTS_USED."}
+  model_qc_string: {type: 'string', outputSource: collect_model_quality_metrics/qc_status_string,
+    doc: "String value contained within the model_qc_status_file output."}
 
 steps:
   untar_reference:
@@ -272,7 +427,7 @@ steps:
     - class: sbg:AWSInstanceType
       value: c5.9xlarge
     run: ../tools/gatk_germlinecnvcaller_cohort.cwl
-    scatter: [scatter_index,intervals_list]
+    scatter: [scatter_index, intervals_list]
     scatterMethod: dotproduct
     in:
       scatter_index: index_scattered_intervals_list_array/index_array
@@ -320,7 +475,8 @@ steps:
       disable_annealing: gcnv_disable_annealing
       max_memory: germline_cnv_caller_max_memory
       cores: germline_cnv_caller_cores
-    out: [gcnv_model_tar, gcnv_call_tars, gcnv_tracking_tar, calling_config_json, denoising_config_json, gcnvkernel_version_json, sharded_interval_list]
+    out: [gcnv_model_tar, gcnv_call_tars, gcnv_tracking_tar, calling_config_json,
+      denoising_config_json, gcnvkernel_version_json, sharded_interval_list]
 
   organize_call_tars_by_sample:
     run: ../tools/expression_transpose_two_dimension_array.cwl
@@ -339,7 +495,7 @@ steps:
     - class: sbg:AWSInstanceType
       value: c5.9xlarge
     run: ../subworkflows/postprocess_gcnv_and_collectsamplequalitymetrics.cwl
-    scatter: [sample_index,entity_id,gcnv_calls_tars]
+    scatter: [sample_index, entity_id, gcnv_calls_tars]
     scatterMethod: dotproduct
     in:
       entity_id: collect_read_counts/entity_id
@@ -355,10 +511,11 @@ steps:
       sample_index: index_entity_id_array/index_array
       maximum_number_events_per_sample: maximum_number_events_per_sample
       postprocess_max_memory: postprocess_max_memory
-      postporcess_cores: postporcess_cores
+      postprocess_cores: postprocess_cores
       collect_sample_metrics_ram: collect_sample_metrics_ram
       collect_sample_metrics_cores: collect_sample_metrics_cores
-    out: [genotyped_intervals_vcf, genotyped_segments_vcf, denoised_copy_ratios, qc_status_file, qc_status_string]
+    out: [genotyped_intervals_vcf, genotyped_segments_vcf, denoised_copy_ratios, qc_status_file,
+      qc_status_string]
 
   collect_model_quality_metrics:
     run: ../tools/collect_model_quality_metrics.cwl
@@ -370,3 +527,15 @@ steps:
 
 $namespaces:
   sbg: https://sevenbridges.com
+sbg:license: Apache License 2.0
+sbg:publisher: KFDRC
+sbg:categories:
+- BAM
+- CNV
+- COHORT
+- GATK
+- GCNV
+- GERMLINE
+- INTERVALS
+- SEGMENTS
+- VCF

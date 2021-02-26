@@ -9,27 +9,30 @@ requirements:
     ramMin: ${ return inputs.max_memory * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'kfdrc/gatk:4.1.7.0R'
+    dockerPull: 'broadinstitute/gatk:4.2.0.0'
 baseCommand: ['/bin/bash', '-c']
 arguments:
   - position: 0
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
-      set -eu
+      set -euo pipefail
+
       export MKL_NUM_THREADS=$(inputs.cores)
+
       export OMP_NUM_THREADS=$(inputs.cores)
 
       mkdir contig-ploidy-model
-      tar xzf $(inputs.config_ploidy_model_tar.path) -C contig-ploidy-model
 
-      /gatk --javaOptions "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" DetermineGermlineContigPloidy \\
-          ${var arr=[]; for (var x = 0; x < inputs.read_count_files.length; x++) {arr.push(inputs.read_count_files[x].path)}; return (inputs.read_count_files.length > 0 ? '--input ' + arr.join(' ') : '')} \\
-          --model contig-ploidy-model \\
-          --output out \\
-          --output-prefix case \\
-          --verbosity $(inputs.verbosity) \\
-          --mapping-error-rate $(inputs.mapping_error) \\ 
-          --sample-psi-scale $(inputs.psi_scale_sample)
+      tar xzf $(inputs.contig_ploidy_model_tar.path) -C contig-ploidy-model
+
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" DetermineGermlineContigPloidy
+      ${var arr=[]; for (var x = 0; x < inputs.read_count_files.length; x++) {arr.push(inputs.read_count_files[x].path)}; return (arr.length > 0 ? '--input ' + arr.join(' --input ') : '')}
+      --model contig-ploidy-model
+      --output out
+      --output-prefix case
+      --verbosity $(inputs.verbosity)
+      --mapping-error-rate $(inputs.mapping_error)
+      --sample-psi-scale $(inputs.psi_scale_sample)
 
       tar c -C out/case-calls . | gzip -1 > case-contig-ploidy-calls.tar.gz
 
@@ -47,7 +50,7 @@ inputs:
         symbols: ["ERROR","WARNING","INFO","DEBUG"]
     doc: "Control verbosity of logging."
     default: "DEBUG"
-  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task. default: 8" }
-  cores: { type: int?, default: 8, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
+  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task." }
+  cores: { type: int?, default: 8, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
   contig_ploidy_calls_tar: { type: File, outputBinding: { glob: 'case-contig-ploidy-calls.tar.gz' } }

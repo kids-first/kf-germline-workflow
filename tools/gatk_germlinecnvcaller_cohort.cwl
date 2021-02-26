@@ -84,7 +84,7 @@ arguments:
       NUM_DIGITS=${return "${#NUM_SAMPLES}"}
 
       while [ $CURRENT_SAMPLE -lt $NUM_SAMPLES ]; do
-          sleep 5
+          sleep 10
           CURRENT_SAMPLE_WITH_LEADING_ZEROS=${ return "$(printf \"%0${NUM_DIGITS}d\" $CURRENT_SAMPLE)" }
           tar czf $(inputs.cohort_entity_id)-gcnv-calls-shard-$(inputs.scatter_index)-sample-$CURRENT_SAMPLE_WITH_LEADING_ZEROS.tar.gz -C out/$(inputs.cohort_entity_id)-calls/SAMPLE_$CURRENT_SAMPLE .
           let CURRENT_SAMPLE=CURRENT_SAMPLE+1

@@ -62,8 +62,8 @@ inputs:
         symbols: ["ALL","OVERLAPPING_ONLY"]
     doc: "By default, the program merges abutting intervals (i.e. intervals that are directly side-by-side but do not actually overlap) into a single continuous interval. However you can change this behavior if you want them to be treated as separate intervals instead."
     default: "OVERLAPPING_ONLY"
-  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task. default: 8" }
-  cores: { type: int?, default: 8, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
+  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task." }
+  cores: { type: int?, default: 8, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
   contig_ploidy_model_tar: { type: File, outputBinding: { glob: '*model.tar.gz' } }
   contig_ploidy_calls_tar: { type: File, outputBinding: { glob: '*calls.tar.gz' } }
