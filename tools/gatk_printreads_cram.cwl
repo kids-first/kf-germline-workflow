@@ -9,20 +9,20 @@ requirements:
     ramMin: ${ return inputs.max_memory * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'kfdrc/gatk:4.1.7.0R'
-baseCommand: []
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.7.0R'
+baseCommand: ['/bin/bash','-c']
 arguments:
   - position: 0
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
       set -eu
 
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" PrintReads \\
-          -L $(inputs.intervals_list.path) \\
-          --reference $(inputs.reference.path) \\
-          --input $(inputs.cram.path) \\
-          --output $(inputs.cram.nameroot).$(inputs.intervals_list.nameroot).bam \\
-          --disable-tool-default-read-filters true
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" PrintReads
+      -L $(inputs.intervals_list.path)
+      --reference $(inputs.reference.path)
+      --input $(inputs.cram.path)
+      --output $(inputs.cram.nameroot).$(inputs.intervals_list.nameroot).bam
+      --disable-tool-default-read-filters true
 
 inputs:
   reference:

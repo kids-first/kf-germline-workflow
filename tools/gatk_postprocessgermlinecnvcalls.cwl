@@ -65,7 +65,7 @@ arguments:
       --sample-index $(inputs.sample_index)
       --output-genotyped-intervals genotyped-intervals-$(inputs.entity_id).vcf.gz
       --output-genotyped-segments genotyped-segments-$(inputs.entity_id).vcf.gz
-      --output-denoised-copy-ratios denoised_copy_ratios-$(inputs.entity_id).vcf.gz
+      --output-denoised-copy-ratios denoised_copy_ratios-$(inputs.entity_id).tsv
       $(inputs.allosomal_contigs_args ? '--allosomal-contig ' + inputs.allosomal_contigs_args.join(' --allosomal-contig ') : '')
 
       rm -rf CALLS_*
@@ -83,7 +83,7 @@ inputs:
 
   contig_ploidy_calls_tar: { type: File }
 
-  ref_copy_number_autosomal_contigs: { type: int }
+  ref_copy_number_autosomal_contigs: { type: 'int?', default: 2 }
   allosomal_contigs_args: { type: 'string[]?' }
 
   sample_index: { type: int }

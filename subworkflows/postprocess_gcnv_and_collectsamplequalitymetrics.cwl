@@ -17,10 +17,10 @@ inputs:
   contig_ploidy_calls_tar: File
   ref_copy_number_autosomal_contigs: int
   allosomal_contigs_args: string[]?
-  sample_index: int 
+  sample_index: int
   maximum_number_events_per_sample: int
   postprocess_max_memory: int?
-  postporcess_cores: int?
+  postprocess_cores: int?
   collect_sample_metrics_ram: int?
   collect_sample_metrics_cores: int?
 
@@ -47,7 +47,7 @@ steps:
       sample_index: sample_index
       entity_id: entity_id
       max_memory: postprocess_max_memory
-      cores: postporcess_cores
+      cores: postprocess_cores
     out: [genotyped_intervals_vcf, genotyped_segments_vcf, denoised_copy_ratios]
   collect_sample_quality_metrics:
     run: ../tools/collect_sample_quality_metrics.cwl
@@ -61,6 +61,3 @@ steps:
 
 $namespaces:
   sbg: https://sevenbridges.com
-hints:
-  - class: 'sbg:maxNumberOfParallelInstances'
-    value: 4
