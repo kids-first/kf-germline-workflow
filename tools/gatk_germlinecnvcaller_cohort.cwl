@@ -9,73 +9,82 @@ requirements:
     ramMin: ${ return inputs.max_memory * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'kfdrc/gatk:4.1.7.0R'
-baseCommand: ['/bin/bash/','-c']
+    dockerPull: 'broadinstitute/gatk:4.2.0.0'
+baseCommand: ['/bin/bash','-c']
 arguments:
   - position: 0
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
       set -eu
+
       export MKL_NUM_THREADS=$(inputs.cores)
+
       export OMP_NUM_THREADS=$(inputs.cores)
 
       mkdir contig-ploidy-calls
+
       tar xzf $(inputs.contig_ploidy_calls_tar.path) -C contig-ploidy-calls
 
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m"  GermlineCNVCaller \\
-          --run-mode COHORT \\
-          -L $(inputs.intervals_list.path) \\
-          ${var arr=[]; for (var x = 0; x < inputs.read_count_files.length; x++) {arr.push(inputs.read_count_files[x].path)}; return "--input " + arr.join(' --input ')} \\
-          --contig-ploidy-calls contig-ploidy-calls \\
-          $(inputs.annotated_intervals ? "--annotated-intervals " + inputs.annotated_intervals.path : "") \\
-          --interval-merging-rule $(inputs.interval_merging_rule) \\
-          --output out \\
-          --verbosity $(inputs.verbosity) \\
-          $(inputs.p_alt == "null" ? "" : "--p-alt " + inputs.p_alt) \\
-          $(inputs.p_active == "null" ? "" : "--p-active " + inputs.p_active) \\
-          $(inputs.cnv_coherence_length == "null" ? "" : "--cnv-coherence-length " + inputs.cnv_coherence_length) \\
-          $(inputs.class_coherence_length == "null" ? "" : "--class-coherence-length " + inputs.class_coherence_length) \\
-          $(inputs.max_copy_number == "null" ? "" : "--max-copy-number " + inputs.max_copy_number) \\
-          $(inputs.max_bias_factors == "null" ? "" : "--max-bias-factors " + inputs.max_bias_factors) \\
-          $(inputs.mapping_error_rate == "null" ? "" : "--mapping-error-rate " + inputs.mapping_error_rate) \\
-          $(inputs.interval_psi_scale == "null" ? "" : "--interval-psi-scale " + inputs.interval_psi_scale) \\
-          $(inputs.sample_psi_scale == "null" ? "" : "--sample-psi-scale " + inputs.sample_psi_scale) \\
-          $(inputs.depth_correction_tau == "null" ? "" : "--depth-correction-tau " + inputs.depth_correction_tau) \\
-          $(inputs.log_mean_bias_standard_deviation == "null" ? "" : "--log-mean-bias-standard-deviation " + inputs.log_mean_bias_standard_deviation) \\
-          $(inputs.init_ard_rel_unexplained_variance == "null" ? "" : "--init-ard-rel-unexplained-variance " + inputs.init_ard_rel_unexplained_variance) \\
-          $(inputs.num_gc_bins == "null" ? "" : "--num-gc-bins " + inputs.num_gc_bins) \\
-          $(inputs.gc_curve_standard_deviation == "null" ? "" : "--gc-curve-standard-deviation " + inputs.gc_curve_standard_deviation) \\
-          $(inputs.copy_number_posterior_expectation_mode == "null" ? "" : "--copy-number-posterior-expectation-mode " + inputs.copy_number_posterior_expectation_mode) \\
-          $(inputs.enable_bias_factors == "null" ? "" : "--enable-bias-factors " + inputs.enable_bias_factors) \\
-          $(inputs.active_class_padding_hybrid_mode == "null" ? "" : "--active-class-padding-hybrid-mode " + inputs.active_class_padding_hybrid_mode) \\
-          $(inputs.learning_rate == "null" ? "" : "--learning-rate " + inputs.learning_rate) \\
-          $(inputs.adamax_beta_1 == "null" ? "" : "--adamax-beta-1 " + inputs.adamax_beta_1) \\
-          $(inputs.adamax_beta_2 == "null" ? "" : "--adamax-beta-2 " + inputs.adamax_beta_2) \\
-          $(inputs.log_emission_samples_per_round == "null" ? "" : "--log-emission-samples-per-round " + inputs.log_emission_samples_per_round) \\
-          $(inputs.log_emission_sampling_median_rel_error == "null" ? "" : "--log-emission-sampling-median-rel-error " + inputs.log_emission_sampling_median_rel_error) \\
-          $(inputs.log_emission_sampling_rounds == "null" ? "" : "--log-emission-sampling-rounds " + inputs.log_emission_sampling_rounds) \\
-          $(inputs.max_advi_iter_first_epoch == "null" ? "" : "--max-advi-iter-first-epoch " + inputs.max_advi_iter_first_epoch) \\
-          $(inputs.max_advi_iter_subsequent_epochs == "null" ? "" : "--max-advi-iter-subsequent-epochs " + inputs.max_advi_iter_subsequent_epochs) \\
-          $(inputs.min_training_epochs == "null" ? "" : "--min-training-epochs " + inputs.min_training_epochs) \\
-          $(inputs.max_training_epochs == "null" ? "" : "--max-training-epochs " + inputs.max_training_epochs) \\
-          $(inputs.initial_temperature == "null" ? "" : "--initial-temperature " + inputs.initial_temperature) \\
-          $(inputs.num_thermal_advi_iters == "null" ? "" : "--num-thermal-advi-iters " + inputs.num_thermal_advi_iters) \\
-          $(inputs.convergence_snr_averaging_window == "null" ? "" : "--convergence-snr-averaging-window " + inputs.convergence_snr_averaging_window) \\
-          $(inputs.convergence_snr_trigger_threshold == "null" ? "" : "--convergence-snr-trigger-threshold " + inputs.convergence_snr_trigger_threshold) \\
-          $(inputs.convergence_snr_countdown_window == "null" ? "" : "--convergence-snr-countdown-window " + inputs.convergence_snr_countdown_window) \\
-          $(inputs.max_calling_iters == "null" ? "" : "--max-calling-iters " + inputs.max_calling_iters) \\
-          $(inputs.caller_update_convergence_threshold == "null" ? "" : "--caller-update-convergence-threshold " + inputs.caller_update_convergence_threshold) \\
-          $(inputs.caller_internal_admixing_rate == "null" ? "" : "--caller-internal-admixing-rate " + inputs.caller_internal_admixing_rate) \\
-          $(inputs.caller_external_admixing_rate == "null" ? "" : "--caller-external-admixing-rate " + inputs.caller_external_admixing_rate) \\
-          $(inputs.disable_annealing == "null" ? "" : "--disable-annealing " + inputs.disable_annealing)
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m"  GermlineCNVCaller
+      --run-mode COHORT
+      -L $(inputs.intervals_list.path)
+      ${var arr=[]; for (var x = 0; x < inputs.read_count_files.length; x++) {arr.push(inputs.read_count_files[x].path)}; return "--input " + arr.join(' --input ')}
+      --contig-ploidy-calls contig-ploidy-calls
+      --interval-merging-rule $(inputs.interval_merging_rule)
+      --output out
+      --output-prefix $(inputs.cohort_entity_id)
+      --verbosity $(inputs.verbosity)
+      $(inputs.annotated_intervals ? "--annotated-intervals " + inputs.annotated_intervals.path : "")
+      $(inputs.p_alt == null ? "" : "--p-alt " + inputs.p_alt)
+      $(inputs.p_active == null ? "" : "--p-active " + inputs.p_active)
+      $(inputs.cnv_coherence_length == null ? "" : "--cnv-coherence-length " + inputs.cnv_coherence_length)
+      $(inputs.class_coherence_length == null ? "" : "--class-coherence-length " + inputs.class_coherence_length)
+      $(inputs.max_copy_number == null ? "" : "--max-copy-number " + inputs.max_copy_number)
+      $(inputs.max_bias_factors == null ? "" : "--max-bias-factors " + inputs.max_bias_factors)
+      $(inputs.mapping_error_rate == null ? "" : "--mapping-error-rate " + inputs.mapping_error_rate)
+      $(inputs.interval_psi_scale == null ? "" : "--interval-psi-scale " + inputs.interval_psi_scale)
+      $(inputs.sample_psi_scale == null ? "" : "--sample-psi-scale " + inputs.sample_psi_scale)
+      $(inputs.depth_correction_tau == null ? "" : "--depth-correction-tau " + inputs.depth_correction_tau)
+      $(inputs.log_mean_bias_standard_deviation == null ? "" : "--log-mean-bias-standard-deviation " + inputs.log_mean_bias_standard_deviation)
+      $(inputs.init_ard_rel_unexplained_variance == null ? "" : "--init-ard-rel-unexplained-variance " + inputs.init_ard_rel_unexplained_variance)
+      $(inputs.num_gc_bins == null ? "" : "--num-gc-bins " + inputs.num_gc_bins)
+      $(inputs.gc_curve_standard_deviation == null ? "" : "--gc-curve-standard-deviation " + inputs.gc_curve_standard_deviation)
+      $(inputs.copy_number_posterior_expectation_mode == null ? "" : "--copy-number-posterior-expectation-mode " + inputs.copy_number_posterior_expectation_mode)
+      $(inputs.enable_bias_factors == null ? "" : "--enable-bias-factors " + inputs.enable_bias_factors)
+      $(inputs.active_class_padding_hybrid_mode == null ? "" : "--active-class-padding-hybrid-mode " + inputs.active_class_padding_hybrid_mode)
+      $(inputs.learning_rate == null ? "" : "--learning-rate " + inputs.learning_rate)
+      $(inputs.adamax_beta_1 == null ? "" : "--adamax-beta-1 " + inputs.adamax_beta_1)
+      $(inputs.adamax_beta_2 == null ? "" : "--adamax-beta-2 " + inputs.adamax_beta_2)
+      $(inputs.log_emission_samples_per_round == null ? "" : "--log-emission-samples-per-round " + inputs.log_emission_samples_per_round)
+      $(inputs.log_emission_sampling_median_rel_error == null ? "" : "--log-emission-sampling-median-rel-error " + inputs.log_emission_sampling_median_rel_error)
+      $(inputs.log_emission_sampling_rounds == null ? "" : "--log-emission-sampling-rounds " + inputs.log_emission_sampling_rounds)
+      $(inputs.max_advi_iter_first_epoch == null ? "" : "--max-advi-iter-first-epoch " + inputs.max_advi_iter_first_epoch)
+      $(inputs.max_advi_iter_subsequent_epochs == null ? "" : "--max-advi-iter-subsequent-epochs " + inputs.max_advi_iter_subsequent_epochs)
+      $(inputs.min_training_epochs == null ? "" : "--min-training-epochs " + inputs.min_training_epochs)
+      $(inputs.max_training_epochs == null ? "" : "--max-training-epochs " + inputs.max_training_epochs)
+      $(inputs.initial_temperature == null ? "" : "--initial-temperature " + inputs.initial_temperature)
+      $(inputs.num_thermal_advi_iters == null ? "" : "--num-thermal-advi-iters " + inputs.num_thermal_advi_iters)
+      $(inputs.convergence_snr_averaging_window == null ? "" : "--convergence-snr-averaging-window " + inputs.convergence_snr_averaging_window)
+      $(inputs.convergence_snr_trigger_threshold == null ? "" : "--convergence-snr-trigger-threshold " + inputs.convergence_snr_trigger_threshold)
+      $(inputs.convergence_snr_countdown_window == null ? "" : "--convergence-snr-countdown-window " + inputs.convergence_snr_countdown_window)
+      $(inputs.max_calling_iters == null ? "" : "--max-calling-iters " + inputs.max_calling_iters)
+      $(inputs.caller_update_convergence_threshold == null ? "" : "--caller-update-convergence-threshold " + inputs.caller_update_convergence_threshold)
+      $(inputs.caller_internal_admixing_rate == null ? "" : "--caller-internal-admixing-rate " + inputs.caller_internal_admixing_rate)
+      $(inputs.caller_external_admixing_rate == null ? "" : "--caller-external-admixing-rate " + inputs.caller_external_admixing_rate)
+      $(inputs.disable_annealing == null ? "" : "--disable-annealing " + inputs.disable_annealing)
 
       tar czf $(inputs.cohort_entity_id)-gcnv-model-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.cohort_entity_id)-model .
+
       tar czf $(inputs.cohort_entity_id)-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.cohort_entity_id)-tracking .
 
       CURRENT_SAMPLE=0
+
       NUM_SAMPLES=$(inputs.read_count_files.length)
+
       NUM_DIGITS=${return "${#NUM_SAMPLES}"}
+
       while [ $CURRENT_SAMPLE -lt $NUM_SAMPLES ]; do
+          sleep 5
           CURRENT_SAMPLE_WITH_LEADING_ZEROS=${ return "$(printf \"%0${NUM_DIGITS}d\" $CURRENT_SAMPLE)" }
           tar czf $(inputs.cohort_entity_id)-gcnv-calls-shard-$(inputs.scatter_index)-sample-$CURRENT_SAMPLE_WITH_LEADING_ZEROS.tar.gz -C out/$(inputs.cohort_entity_id)-calls/SAMPLE_$CURRENT_SAMPLE .
           let CURRENT_SAMPLE=CURRENT_SAMPLE+1
@@ -144,13 +153,13 @@ inputs:
         symbols: ["ALL","OVERLAPPING_ONLY"]
     doc: "By default, the program merges abutting intervals (i.e. intervals that are directly side-by-side but do not actually overlap) into a single continuous interval. However you can change this behavior if you want them to be treated as separate intervals instead."
     default: "OVERLAPPING_ONLY"
-  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task." }
-  cores: { type: int?, default: 8, doc: "Minimum reserved number of CPU cores for the task." }
+  max_memory: { type: int?, default: 10, doc: "GB of RAM to allocate to the task." }
+  cores: { type: int?, default: 6, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
-  gcnv_model_tar: { type: 'File', outputBinding: { glob: '$(inputs.cohorot_entity_id)-gcnv-model-shard-$(inputs.scatter_index).tar.gz' } }
-  gcnv_call_tars: { type: 'File[]', outputBinding: { glob: '$(inputs.cohorot_entity_id)-gcnv-calls-shard-$(inputs.scatter_index)-sample-*.tar.gz' } }
-  gcnv_tracking_tar: { type: 'File', outputBinding: { glob: '$(inputs.cohorot_entity_id)-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz' } }
-  calling_config_json: { type: 'File', outputBinding: { glob: 'out/$(inputs.cohorot_entity_id)-calls/calling_config.json' } }
-  denoising_config_json: { type: 'File', outputBinding: { glob: 'out/$(inputs.cohorot_entity_id)-calls/denoising_config.json' } }
-  gcnvkernel_version_json: { type: 'File', outputBinding: { glob: 'out/$(inputs.cohorot_entity_id)-calls/gcnvkernel_version.json' } }
-  sharded_interval_list: { type: 'File', outputBinding: { glob: 'out/$(inputs.cohorot_entity_id)-calls/interval_list.tsv' } }
+  gcnv_model_tar: { type: 'File', outputBinding: { glob: '*-gcnv-model-shard-*' } }
+  gcnv_call_tars: { type: 'File[]', outputBinding: { glob: '*-gcnv-calls-shard-*' } }
+  gcnv_tracking_tar: { type: 'File', outputBinding: { glob: '*-gcnv-tracking-shard-*' } }
+  calling_config_json: { type: 'File', outputBinding: { glob: 'out/*-calls/calling_config.json' } }
+  denoising_config_json: { type: 'File', outputBinding: { glob: 'out/*-calls/denoising_config.json' } }
+  gcnvkernel_version_json: { type: 'File', outputBinding: { glob: 'out/*-calls/gcnvkernel_version.json' } }
+  sharded_interval_list: { type: 'File', outputBinding: { glob: 'out/*-calls/interval_list.tsv' } }

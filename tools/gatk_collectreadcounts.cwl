@@ -10,24 +10,24 @@ requirements:
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'kfdrc/gatk:4.1.7.0R'
-baseCommand: []
+baseCommand: ['/bin/bash','-c']
 arguments:
   - position: 0
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
       set -eu
 
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" CollectReadCounts \\
-          -L $(inputs.intervals_list.path) \\
-          --input $(inputs.bam.path) \\
-          --reference $(inputs.reference.path) \\
-          --sequence-dictionary $(inputs.sequence_dictionary.path) \\
-          --format $(inputs.output_format.replace('_GZ','')) \\
-          --interval-merging-rule $(inputs.interval_merging_rule) \\
-          ${var arr=[]; for (var x = 0; x < inputs.disabled_read_filters.length; x++) {arr.push(inputs.disabled_read_filters[x])}; return (inputs.disabled_read_filters.length > 0 ? '--disable-read-filter ' + arr.join(' ') : '')} \\
-          --output $(inputs.bam.nameroot).${ return inputs.output_format.replace('_GZ','').toLowerCase()}
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" CollectReadCounts
+      -L $(inputs.intervals_list.path)
+      --input $(inputs.bam.path)
+      --reference $(inputs.reference.path)
+      --sequence-dictionary $(inputs.sequence_dictionary.path)
+      --format $(inputs.output_format.replace('_GZ',''))
+      --interval-merging-rule $(inputs.interval_merging_rule)
+      --output $(inputs.bam.nameroot).${ return inputs.output_format.replace('_GZ','').toLowerCase()}
+      $(inputs.disabled_read_filters ? "--diable-read-filter " + inputs.disabled_read_filters.join(' ') : '')
 
-      ${ if (inputs.output_format == 'TSV_GZ') { return 'bgzip ' + inputs.bam.nameroot + '.' + inputs.output_format.replace('_GZ','').toLowerCase() } else if (inputs.output_format == 'TSV') { return '/gatk --javaOptions "-Xmx' + Math.floor(inputs.max_memory*1000/1.074-1) + 'm" IndexFeatureFile -I ' + inputs.bam.nameroot + '.' + inputs.output_format.replace('_GZ','').toLowerCase() } else { return '' } } 
+      ${ if (inputs.output_format == 'TSV_GZ') { return 'bgzip ' + inputs.bam.nameroot + '.' + inputs.output_format.replace('_GZ','').toLowerCase() } else if (inputs.output_format == 'TSV') { return '/gatk --javaOptions "-Xmx' + Math.floor(inputs.max_memory*1000/1.074-1) + 'm" IndexFeatureFile -I ' + inputs.bam.nameroot + '.' + inputs.output_format.replace('_GZ','').toLowerCase() } else { return '' } }
 
 inputs:
   reference:

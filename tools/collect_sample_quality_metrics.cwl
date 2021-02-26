@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: collect_sample_quality_metrics 
+id: collect_sample_quality_metrics
 doc: "Determines if sample VCF has less than the maximum number of events"
 requirements:
   - class: InlineJavascriptRequirement
@@ -10,24 +10,26 @@ requirements:
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'kfdrc/gatk:4.1.7.0R'
-baseCommand: ['/bin/bash/','-c']
+baseCommand: ['/bin/bash','-c']
 arguments:
   - position: 0
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
-      set -e
-      NUM_SEGMENTS=${return "$(gunzip -c " + inputs.genotyped_segments_vcf + " | grep -v '#' | wc -l)"}
+      set -eo pipefail
+
+      NUM_SEGMENTS=${return "$(gunzip -c " + inputs.genotyped_segments_vcf.path + " | grep -v '#' | wc -l)"}
+
       if [ $NUM_SEGMENTS -lt $(inputs.maximum_number_events) ]; then
           echo "PASS" >> $(inputs.entity_id).qcStatus.txt
-      else 
+      else
           echo "EXCESSIVE_NUMBER_OF_EVENTS" >> $(inputs.entity_id).qcStatus.txt
       fi
 inputs:
-  genotyped_segments_vcf: { type: File } 
+  genotyped_segments_vcf: { type: File }
   maximum_number_events: { type: int }
   entity_id: { type: string }
 
-  ram: { type: int?, default: 4, doc: "GB of RAM to allocate to the task. default: 4" }
+  ram: { type: int?, default: 1, doc: "GB of RAM to allocate to the task. default: 1" }
   cores: { type: int?, default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 1" }
 outputs:
   qc_status_file: { type: File, outputBinding: { glob: '*qcStatus.txt' } }

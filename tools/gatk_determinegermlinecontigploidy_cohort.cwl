@@ -9,31 +9,34 @@ requirements:
     ramMin: ${ return inputs.max_memory * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'kfdrc/gatk:4.1.7.0R'
+    dockerPull: 'broadinstitute/gatk:4.2.0.0'
 baseCommand: ['/bin/bash', '-c']
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
       set -eu
+
       export MKL_NUM_THREADS=$(inputs.cores)
+
       export OMP_NUM_THREADS=$(inputs.cores)
 
-      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m"  DetermineGermlineContigPloidy \\
-          $(inputs.interals_list ? "-L " + inputs.intervals_list.path : '') \\
-          --input ${var arr=[]; for (var x = 0; x < inputs.read_count_files.length; x++) {arr.push(inputs.read_count_files[x].path)}; return arr.join(' --input ')} \\
-          --contig-ploidy-priors $(inputs.contig_ploidy_priors.path) \\
-          --interval-merging-rule $(inputs.interval_merging_rule) \\
-          --output out \\
-          --output-prefix $(inputs.cohort_identity_id) \\
-          --verbosity $(inputs.verbosity) \\
-          --mean-bias-standard-deviation $(inputs.mean_bias_standard_deviation) \\
-          --mapping-error-rate $(inputs.mapping_error_rate) \\
-          --global-psi-scale $(inputs.psi_scale_global) \\
-          --sample-psi-scale $(inputs.psi_scale_sample)
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m"  DetermineGermlineContigPloidy
+      --input ${var arr=[]; for (var x = 0; x < inputs.read_count_files.length; x++) {arr.push(inputs.read_count_files[x].path)}; return arr.join(' --input ')}
+      --contig-ploidy-priors $(inputs.contig_ploidy_priors.path)
+      --interval-merging-rule $(inputs.interval_merging_rule)
+      --output out
+      --output-prefix $(inputs.cohort_entity_id)
+      --verbosity $(inputs.verbosity)
+      --mapping-error-rate $(inputs.mapping_error)
+      --mean-bias-standard-deviation $(inputs.mean_bias_sd)
+      --global-psi-scale $(inputs.psi_scale_global)
+      --sample-psi-scale $(inputs.psi_scale_sample)
+      $(inputs.interals_list ? "-L " + inputs.intervals_list.path : '')
 
-      tar czf $(inputs.cohort_identity_id)-contig-ploidy-model.tar.gz -C out/$(inputs.cohort_identity_id)-model .
-      tar czf $(inputs.cohort_identity_id)-contig-ploidy-calls.tar.gz -C out/$(inputs.cohort_identity_id)-calls .
+      tar czf $(inputs.cohort_entity_id)-contig-ploidy-model.tar.gz -C out/$(inputs.cohort_entity_id)-model .
+
+      tar czf $(inputs.cohort_entity_id)-contig-ploidy-calls.tar.gz -C out/$(inputs.cohort_entity_id)-calls .
 inputs:
   cohort_entity_id: { type: string, doc: "String value representing the cohort entity id" }
   intervals_list: { type: 'File?', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }

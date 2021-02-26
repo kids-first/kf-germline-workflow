@@ -17,7 +17,7 @@ inputs:
   normal_bams: { type: 'File[]', secondaryFiles: [.bai] }
   cohort_entity_id: string
   contig_ploidy_priors: File
-  num_intervals_per_scatter: int 
+  num_intervals_per_scatter: int
 
   # Preprocess intervals
   padding: int?
@@ -41,7 +41,7 @@ inputs:
   extreme_count_filter_percentage_of_samples: float?
   maximum_gc_content: float?
   minimum_gc_content: float?
-  low_count_filter_count_threshold: int? 
+  low_count_filter_count_threshold: int?
   low_count_filter_percentage_of_samples: float?
   maximum_mappability: float?
   minimum_mappability: float?
@@ -59,19 +59,19 @@ inputs:
   gcnv_p_active: float?
   gcnv_cnv_coherence_length: float?
   gcnv_class_coherence_length: float?
-  gcnv_max_copy_number: int? 
-  gcnv_max_bias_factors: int? 
+  gcnv_max_copy_number: int?
+  gcnv_max_bias_factors: int?
   gcnv_mapping_error_rate: float?
   gcnv_interval_psi_scale: float?
   gcnv_sample_psi_scale: float?
   gcnv_depth_correction_tau: float?
   gcnv_log_mean_bias_standard_deviation: float?
   gcnv_init_ard_rel_unexplained_variance: float?
-  gcnv_num_gc_bins: int? 
+  gcnv_num_gc_bins: int?
   gcnv_gc_curve_standard_deviation: float?
   gcnv_copy_number_posterior_expectation_mode: string?
   gcnv_enable_bias_factors: boolean?
-  gcnv_active_class_padding_hybrid_mode: int? 
+  gcnv_active_class_padding_hybrid_mode: int?
   gcnv_learning_rate: float?
   gcnv_adamax_beta_1: float?
   gcnv_adamax_beta_2: float?
@@ -194,12 +194,15 @@ steps:
       intervals_list: preprocess_intervals/preprocessed_intervals
       mappability_track: index_mappability_track/output
       segmental_duplication_track: index_segmental_duplication_track/output
-      feature_query_lookahead: feature_query_lookahead 
+      feature_query_lookahead: feature_query_lookahead
       max_memory: annotate_intervals_max_memory
-      cores: annotate_intervals_cores 
+      cores: annotate_intervals_cores
     out: [annotated_intervals]
 
   collect_read_counts:
+    hints:
+    - class: sbg:AWSInstanceType
+      value: c5.9xlarge
     run: ../tools/gatk_collectreadcounts.cwl
     scatter: bam
     in:
@@ -215,7 +218,7 @@ steps:
   filter_intervals:
     run: ../tools/gatk_filterintervals.cwl
     in:
-      intervals_list: preprocess_intervals/preprocessed_intervals 
+      intervals_list: preprocess_intervals/preprocessed_intervals
       blacklist_intervals_list: blacklist_intervals_for_filter_intervals
       read_count_files: collect_read_counts/counts
       annotated_intervals: annotate_intervals/annotated_intervals
@@ -231,7 +234,7 @@ steps:
       sd_content_max: maximum_segmental_duplication_content
       sd_content_min: minimum_segmental_duplication_content
       max_memory: filter_intervals_max_memory
-      cores: filter_intervals_cores 
+      cores: filter_intervals_cores
     out: [filtered_intervals]
 
   determine_germline_contig_ploidy_cohort:
@@ -239,7 +242,7 @@ steps:
     in:
       cohort_entity_id: cohort_entity_id
       intervals_list: filter_intervals/filtered_intervals
-      read_count_files: collect_read_counts/counts 
+      read_count_files: collect_read_counts/counts
       contig_ploidy_priors: contig_ploidy_priors
       mapping_error: ploidy_mapping_error_rate
       mean_bias_sd: ploidy_mean_bias_standard_deviation
@@ -258,22 +261,26 @@ steps:
       cores: scatter_intervals_cores
     out: [scattered_intervals_lists]
 
-  index_scattered_intervals_list_array: 
+  index_scattered_intervals_list_array:
     run: ../tools/expression_create_index_array.cwl
     in:
       array: scatter_intervals/scattered_intervals_lists
     out: [index_array]
 
   germline_cnv_caller_cohort:
+    hints:
+    - class: sbg:AWSInstanceType
+      value: c5.9xlarge
     run: ../tools/gatk_germlinecnvcaller_cohort.cwl
-    scatter: scatter_index
+    scatter: [scatter_index,intervals_list]
+    scatterMethod: dotproduct
     in:
       scatter_index: index_scattered_intervals_list_array/index_array
       cohort_entity_id: cohort_entity_id
-      intervals_list: { source: scatter_intervals/scattered_intervals_lists, valueFrom: '${return self[inputs.scatter_index]}' }
-      contig_ploidy_calls_tar: determine_germline_contig_ploidy_cohort/contig_ploidy_calls_tar 
-      read_count_files: collect_read_counts/counts 
-      annotated_intervals: annotate_intervals/annotated_intervals 
+      intervals_list: scatter_intervals/scattered_intervals_lists
+      contig_ploidy_calls_tar: determine_germline_contig_ploidy_cohort/contig_ploidy_calls_tar
+      read_count_files: collect_read_counts/counts
+      annotated_intervals: annotate_intervals/annotated_intervals
       p_alt: gcvn_p_alt
       p_active: gcnv_p_active
       cnv_coherence_length: gcnv_cnv_coherence_length
@@ -319,21 +326,25 @@ steps:
     run: ../tools/expression_transpose_two_dimension_array.cwl
     in:
       array: germline_cnv_caller_cohort/gcnv_call_tars
-    out: [transposed_array] 
+    out: [transposed_array]
 
   index_entity_id_array:
     run: ../tools/expression_create_index_array.cwl
     in:
-      array: collect_read_counts/entity_id 
-    out: [index_array] 
+      array: collect_read_counts/entity_id
+    out: [index_array]
 
   postprocess_gcnv_and_collectsamplequalitymetrics:
+    hints:
+    - class: sbg:AWSInstanceType
+      value: c5.9xlarge
     run: ../subworkflows/postprocess_gcnv_and_collectsamplequalitymetrics.cwl
-    scatter: sample_index
+    scatter: [sample_index,entity_id,gcnv_calls_tars]
+    scatterMethod: dotproduct
     in:
-      entity_id: { source: collect_read_counts/entity_id, valueFrom: '${self[inputs.sample_index]}' }
-      gcnv_calls_tars: { source: organize_call_tars_by_sample/transposed_array, valueFrom: '${self[inputs.sample_index]}' }
-      calling_configs: germline_cnv_caller_cohort/calling_config_json 
+      entity_id: collect_read_counts/entity_id
+      gcnv_calls_tars: organize_call_tars_by_sample/transposed_array
+      calling_configs: germline_cnv_caller_cohort/calling_config_json
       denoising_configs: germline_cnv_caller_cohort/denoising_config_json
       gcnv_model_tars: germline_cnv_caller_cohort/gcnv_model_tar
       gcnvkernel_versions: germline_cnv_caller_cohort/gcnvkernel_version_json
@@ -341,9 +352,9 @@ steps:
       contig_ploidy_calls_tar: determine_germline_contig_ploidy_cohort/contig_ploidy_calls_tar
       ref_copy_number_autosomal_contigs: ref_copy_number_autosomal_contigs
       allosomal_contigs_args: allosomal_contigs_args
-      sample_index: index_entity_id_array/index_array 
+      sample_index: index_entity_id_array/index_array
       maximum_number_events_per_sample: maximum_number_events_per_sample
-      postprocess_max_memory: postprocess_max_memory 
+      postprocess_max_memory: postprocess_max_memory
       postporcess_cores: postporcess_cores
       collect_sample_metrics_ram: collect_sample_metrics_ram
       collect_sample_metrics_cores: collect_sample_metrics_cores
@@ -352,7 +363,10 @@ steps:
   collect_model_quality_metrics:
     run: ../tools/collect_model_quality_metrics.cwl
     in:
-      gcnv_model_tars: germline_cnv_caller_cohort/gcnv_model_tar 
+      gcnv_model_tars: germline_cnv_caller_cohort/gcnv_model_tar
       ram: collect_model_metrics_ram
       cores: collect_model_metrics_cores
     out: [qc_status_file, qc_status_string]
+
+$namespaces:
+  sbg: https://sevenbridges.com
