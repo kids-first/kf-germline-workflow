@@ -9,7 +9,7 @@ requirements:
     ramMin: ${ return inputs.ram * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.7.0R'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
 baseCommand: ['/bin/bash','-c']
 arguments:
   - position: 0
@@ -25,7 +25,7 @@ arguments:
           echo "EXCESSIVE_NUMBER_OF_EVENTS" >> $(inputs.entity_id).qcStatus.txt
       fi
 inputs:
-  genotyped_segments_vcf: { type: File }
+  genotyped_segments_vcf: { type: File, secondaryFiles: [.tbi] }
   maximum_number_events: { type: int }
   entity_id: { type: string }
   ram: { type: int?, default: 1, doc: "GB of RAM to allocate to the task. default: 1" }
