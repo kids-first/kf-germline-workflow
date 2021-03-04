@@ -24,7 +24,7 @@ outputs:
 
 steps:
   prepare_reference:
-    run: ../sub_workflows/prepare_reference.cwl
+    run: ../subworkflows/prepare_reference.cwl
     in:
       input_fasta: reference_fasta
       input_fai: reference_fai

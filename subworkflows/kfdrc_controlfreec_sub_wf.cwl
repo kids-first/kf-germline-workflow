@@ -9,17 +9,14 @@ requirements:
 
 inputs:
   input_tumor_aligned: {type: File, secondaryFiles: ['^.bai']}
-  input_normal_aligned: {type: File, secondaryFiles: ['^.bai']}
   input_tumor_name: {type: string, doc: "Sample name to put into the converted seg file"}
   threads: {type: int, doc: "Number of threads to run controlfreec.  Going above 16 is not recommended, there is no apparent added value"}
   output_basename: string
   ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try"}
-  mate_copynumber_file_control: {type: File?, doc: "Normal cpn file from previous run. If used, will override bam use"}
   mate_copynumber_file_sample: {type: File?, doc: "Tumor cpn file from previous run. If used, will override bam use"}
   gem_mappability_file: {type: File?, doc: "GEM mappability file to make read count adjustments with"}
   min_subclone_presence: {type: float?, doc: "Use if you want to detect sublones. Recommend 0.2 for WGS, 0.3 for WXS"}
   mate_orientation_sample: {type: ['null', {type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"]}], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
-  mate_orientation_control: {type: ['null', {type: enum, name: mate_orientation_control, symbols: ["0", "FR", "RF", "FF"]}], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   capture_regions: {type: ['null', File], doc: "If not WGS, provide "}
   indexed_reference_fasta: {type: File, secondaryFiles: [.fai]}
   reference_fai: {type: File, doc: "fasta index file for seg file conversion"}
@@ -51,30 +48,15 @@ steps:
     out:
       [pileup]
 
-  controlfreec_normal_mini_pileup:
-    run: ../tools/control_freec_mini_pileup.cwl
-    in:
-      input_reads: input_normal_aligned
-      threads:
-        valueFrom: ${return 16}
-      reference: indexed_reference_fasta
-      snp_vcf: b_allele
-    out:
-      [pileup]
-
   control_free_c: 
     run: ../tools/control-freec-11-6-sbg.cwl
     in: 
-      mate_copynumber_file_control: mate_copynumber_file_control
       mate_copynumber_file_sample: mate_copynumber_file_sample
       gem_mappability_file: gem_mappability_file
       min_subclone_presence: min_subclone_presence
       mate_file_sample: input_tumor_aligned
       mate_orientation_sample: mate_orientation_sample
       mini_pileup_sample: controlfreec_tumor_mini_pileup/pileup
-      mate_file_control: input_normal_aligned
-      mate_orientation_control: mate_orientation_control
-      mini_pileup_control: controlfreec_normal_mini_pileup/pileup
       chr_len: chr_len
       ploidy: ploidy
       capture_regions: capture_regions

@@ -24,21 +24,6 @@ inputs:
       }
     doc: "tumor BAM or CRAM"
   input_tumor_name: string
-  input_normal_aligned:
-    type: File
-    secondaryFiles: |
-      ${
-        var dpath = self.location.replace(self.basename, "")
-        if(self.nameext == '.bam'){
-          return {"location": dpath+self.nameroot+".bai", "class": "File"}
-        }
-        else{
-          return {"location": dpath+self.basename+".crai", "class": "File"}
-        }
-      }
-    doc: "normal BAM or CRAM"
-  
-  mate_copynumber_file_control: {type: File?, doc: "Normal cpn file from previous run. If used, will override bam use"}
   mate_copynumber_file_sample: {type: File?, doc: "Tumor cpn file from previous run. If used, will override bam use"}
   gem_mappability_file: {type: File?, doc: "GEM mappability file to make read count adjustments with"}
   min_subclone_presence: {type: float?, doc: "Use if you want to detect sublones. Recommend 0.2 for WGS, 0.3 for WXS"}
@@ -49,7 +34,6 @@ inputs:
 
   # Optional with One Default
   cfree_threads: { type: 'int?', default: 16, doc: "For ControlFreeC. Recommend 16 max, as I/O gets saturated after that losing any advantage" }
-  cfree_mate_orientation_control: { type: ['null', { type: enum, name: mate_orientation_control, symbols: ["0", "FR", "RF", "FF"] }], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)" }
   cfree_mate_orientation_sample: { type: ['null', { type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"] }], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)" }
 
   # Optional with Multiple Defaults (handled in choose_defaults)
@@ -84,7 +68,7 @@ steps:
     out: [out_exome_flag,out_cnvkit_wgs_mode,out_i_flag,out_lancet_padding,out_lancet_window,out_vardict_padding]
 
   prepare_reference:
-    run: ../sub_workflows/prepare_reference.cwl
+    run: ../subworkflows/prepare_reference.cwl
     in:
       input_fasta: reference_fasta
       input_fai: reference_fai
@@ -126,17 +110,8 @@ steps:
       reference: prepare_reference/indexed_fasta
     out: [bam_file]
 
-  samtools_cram2bam_plus_calmd_normal:
-    run: ../tools/samtools_cram2bam_plus_calmd.cwl
-    in:
-      input_reads: input_normal_aligned
-      threads:
-        valueFrom: ${return 16;}
-      reference: prepare_reference/indexed_fasta
-    out: [bam_file]
-
   run_controlfreec:
-    run: ../sub_workflows/kfdrc_controlfreec_sub_wf.cwl
+    run: ../subworkflows/kfdrc_controlfreec_sub_wf.cwl
     in:
       mate_copynumber_file_control: mate_copynumber_file_control
       mate_copynumber_file_sample: mate_copynumber_file_sample
@@ -144,7 +119,6 @@ steps:
       min_subclone_presence: min_subclone_presence
       input_tumor_aligned: samtools_cram2bam_plus_calmd_tumor/bam_file
       input_tumor_name: input_tumor_name
-      input_normal_aligned: samtools_cram2bam_plus_calmd_normal/bam_file
       threads: cfree_threads
       output_basename: output_basename
       ploidy: cfree_ploidy
