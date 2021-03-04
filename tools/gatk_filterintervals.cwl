@@ -9,7 +9,7 @@ requirements:
     ramMin: ${ return inputs.max_memory * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.7.0R'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
 baseCommand: ['/bin/bash', '-c']
 arguments:
   - position: 0

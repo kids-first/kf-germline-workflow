@@ -15,7 +15,7 @@ inputs:
   gcnvkernel_versions: File[]
   sharded_interval_lists: File[]
   contig_ploidy_calls_tar: File
-  ref_copy_number_autosomal_contigs: int
+  ref_copy_number_autosomal_contigs: int?
   allosomal_contigs_args: string[]?
   sample_index: int
   maximum_number_events_per_sample: int
