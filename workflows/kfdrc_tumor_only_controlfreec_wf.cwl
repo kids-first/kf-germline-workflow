@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: Workflow
-id: kfdrc_production_controlfreec_wf
+id: kfdrc_tumor_only_controlfreec_wf
 requirements:
   - class: ScatterFeatureRequirement
   - class: MultipleInputFeatureRequirement
@@ -113,7 +113,6 @@ steps:
   run_controlfreec:
     run: ../subworkflows/kfdrc_controlfreec_sub_wf.cwl
     in:
-      mate_copynumber_file_control: mate_copynumber_file_control
       mate_copynumber_file_sample: mate_copynumber_file_sample
       gem_mappability_file: gem_mappability_file
       min_subclone_presence: min_subclone_presence
@@ -123,7 +122,6 @@ steps:
       output_basename: output_basename
       ploidy: cfree_ploidy
       mate_orientation_sample: cfree_mate_orientation_sample
-      mate_orientation_control: cfree_mate_orientation_control
       capture_regions: unpadded_capture_regions
       indexed_reference_fasta: prepare_reference/indexed_fasta
       reference_fai: reference_fai
