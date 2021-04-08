@@ -12,11 +12,11 @@ requirements:
 baseCommand: [cnvnator]
 inputs:
   input_reads: { type: 'File[]', inputBinding: { prefix: '-tree'}, doc: "Specifies cram/bam file(s) names" }
-  chrom: { type: 'string', inputBinding: { prefix: '-chrom' }, doc: "Chromosome name(s) on which this task will be performed" }
+  chrom: { type: 'string[]?', inputBinding: { prefix: '-chrom' }, doc: "Chromosome name(s) on which this task will be performed" }
   output_root: { type: 'string', inputBinding: { prefix: '-root'}, doc: "String value to use as the output root file name" } 
   lite: { type: 'boolean?', inputBinding: { prefix: '-lite' }, doc: "Use this option to produce a lighter/smaller root file" }
-  max_memory: { type: 'int?', default: 8, doc: "GB of memory to allocate to this task." }
-  cpu: { type: 'int?', default: 4, doc: "Number of CPUs to allocate to this task." }
+  max_memory: { type: 'int?', default: 2, doc: "GB of memory to allocate to this task." }
+  cpu: { type: 'int?', default: 1, doc: "Number of CPUs to allocate to this task." }
 outputs:
   output:
     type: 'File'

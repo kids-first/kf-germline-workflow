@@ -12,10 +12,12 @@ requirements:
 baseCommand: [cnvnator]
 inputs:
   bin_size: { type: 'int', inputBinding: { prefix: '-eval'}, doc: "Size of the bins for the task" }
-  input_root: { type: 'File', inputBinding: { prefix: '-root'}, doc: "Input root file" } 
-  max_memory: { type: 'int?', default: 8, doc: "GB of memory to allocate to this task." }
-  cpu: { type: 'int?', default: 4, doc: "Number of CPUs to allocate to this task." }
+  input_root: { type: 'File', inputBinding: { prefix: '-root'}, doc: "Input root file" }
+  max_memory: { type: 'int?', default: 2, doc: "GB of memory to allocate to this task." }
+  cpu: { type: 'int?', default: 1, doc: "Number of CPUs to allocate to this task." }
 outputs:
   output:
-    type: stdout 
-stdout: $(inputs.input_root.basename).cnvnator_eval.txt
+    type: File
+    outputBinding:
+      glob: $(inputs.input_root.nameroot).cnvnator_eval.txt
+stdout: $(inputs.input_root.nameroot).cnvnator_eval.txt
