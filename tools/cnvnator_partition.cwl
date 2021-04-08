@@ -17,8 +17,8 @@ inputs:
   input_root: { type: 'File', inputBinding: { prefix: '-root'}, doc: "Input root file" }
   chrom: { type: 'string[]?', inputBinding: { prefix: '-chrom' }, doc: "Chromosome name(s) on which this task will be performed" }
   disable_gc_correction: { type: 'boolean?', inputBinding: { prefix: '-ngc' }, doc: "Use this option to not use GC corrected RD signal" }
-  max_memory: { type: 'int?', default: 8, doc: "GB of memory to allocate to this task." }
-  cpu: { type: 'int?', default: 4, doc: "Number of CPUs to allocate to this task." }
+  max_memory: { type: 'int?', default: 2, doc: "GB of memory to allocate to this task." }
+  cpu: { type: 'int?', default: 1, doc: "Number of CPUs to allocate to this task." }
 outputs:
   output:
     type: 'File'
