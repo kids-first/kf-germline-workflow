@@ -8,7 +8,7 @@ requirements:
     ramMin: ${ return inputs.max_memory * 1000 }
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
-    dockerPull: 'dmiller15/cnvnator:0.4.1'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cnvnator:v0.4.1'
 baseCommand: [cnvnator]
 inputs:
   bin_size: { type: 'int', inputBinding: { prefix: '-eval'}, doc: "Size of the bins for the task" }

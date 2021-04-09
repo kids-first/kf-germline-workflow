@@ -10,7 +10,7 @@ requirements:
   - class: InitialWorkDirRequirement
     listing: $(inputs.input_root)
   - class: DockerRequirement
-    dockerPull: 'dmiller15/cnvnator:0.4.1'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cnvnator:v0.4.1'
 baseCommand: [cnvnator]
 inputs:
   bin_size: { type: 'int', inputBinding: { prefix: '-his' }, doc: "Size of the bins for the task" }
