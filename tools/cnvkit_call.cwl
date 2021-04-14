@@ -8,7 +8,7 @@ requirements:
     dockerPull: 'etal/cnvkit:0.9.8'
   - class: ResourceRequirement
     ramMin: ${ return inputs.ram * 1000 }
-    coresMin: $(inputs.cores)
+    coresMin: $(inputs.cpu)
 
 baseCommand: [cnvkit.py,call]
 
@@ -24,7 +24,7 @@ inputs:
   drop_low_coverage: { type: 'boolean?', inputBinding: { prefix: "--drop-low-coverage" }, doc: "Drop very-low-coverage bins before segmentation to avoid false-positive deletions in poor-quality tumor samples." }
   sample_sex: { type: ['null', { type: 'enum', symbols: ["male","female"], name: "sample_sex" } ], inputBinding: { prefix: "--sample-sex" }, doc: "Specify the sample's chromosomal sex as male or female. (Otherwise guessed from X and Y coverage)." }
   male_ref: { type: 'boolean?', inputBinding: { prefix: "--male-reference" }, doc: "Use or assume a male reference" }
-  output_basename: { type: 'string?', inputBinding: { prefix: "--output", valueFrom: '$(self).call.cns' }, doc: "Output table file name (CNR-like table of segments, .cns)." }
+  output_filename: { type: 'string?', inputBinding: { prefix: "--output" }, doc: "Output table file name (CNR-like table of segments, .cns)." }
 
   # Options to additionally process SNP b-allele frequencies for allelic copy number
   input_b_allele: { type: 'File?', inputBinding: { prefix: "--vcf" }, secondaryFiles: [.tbi], doc: "VCF file name containing variants for calculation of b-allele frequencies." }
@@ -41,5 +41,5 @@ outputs:
   output:
     type: 'File'
     outputBinding:
-      glob: '*.call.cns'
+      glob: '$(inputs.output_filename ? inputs.output_filename : "*.call.cns")'
     doc: "Per-sample filtered CNS file"
