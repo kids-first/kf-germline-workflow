@@ -8,7 +8,7 @@ requirements:
     dockerPull: 'etal/cnvkit:0.9.8'
   - class: ResourceRequirement
     ramMin: ${ return inputs.ram * 1000 }
-    coresMin: $(inputs.cores)
+    coresMin: $(inputs.cpu)
   - class: InitialWorkDirRequirement
     listing: [$(inputs.cn_reference)]
 
@@ -22,8 +22,6 @@ inputs:
   male_ref: { type: boolean?, inputBinding: { prefix: "--male-reference" }, doc: "Use or assume a male reference" }
   count_reads: { type: boolean?, inputBinding: { prefix: "--count-reads" }, doc: "Get read depths by counting read midpoints within each bin." }
   drop_low_coverage: { type: boolean?, inputBinding: { prefix: "--drop-low-coverage" }, doc: "Drop very-low-coverage bins before segmentation to avoid false-positive deletions in poor-quality tumor samples." }
-  cpu: { type: int?, inputBinding: { prefix: "--processes" }, default: 16, doc: "Number of subprocesses used to running each of the BAM files in parallel. Without an argument, use the maximum number of available CPUs." }
-  ram: { type: int?, default: 32, doc: "GB of RAM to allocate to this task" }
 
   # Build your own Copy Number Reference
   input_normal_bams: { type: 'File[]?', inputBinding: { prefix: "--normal" }, secondaryFiles: [.bai], doc: "Normal samples (.bam) used to construct the pooled, paired, or flat reference. If this option is used but no filenames are given, a 'flat' reference will be built. Otherwise, all filenames following this option will be used." }
@@ -37,7 +35,7 @@ inputs:
   target_average_size: { type: 'int?', inputBinding: { prefix: "--target-avg-size" }, doc: "Average size of split target bins (results are approximate)." }
   antitarget_average_size: { type: 'int?', inputBinding: { prefix: "--antitarget-avg-size" }, doc: "Average size of antitarget bins (results are approximate)." }
   antitarget_minimum_size: { type: 'int?', inputBinding: { prefix: "--antitarget-min-size" }, doc: "Minimum size of antitarget bins (smaller regions are dropped)." }
-  output_basename: { type: 'string?', inputBinding: { valueFrom: '$(self)_cnvkit_reference.cnn', prefix: "--output-reference" }, doc: "Output filename/path for the new reference file being created." }
+  output_reference: { type: 'string?', inputBinding: { prefix: "--output-reference" }, doc: "Output filename/path for the new reference file being created." }
   cluster: { type: 'boolean?', inputBinding: { prefix: "--cluster" }, doc: "Calculate and use cluster-specific summary stats in the reference pool to normalize samples." }
 
   # Reuse and existing Copy Number Reference
@@ -46,6 +44,10 @@ inputs:
   # Additional Outputs
   scatter: { type: 'boolean?', inputBinding: { prefix: "--scatter" }, doc: "Create a whole-genome copy ratio profile as a PDF scatter plot." }
   diagram: { type: 'boolean?', inputBinding: { prefix: "--diagram" }, doc: "Create an ideogram of copy ratios on chromosomes as a PDF." }
+
+  # Resource Control
+  cpu: { type: int?, inputBinding: { prefix: "--processes" }, default: 16, doc: "Number of subprocesses used to running each of the BAM files in parallel. Without an argument, use the maximum number of available CPUs." }
+  ram: { type: int?, default: 32, doc: "GB of RAM to allocate to this task" }
 
 outputs:
   output_cnr:
@@ -66,8 +68,8 @@ outputs:
   output_cnn:
     type: 'File'
     outputBinding:
-      glob: '*reference.cnn'
-    doc: "Returns either the cn_reference file provided or the one made from scratch."
+      glob: '$(inputs.cn_refernce ? inputs.cn_reference.basename : inputs.output_reference ? inputs.output_reference : "*reference.cnn")'
+    doc: "Returns the cnn"
   output_scatter:
     type: 'File[]?'
     outputBinding:
