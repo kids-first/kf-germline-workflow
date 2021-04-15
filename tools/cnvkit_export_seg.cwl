@@ -26,4 +26,4 @@ outputs:
     type: 'File'
     outputBinding:
       glob: '$(inputs.output_filename)'
-    doc: "Genemetrics table identifying targeted genes with copy number gain or loss"
+    doc: "CNVkit CNS output as a SEG file"

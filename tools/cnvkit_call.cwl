@@ -42,4 +42,4 @@ outputs:
     type: 'File'
     outputBinding:
       glob: '$(inputs.output_filename ? inputs.output_filename : "*.call.cns")'
-    doc: "Per-sample filtered CNS file"
+    doc: "Called copy number variants from segmented log2 ratios"
