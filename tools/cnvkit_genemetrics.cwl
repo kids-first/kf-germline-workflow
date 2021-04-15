@@ -20,7 +20,7 @@ inputs:
   drop_low_coverage: { type: 'boolean?', inputBinding: { prefix: "--drop-low-coverage" }, doc: "Drop very-low-coverage bins before segmentation to avoid false-positive deletions in poor-quality tumor samples." }
   sample_sex: { type: ['null', { type: 'enum', symbols: ["male","female"], name: "sample_sex" } ], inputBinding: { prefix: "--sample-sex" }, doc: "Specify the sample's chromosomal sex as male or female. (Otherwise guessed from X and Y coverage)." }
   male_ref: { type: 'boolean?', inputBinding: { prefix: "--male-reference" }, doc: "Use or assume a male reference" }
-  output_filename: { type: 'string', inputBinding: { prefix: "--output" }, doc: "Output table file name" }
+  output_filename: { type: 'string', inputBinding: { prefix: "--output", position: 98 }, doc: "Output table file name" }
 
   # Statistics Options
   mean: { type: 'boolean?', inputBinding: { prefix: "--mean" }, doc: "Mean log2-ratio (unweighted)" }
