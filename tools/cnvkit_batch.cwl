@@ -17,8 +17,8 @@ baseCommand: [cnvkit.py,batch]
 inputs:
   input_bam: { type: 'File[]?', inputBinding: { position: 99 }, secondaryFiles: [.bai], doc: "Mapped sequence reads" }
   input_cram: { type: 'File[]?', inputBinding: { position: 99 }, secondaryFiles: [.crai], doc: "Mapped sequence reads" }
-  sequencing_method: { type: ['null', { type: enum, symbols: ["hybrid","amplicon","wgs"], name: "sequencing_method" } ], inputBinding: { prefix: "--seq-method" } }
-  segmentation_method: { type: ['null', { type: enum, symbols: ["cbs","flasso","haar","none","hmm","hmm-tumor","hmm-germline"], name: "segmentation_method" } ], inputBinding: { prefix: "--segment-method" } }
+  sequencing_method: { type: ['null', { type: enum, symbols: ["hybrid","amplicon","wgs"], name: "sequencing_method" } ], inputBinding: { prefix: "--seq-method" }, doc: "Sequencing assay type: hybridization capture ('hybrid'), targeted amplicon sequencing ('amplicon'), or whole genome sequencing ('wgs'). Determines whether and how to use antitarget bins. [Default: hybrid]" }
+  segmentation_method: { type: ['null', { type: enum, symbols: ["cbs","flasso","haar","none","hmm","hmm-tumor","hmm-germline"], name: "segmentation_method" } ], inputBinding: { prefix: "--segment-method" }, doc: "Method used in the 'segment' step. [Default: cbs]" }
   male_ref: { type: boolean?, inputBinding: { prefix: "--male-reference" }, doc: "Use or assume a male reference" }
   count_reads: { type: boolean?, inputBinding: { prefix: "--count-reads" }, doc: "Get read depths by counting read midpoints within each bin." }
   drop_low_coverage: { type: boolean?, inputBinding: { prefix: "--drop-low-coverage" }, doc: "Drop very-low-coverage bins before segmentation to avoid false-positive deletions in poor-quality tumor samples." }
@@ -73,10 +73,10 @@ outputs:
   output_scatter:
     type: 'File[]?'
     outputBinding:
-      glob: '*.scatter.pdf'
-    doc: "Per-sample PDF scatter plot."
+      glob: '*scatter.png'
+    doc: "Per-sample PNG scatter plot of copy ratios."
   output_diagram:
     type: 'File[]?'
     outputBinding:
-      glob: '*.diagram.pdf'
+      glob: '*diagram.pdf'
     doc: "Per-sample ideogram of copy ratios on chromosomes as a PDF."
