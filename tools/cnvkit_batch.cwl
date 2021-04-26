@@ -42,8 +42,8 @@ inputs:
   cn_reference: { type: 'File?', inputBinding: { prefix: "--reference" }, doc: "Copy number reference file (.cnn)." }
 
   # Additional Outputs
-  scatter: { type: 'boolean?', inputBinding: { prefix: "--scatter" }, doc: "Create a whole-genome copy ratio profile as a PDF scatter plot." }
-  diagram: { type: 'boolean?', inputBinding: { prefix: "--diagram" }, doc: "Create an ideogram of copy ratios on chromosomes as a PDF." }
+  scatter_plot: { type: 'boolean?', inputBinding: { prefix: "--scatter" }, doc: "Create a whole-genome copy ratio profile as a PDF scatter plot." }
+  diagram_plot: { type: 'boolean?', inputBinding: { prefix: "--diagram" }, doc: "Create an ideogram of copy ratios on chromosomes as a PDF." }
 
   # Resource Control
   cpu: { type: int?, inputBinding: { prefix: "--processes" }, default: 16, doc: "Number of subprocesses used to running each of the BAM files in parallel. Without an argument, use the maximum number of available CPUs." }
