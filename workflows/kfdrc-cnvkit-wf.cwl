@@ -44,8 +44,8 @@ inputs:
   target_average_size: { type: 'int?', doc: "Average size of split target bins (results are approximate)." }
   antitarget_average_size: { type: 'int?', doc: "Average size of antitarget bins (results are approximate)." }
   antitarget_minimum_size: { type: 'int?', doc: "Minimum size of antitarget bins (smaller regions are dropped)." }
-  cluster: { type: 'boolean?', doc: "Calculate and use cluster-specific summary stats in the reference pool to normalize samples." }
-  scatter: { type: 'boolean?', doc: "Create a whole-genome copy ratio profile as a PDF scatter plot." }
+  cluster_plot: { type: 'boolean?', doc: "Calculate and use cluster-specific summary stats in the reference pool to normalize samples." }
+  scatter_plot: { type: 'boolean?', doc: "Create a whole-genome copy ratio profile as a PDF scatter plot." }
   diagram: { type: 'boolean?', doc: "Create an ideogram of copy ratios on chromosomes as a PDF." }
 
   # Call
@@ -74,15 +74,15 @@ inputs:
 
   # Resource Control
   batch_cpu: { type: 'int?', default: 16, doc: "CPUs to allocate to batch task" }
-  batch_ram: { type: 'int?', default: 32, doc: "RAM to allocate to batch task" }
+  batch_ram: { type: 'int?', default: 32, doc: "RAM in GB to allocate to batch task" }
   call_cpu: { type: 'int?', default: 4, doc: "CPUs to allocate to call task" }
-  call_ram: { type: 'int?', default: 8, doc: "RAM to allocate to call task" }
+  call_ram: { type: 'int?', default: 8, doc: "RAM in GB to allocate to call task" }
   export_seg_cpu: { type: 'int?', default: 2, doc: "CPUs to allocate to export seg task" }
-  export_seg_ram: { type: 'int?', default: 1, doc: "RAM to allocate to export seg task" }
+  export_seg_ram: { type: 'int?', default: 1, doc: "RAM in GB to allocate to export seg task" }
   metrics_cpu: { type: 'int?', default: 1, doc: "CPUs to allocate to metrics task" }
-  metrics_ram: { type: 'int?', default: 2, doc: "RAM to allocate to metrics task" }
+  metrics_ram: { type: 'int?', default: 2, doc: "RAM in GB to allocate to metrics task" }
   genemetrics_cpu: { type: 'int?', default: 1, doc: "CPUs to allocate to genemetrics task" }
-  genemetrics_ram: { type: 'int?', default: 2, doc: "RAM to allocate to genemetrics task" }
+  genemetrics_ram: { type: 'int?', default: 2, doc: "RAM in GB to allocate to genemetrics task" }
 
 outputs:
   cnr: {type: 'File[]?', outputSource: cnvkit_batch/output_cnr}
@@ -120,8 +120,8 @@ steps:
       output_reference: { source: output_basename, valueFrom: '$(self)_cnvkit_reference.cnn' } 
       cluster: cluster
       cn_reference: cn_reference
-      scatter: scatter
-      diagram: diagram
+      scatter_plot: scatter_plot
+      diagram_plot: diagram_plot
       cpu: batch_cpu
       ram: batch_ram
     out: [output_cnr,output_filtered_calls,output_bintest,output_cnn,output_scatter,output_diagram]
