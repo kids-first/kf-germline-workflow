@@ -1,12 +1,14 @@
 cwlVersion: v1.0
 class: Workflow
-id: kfdrc-germline-wf
-label: Kids First DRC Germline Workflow 
+id: kfdrc-single-sample-genotyping-wf
+label: Kids First DRC Single Sample Genotyping Workflow
 doc: |
-  # Kids First DRC Germline Workflow 
-  Kids First Data Resource Center Germline Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc_jointgenotyping_refinement_workflow.cwl).
+  # Kids First DRC Single Sample Genotyping Workflow
+  Kids First Data Resource Center Single Sample Genotyping Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc_jointgenotyping_refinement_workflow.cwl).
+  While the Joint Genotyping Workflow is meant to be used with trios, this workflow is meant for processing single samples.
   The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP.
-  Unlike the Joint Genotyping Workflow, a simple GATK hard filtering process is performed.
+  Unlike the Joint Genotyping Workflow, a germline-oriented [GATK hard filtering process](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants) is performed and no CalculateGenotypePosteriors has been removed.
+  While somatic samples can be run through this workflow, be wary that the filtering process is specifically tuned for germline data.
 
   If you would like to run this workflow using the cavatica public app, a basic primer on running public apps can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-Cavatica-af5ebb78c38a4f3190e32e67b4ce12bb).
   Alternatively, if you'd like to run it locally using `cwltool`, a basic primer on that can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-CWLtool-b8dbbde2dc7742e4aff290b0a878344d) and combined with app-specific info from the readme below.
@@ -14,6 +16,10 @@ doc: |
   ![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
 
   ### Runtime Estimates
+  1. Trio of 6-7 GB gVCFs on spot instances: 210 minutes & $5.50
+  1. Trio of 1-2 GB gVCFs on spot instances: 180 minutes & $3.25
+  1. Single 6 GB gVCF on spot instances: 125 minutes & $1.25
+  1. Single 1.5 GB gVCF on spot instances: 130 minutes & $1.00
 
   ### Tips To Run:
   1. inputs vcf files are the gVCF files from GATK Haplotype Caller, need to have the index **.tbi** files copy to the same project too.
@@ -22,7 +28,7 @@ doc: |
   1. Reference locations:
       - https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/
       - kfdrc bucket: s3://kids-first-seq-data/broad-references/
-      - cavatica: https://cavatica.sbgenomics.com/u/yuankun/kf-reference/
+      - cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
   1. Suggested inputs:
       -  Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz
       -  Homo_sapiens_assembly38.dbsnp138.vcf
@@ -37,12 +43,10 @@ doc: |
       -  hg38.even.handcurated.20k.intervals
       -  homo_sapiens_vep_93_GRCh38_convert_cache.tar.gz, from ftp://ftp.ensembl.org/pub/release-93/variation/indexed_vep_cache/ - variant effect predictor cache.
       -  wgs_evaluation_regions.hg38.interval_list
-
   ## Other Resources
-  - tool images: https://hub.docker.com/r/kfdrc/
   - dockerfiles: https://github.com/d3b-center/bixtools
 
-  ![pipeline flowchart](./docs/kfdrc-jointgenotyping-refinement-workflow.png)
+  ![pipeline flowchart](https://github.com/kids-first/kf-germline-workflow/raw/master/docs/single_genotyping_0_1_0.png)
 
 requirements:
 - class: ScatterFeatureRequirement
@@ -51,44 +55,54 @@ requirements:
 inputs:
   input_vcfs: {type: 'File[]', doc: 'Input array of individual sample gVCF files'}
   axiomPoly_resource_vcf: {type: File, doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz',
-    sbg:suggestedValue: {class: File, path: 5e9eff46e4b054952c25f669, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz}}
+    sbg:suggestedValue: {class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz}}
   axiomPoly_resource_tbi: {type: 'File?', doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi',
-    sbg:suggestedValue: {class: File, path: 5e9eff46e4b054952c25f699, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}}
+    sbg:suggestedValue: {class: File, path: 6063901d357c3a53540ca81b, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}}
   dbsnp_vcf: {type: File, doc: 'Homo_sapiens_assembly38.dbsnp138.vcf', sbg:suggestedValue: {
-      class: File, path: 5d9f63e9e4b03edc89a24c91, name: Homo_sapiens_assembly38.dbsnp138.vcf}}
+      class: File, path: 6063901f357c3a53540ca84b, name: Homo_sapiens_assembly38.dbsnp138.vcf}}
   dbsnp_idx: {type: 'File?', doc: 'Homo_sapiens_assembly38.dbsnp138.vcf.idx', sbg:suggestedValue: {
-      class: File, path: 5f3161b7e4b09d9a7b5f4fb7, name: Homo_sapiens_assembly38.dbsnp138.vcf.idx}}
+      class: File, path: 6063901e357c3a53540ca834, name: Homo_sapiens_assembly38.dbsnp138.vcf.idx}}
   hapmap_resource_vcf: {type: File, doc: 'Hapmap genotype SNP input vcf', sbg:suggestedValue: {
-      class: File, path: 5e9eff46e4b054952c25f668, name: hapmap_3.3.hg38.vcf.gz}}
+      class: File, path: 60639016357c3a53540ca7be, name: hapmap_3.3.hg38.vcf.gz}}
   hapmap_resource_tbi: {type: 'File?', doc: 'Hapmap genotype SNP input tbi', sbg:suggestedValue: {
-      class: File, path: 5e9eff46e4b054952c25f69f, name: hapmap_3.3.hg38.vcf.gz.tbi}}
+      class: File, path: 60639016357c3a53540ca7c5, name: hapmap_3.3.hg38.vcf.gz.tbi}}
   mills_resource_vcf: {type: File, doc: 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz',
-    sbg:suggestedValue: {class: File, path: 5d9f63e9e4b03edc89a24c92, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz}}
+    sbg:suggestedValue: {class: File, path: 6063901a357c3a53540ca7f3, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz}}
   mills_resource_tbi: {type: 'File?', doc: 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi',
-    sbg:suggestedValue: {class: File, path: 5f3161b8e4b09d9a7b5f4fc6, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi}}
+    sbg:suggestedValue: {class: File, path: 6063901c357c3a53540ca806, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi}}
   omni_resource_vcf: {type: File, doc: '1000G_omni2.5.hg38.vcf.gz', sbg:suggestedValue: {
-      class: File, path: 5d9f63e9e4b03edc89a24c9a, name: 1000G_omni2.5.hg38.vcf.gz}}
+      class: File, path: 6063901e357c3a53540ca835, name: 1000G_omni2.5.hg38.vcf.gz}}
   omni_resource_tbi: {type: 'File?', doc: '1000G_omni2.5.hg38.vcf.gz.tbi', sbg:suggestedValue: {
-      class: File, path: 5f3161b8e4b09d9a7b5f4fbd, name: 1000G_omni2.5.hg38.vcf.gz.tbi}}
+      class: File, path: 60639016357c3a53540ca7b1, name: 1000G_omni2.5.hg38.vcf.gz.tbi}}
   one_thousand_genomes_resource_vcf: {type: File, doc: '1000G_phase1.snps.high_confidence.hg38.vcf.gz,
-      high confidence snps', sbg:suggestedValue: {class: File, path: 5d9f63e9e4b03edc89a24c98,
+      high confidence snps', sbg:suggestedValue: {class: File, path: 6063901c357c3a53540ca80f,
       name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz}}
   one_thousand_genomes_resource_tbi: {type: 'File?', doc: '1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi,
-      high confidence snps', sbg:suggestedValue: {class: File, path: 5f3161b8e4b09d9a7b5f4fc0,
+      high confidence snps', sbg:suggestedValue: {class: File, path: 6063901e357c3a53540ca845,
       name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi}}
   ped: {type: File, doc: 'Ped file for the family relationship'}
   reference_dict: {type: 'File?', doc: 'Homo_sapiens_assembly38.dict', sbg:suggestedValue: {
-      class: File, path: 5e9eff46e4b054952c25f68e, name: Homo_sapiens_assembly38.dict}}
+      class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}}
   reference_fai: {type: 'File?', doc: 'Homo_sapiens_assembly38.fasta.fai', sbg:suggestedValue: {
-      class: File, path: 5e9eff46e4b054952c25f6aa, name: Homo_sapiens_assembly38.fasta.fai}}
+      class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai}}
   reference_fasta: {type: File, doc: 'Homo_sapiens_assembly38.fasta', sbg:suggestedValue: {
-      class: File, path: 5e9eff46e4b054952c25f69d, name: Homo_sapiens_assembly38.fasta}}
+      class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta}}
   unpadded_intervals_file: {type: File, doc: 'hg38.even.handcurated.20k.intervals',
-    sbg:suggestedValue: {class: File, path: 5e9eff46e4b054952c25f694, name: hg38.even.handcurated.20k.intervals}}
+    sbg:suggestedValue: {class: File, path: 5f500135e4b0370371c051b1, name: hg38.even.handcurated.20k.intervals}}
   vep_cache: {type: File, doc: 'Variant effect predictor cache file', sbg:suggestedValue: {
-      class: File, path: 5e9eff46e4b054952c25f6a9, name: homo_sapiens_vep_93_GRCh38_convert_cache.tar.gz}}
+      class: File, path: 5f500135e4b0370371c051b5, name: homo_sapiens_vep_93_GRCh38_convert_cache.tar.gz}}
   wgs_evaluation_interval_list: {type: File, doc: 'wgs_evaluation_regions.hg38.interval_list',
-    sbg:suggestedValue: {class: File, path: 5d9f63e9e4b03edc89a24c9c, name: wgs_evaluation_regions.hg38.interval_list}}
+    sbg:suggestedValue: {class: File, path: 60639017357c3a53540ca7d3, name: wgs_evaluation_regions.hg38.interval_list}}
+  snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP\
+      \ VariantRecalibration. If a dataset gives fewer variants than the expected\
+      \ scale, the number of Gaussians for training should be turned down. Lowering\
+      \ the max-Gaussians forces the program to group variants into a smaller number\
+      \ of clusters, which results in more variants per cluster."}
+  indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL\
+      \ VariantRecalibration. If a dataset gives fewer variants than the expected\
+      \ scale, the number of Gaussians for training should be turned down. Lowering\
+      \ the max-Gaussians forces the program to group variants into a smaller number\
+      \ of clusters, which results in more variants per cluster."}
   output_basename: string
 
 outputs:
@@ -179,6 +193,7 @@ steps:
       omni_resource_vcf: index_omni/output
       one_thousand_genomes_resource_vcf: index_1k/output
       sites_only_variant_filtered_vcf: gatk_gathervcfs/output
+      max_gaussians: snp_max_gaussians
     out: [model_report]
   gatk_indelsvariantrecalibrator:
     run: ../tools/gatk_indelsvariantrecalibrator.cwl
@@ -189,6 +204,7 @@ steps:
       dbsnp_resource_vcf: index_dbsnp/output
       mills_resource_vcf: index_mills/output
       sites_only_variant_filtered_vcf: gatk_gathervcfs/output
+      max_gaussians: indel_max_gaussians
     out: [recalibration, tranches]
   gatk_snpsvariantrecalibratorscattered:
     run: ../tools/gatk_snpsvariantrecalibratorscattered.cwl
@@ -201,6 +217,7 @@ steps:
       omni_resource_vcf: index_omni/output
       one_thousand_genomes_resource_vcf: index_1k/output
       dbsnp_resource_vcf: index_dbsnp/output
+      max_gaussians: snp_max_gaussians
     scatter: [sites_only_variant_filtered_vcf]
     out: [recalibration, tranches]
   gatk_gathertranches:
@@ -254,7 +271,7 @@ steps:
     out: [output]
   vep_annotate:
     in:
-      input_vcf: gatk_hardfiltering/hardfiltered_vcf 
+      input_vcf: gatk_hardfiltering/hardfiltered_vcf
       reference_fasta: prepare_reference/indexed_fasta
       output_basename: output_basename
       cache: vep_cache
@@ -277,3 +294,6 @@ sbg:categories:
 - PEDDY
 - VCF
 - VEP
+sbg:links:
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v0.1.0'
+  label: github-release
