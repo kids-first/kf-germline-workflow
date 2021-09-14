@@ -24,7 +24,7 @@ arguments:
       $(inputs.intervals_list ? "-L " + inputs.intervals_list.path : '')
       $(inputs.blacklist_intervals_list ? "-XL " + inputs.blacklist_intervals_list.path : '')
 inputs:
-  reference: { type: File , secondaryFiles: ['.fai'] , doc: "Reference fasta" }
+  reference: { type: 'File' , secondaryFiles: ['.fai'] , doc: "Reference fasta" }
   sequence_dictionary: { type: 'File?', doc: "Use the given sequence dictionary as the master/canonical sequence dictionary. Must be a .dict file." }
   intervals_list: { type: 'File?', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   blacklist_intervals_list: { type: 'File?', doc: "One or more genomic intervals to exclude from processing. Use this input when providing interval list files or other file based inputs." }
@@ -38,8 +38,8 @@ inputs:
         symbols: ["ALL","OVERLAPPING_ONLY"]
     default: "OVERLAPPING_ONLY"
     doc: "By default, the program merges abutting intervals (i.e. intervals that are directly side-by-side but do not actually overlap) into a single continuous interval. However you can change this behavior if you want them to be treated as separate intervals instead."
-  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task." }
-  cores: { type: int?, default: 4, doc: "Minimum reserved number of CPU cores for the task." }
+  max_memory: { type: 'int?', default: 8, doc: "GB of RAM to allocate to the task." }
+  cores: { type: 'int?', default: 4, doc: "Minimum reserved number of CPU cores for the task." }
 
 outputs:
-  preprocessed_intervals: { type: File, outputBinding: { glob: '*preprocessed.interval_list' } }
+  preprocessed_intervals: { type: 'File', outputBinding: { glob: '*preprocessed.interval_list' } }

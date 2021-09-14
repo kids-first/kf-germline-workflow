@@ -97,7 +97,7 @@ inputs:
   dbsnp_resource_vcf:
     type: File
     secondaryFiles: [.idx]
-  max_gaussians: { type: int?, default: 6 }
+  max_gaussians: { type: 'int?', default: 6 }
 outputs:
   model_report:
     type: File

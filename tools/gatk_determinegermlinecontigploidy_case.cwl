@@ -50,7 +50,7 @@ inputs:
         symbols: ["ERROR","WARNING","INFO","DEBUG"]
     doc: "Control verbosity of logging."
     default: "DEBUG"
-  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task." }
-  cores: { type: int?, default: 8, doc: "Minimum reserved number of CPU cores for the task." }
+  max_memory: { type: 'int?', default: 8, doc: "GB of RAM to allocate to the task." }
+  cores: { type: 'int?', default: 8, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
-  contig_ploidy_calls_tar: { type: File, outputBinding: { glob: 'case-contig-ploidy-calls.tar.gz' } }
+  contig_ploidy_calls_tar: { type: 'File', outputBinding: { glob: 'case-contig-ploidy-calls.tar.gz' } }

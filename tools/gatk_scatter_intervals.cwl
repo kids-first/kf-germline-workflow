@@ -41,8 +41,8 @@ arguments:
       fi
 inputs:
   intervals_list: { type: 'File', doc: "A set of genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
-  num_intervals_per_scatter: { type: int, doc: "Total number of intervals to include in each scattered interval list" }
-  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task. default: 8" }
-  cores: { type: int?, default: 8, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
+  num_intervals_per_scatter: { type: 'int', doc: "Total number of intervals to include in each scattered interval list" }
+  max_memory: { type: 'int?', default: 8, doc: "GB of RAM to allocate to the task. default: 8" }
+  cores: { type: 'int?', default: 8, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
 outputs:
   scattered_intervals_lists: { type: 'File[]', outputBinding: { glob: 'out/*.interval_list' } }

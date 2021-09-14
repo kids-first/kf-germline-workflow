@@ -34,8 +34,8 @@ arguments:
         echo $qc_status >> qcStatus.txt
 inputs:
   gcnv_model_tars: { type: 'File[]', doc: "One or more tar files output from GATK GermlineCNVCaller run in Cohort Mode" }
-  ram: { type: int?, default: 4, doc: "GB of RAM to allocate to the task. default: 4" }
-  cores: { type: int?, default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 1" }
+  ram: { type: 'int?', default: 4, doc: "GB of RAM to allocate to the task. default: 4" }
+  cores: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 1" }
 outputs:
-  qc_status_file: { type: File, outputBinding: { glob: 'qcStatus.txt' } }
-  qc_status_string: { type: string, outputBinding: { glob: 'qcStatus.txt', loadContents: true, outputEval: '$(self[0].contents)' } }
+  qc_status_file: { type: 'File', outputBinding: { glob: 'qcStatus.txt' } }
+  qc_status_string: { type: 'string', outputBinding: { glob: 'qcStatus.txt', loadContents: true, outputEval: '$(self[0].contents)' } }

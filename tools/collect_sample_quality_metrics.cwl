@@ -25,11 +25,11 @@ arguments:
           echo "EXCESSIVE_NUMBER_OF_EVENTS" >> $(inputs.entity_id).qcStatus.txt
       fi
 inputs:
-  genotyped_segments_vcf: { type: File, secondaryFiles: [.tbi] }
-  maximum_number_events: { type: int }
-  entity_id: { type: string }
-  ram: { type: int?, default: 1, doc: "GB of RAM to allocate to the task. default: 1" }
-  cores: { type: int?, default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 1" }
+  genotyped_segments_vcf: { type: 'File', secondaryFiles: [.tbi] }
+  maximum_number_events: { type: 'int' }
+  entity_id: { type: 'string' }
+  ram: { type: 'int?', default: 1, doc: "GB of RAM to allocate to the task. default: 1" }
+  cores: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 1" }
 outputs:
-  qc_status_file: { type: File, outputBinding: { glob: '*qcStatus.txt' } }
-  qc_status_string: { type: string, outputBinding: { glob: '*qcStatus.txt', loadContents: true, outputEval: '$(self[0].contents)' } }
+  qc_status_file: { type: 'File', outputBinding: { glob: '*qcStatus.txt' } }
+  qc_status_string: { type: 'string', outputBinding: { glob: '*qcStatus.txt', loadContents: true, outputEval: '$(self[0].contents)' } }

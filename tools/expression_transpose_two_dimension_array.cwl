@@ -1,7 +1,7 @@
 cwlVersion: v1.0
 class: ExpressionTool
-id: expression_transpose_two_dimension_array
-doc: "Take any two dimensional array and transpose it. From: https://gist.github.com/femto113/1784503#gistcomment-2163931"
+id: expression_transpose_two_dimension_file_array
+doc: "Take two dimensional file array and transpose it. From: https://gist.github.com/femto113/1784503#gistcomment-2163931"
 requirements:
   - class: InlineJavascriptRequirement
 
@@ -11,7 +11,7 @@ inputs:
       type: array
       items:
         type: array
-        items: Any
+        items: File
 
 outputs:
   transposed_array:
@@ -19,7 +19,7 @@ outputs:
       type: array
       items:
         type: array
-        items: Any
+        items: File
 
 expression: |
   ${

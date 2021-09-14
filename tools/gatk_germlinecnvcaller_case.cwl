@@ -85,7 +85,7 @@ arguments:
 
       rm -rf gcnv-model
 inputs:
-  scatter_index: { type: int }
+  scatter_index: { type: 'int' }
   gcnv_model_tar: { type: 'File', doc: "GZipped TAR file containing gcnv model directory (output of DetermineGermlineContigPloidy)." }
   contig_ploidy_calls_tar: { type: 'File', doc: "GZipped TAR file containing contig-ploidy calls directory (output of DetermineGermlineContigPloidy)." }
   read_count_files: { type: 'File[]', doc: "Input paths for read-count files containing integer read counts in genomic intervals for all samples. All intervals specified via -L/-XL must be contained; if none are specified, then intervals must be identical and in the same order for all samples. If read-count files are given by Google Cloud Storage paths, have the extension .counts.tsv or .counts.tsv.gz, and have been indexed by IndexFeatureFile, only the specified intervals will be queried and streamed; this can reduce disk usage by avoiding the complete localization of all read-count files" }
@@ -126,8 +126,8 @@ inputs:
         symbols: ["ERROR","WARNING","INFO","DEBUG"]
     doc: "Control verbosity of logging."
     default: "DEBUG"
-  max_memory: { type: int?, default: 10, doc: "GB of RAM to allocate to the task." }
-  cores: { type: int?, default: 6, doc: "Minimum reserved number of CPU cores for the task." }
+  max_memory: { type: 'int?', default: 10, doc: "GB of RAM to allocate to the task." }
+  cores: { type: 'int?', default: 6, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
   gcnv_call_tars: { type: 'File[]', outputBinding: { glob: 'case-gcnv-calls-shard-$(inputs.scatter_index)-sample-*.tar.gz' } }
   gcnv_tracking_tar: { type: 'File', outputBinding: { glob: 'case-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz' } }

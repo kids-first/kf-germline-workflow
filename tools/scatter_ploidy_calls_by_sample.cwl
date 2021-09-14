@@ -37,7 +37,7 @@ arguments:
 inputs:
   contig_ploidy_calls_tar: { type: 'File', doc: "TAR file output from GATK DetermineGermlineConfigPloidy" }
   samples: { type: 'string[]', doc: "One or more sample names" }
-  ram: { type: int?, default: 1, doc: "GB of RAM to allocate to the task." }
-  cores: { type: int?, default: 1, doc: "Minimum reserved number of CPU cores for the task." }
+  ram: { type: 'int?', default: 1, doc: "GB of RAM to allocate to the task." }
+  cores: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
   sample_contig_ploidy_calls_tars: { type: 'File[]', outputBinding: { glob: '*.contig_ploidy_calls.tar.gz' } }

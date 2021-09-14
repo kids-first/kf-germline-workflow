@@ -81,17 +81,17 @@ inputs:
   gcnvkernel_versions: { type: 'File[]' }
   sharded_interval_lists: { type: 'File[]' }
 
-  contig_ploidy_calls_tar: { type: File }
+  contig_ploidy_calls_tar: { type: 'File' }
 
   ref_copy_number_autosomal_contigs: { type: 'int?', default: 2 }
   allosomal_contigs_args: { type: 'string[]?' }
 
-  sample_index: { type: int }
-  entity_id: { type: string }
+  sample_index: { type: 'int' }
+  entity_id: { type: 'string' }
 
-  max_memory: { type: int?, default: 8, doc: "GB of RAM to allocate to the task." }
-  cores: { type: int?, default: 4, doc: "Minimum reserved number of CPU cores for the task." }
+  max_memory: { type: 'int?', default: 8, doc: "GB of RAM to allocate to the task." }
+  cores: { type: 'int?', default: 4, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
-  genotyped_intervals_vcf: { type: File, outputBinding: { glob: 'genotyped-intervals-*.vcf.gz' }, secondaryFiles: [.tbi] }
-  genotyped_segments_vcf: { type: File, outputBinding: { glob: 'genotyped-segments-*.vcf.gz' }, secondaryFiles: [.tbi] }
-  denoised_copy_ratios: { type: File, outputBinding: { glob: 'denoised_copy_ratios-*' } }
+  genotyped_intervals_vcf: { type: 'File', outputBinding: { glob: 'genotyped-intervals-*.vcf.gz' }, secondaryFiles: [.tbi] }
+  genotyped_segments_vcf: { type: 'File', outputBinding: { glob: 'genotyped-segments-*.vcf.gz' }, secondaryFiles: [.tbi] }
+  denoised_copy_ratios: { type: 'File', outputBinding: { glob: 'denoised_copy_ratios-*' } }

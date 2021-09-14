@@ -61,7 +61,7 @@ inputs:
   dbsnp_resource_vcf:
     type: File
     secondaryFiles: [.idx]
-  max_gaussians: { type: int?, default: 4 }
+  max_gaussians: { type: 'int?', default: 4 }
 outputs:
   recalibration:
     type: File
