@@ -151,8 +151,8 @@ inputs:
   debug: { type: 'boolean?', default: false, inputBinding: { prefix: "--debug" }, doc: "Print debugging output." }
 
   # Resource Control
-  ram: { type: int?, default: 2, doc: "Minimum reserved RAM for the task. default: 16" }
-  cpu: { type: int?, default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
+  ram: { type: 'int?', default: 2, doc: "Minimum reserved RAM for the task. default: 16" }
+  cpu: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
 
 outputs:
   output: { type: 'File', outputBinding: { glob: "*.freebayes.vcf" } }

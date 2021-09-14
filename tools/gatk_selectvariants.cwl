@@ -24,11 +24,11 @@ arguments:
       -V $(inputs.input_vcf.path)
 
 inputs:
-  input_vcf: {type: File, secondaryFiles: [.tbi], doc: "A VCF file containing variants"}
+  input_vcf: {type: 'File', secondaryFiles: [.tbi], doc: "A VCF file containing variants"}
   selection: {type: {type: enum, name: selection, symbols: ["SNP", "INDEL"]}, doc: "Select only a certain type of variants from the input file"}
-  output_basename: {type: string, doc: "String value to serve as the base for the output filename."}
-  max_memory: {type: int?, default: 8, doc: "GB of memory to allocate to this task. default: 8"}
-  cpu: {type: int?, default: 4, doc: "Number of CPUs to allocate to this task. default: 4" }
+  output_basename: {type: 'string', doc: "String value to serve as the base for the output filename."}
+  max_memory: {type: 'int?', default: 8, doc: "GB of memory to allocate to this task. default: 8"}
+  cpu: {type: 'int?', default: 4, doc: "Number of CPUs to allocate to this task. default: 4" }
 outputs:
   output:
     type: File

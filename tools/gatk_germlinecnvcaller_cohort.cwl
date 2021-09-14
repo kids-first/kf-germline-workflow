@@ -92,8 +92,8 @@ arguments:
 
       rm -rf contig-ploidy-calls
 inputs:
-  cohort_entity_id: { type: string , doc: "String value representing the cohort entity id" }
-  scatter_index: { type: int }
+  cohort_entity_id: { type: 'string' , doc: "String value representing the cohort entity id" }
+  scatter_index: { type: 'int' }
   intervals_list: { type: 'File', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   contig_ploidy_calls_tar: { type: 'File', doc: "GZipped TAR file containing contig-ploidy calls directory (output of DetermineGermlineContigPloidy)." }
   read_count_files: { type: 'File[]', doc: "Input paths for read-count files containing integer read counts in genomic intervals for all samples. All intervals specified via -L/-XL must be contained; if none are specified, then intervals must be identical and in the same order for all samples. If read-count files are given by Google Cloud Storage paths, have the extension .counts.tsv or .counts.tsv.gz, and have been indexed by IndexFeatureFile, only the specified intervals will be queried and streamed; this can reduce disk usage by avoiding the complete localization of all read-count files" }
@@ -153,8 +153,8 @@ inputs:
         symbols: ["ALL","OVERLAPPING_ONLY"]
     doc: "By default, the program merges abutting intervals (i.e. intervals that are directly side-by-side but do not actually overlap) into a single continuous interval. However you can change this behavior if you want them to be treated as separate intervals instead."
     default: "OVERLAPPING_ONLY"
-  max_memory: { type: int?, default: 10, doc: "GB of RAM to allocate to the task." }
-  cores: { type: int?, default: 6, doc: "Minimum reserved number of CPU cores for the task." }
+  max_memory: { type: 'int?', default: 10, doc: "GB of RAM to allocate to the task." }
+  cores: { type: 'int?', default: 6, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
   gcnv_model_tar: { type: 'File', outputBinding: { glob: '*-gcnv-model-shard-*' } }
   gcnv_call_tars: { type: 'File[]', outputBinding: { glob: '*-gcnv-calls-shard-*' } }
