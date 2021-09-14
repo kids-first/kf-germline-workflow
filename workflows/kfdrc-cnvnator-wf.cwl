@@ -3,17 +3,19 @@ class: Workflow
 id: kfdrc-cnvnator-wf
 label: Kids First DRC CNVnator Workflow
 doc: |
-  # Kids First DRC CNVnator Workflow
-  Kids First Data Resource Center CNVnator Workflow
+  # KFDRC CNVnator Workflow
+
+  The Kids First Data Resource Center CNVnator Workflow uses [CNVnator](https://github.com/abyzovlab/CNVnator).
+  CNVnator is a tool for CNV discovery and genotyping from depth-of-coverage by mapped reads.
 
   ![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
 
   ### Runtime Estimates
+  8 GB BAM: 30 min & $0.25
 
-  ### Tips To Run:
+  ### Tips To Run
 
   ## Other Resources
-  - tool images: https://hub.docker.com/r/kfdrc/
   - dockerfiles: https://github.com/d3b-center/bixtools
 
 requirements:
@@ -21,39 +23,48 @@ requirements:
 
 inputs:
   # Multistep
-  output_basename: { type: 'string', doc: "String value to use for the basename of all outputs" }
-  chromosomes: { type: 'string[]?', doc: "Restrict analysis to only those chromosomes listed" }
-  bin_size: { type: 'int', doc: "Size of bins to use for analysis. Bin size should be equal to a whole number of 100 bases (e.g., 2500, 3700,…)" }
-  disable_gc_correction: { type: 'boolean?', doc: "Do not to use GC corrected RD signal" }
+  output_basename: {type: 'string', doc: "String value to use for the basename of\
+      \ all outputs"}
+  chromosomes: {type: 'string[]?', doc: "Restrict analysis to only those chromosomes\
+      \ listed"}
+  bin_size: {type: 'int', doc: "Size of bins to use for analysis. Bin size should\
+      \ be equal to a whole number of 100 bases (e.g., 2500, 3700,\u2026)"}
+  disable_gc_correction: {type: 'boolean?', doc: "Do not to use GC corrected RD signal"}
 
   # Extract
-  aligned_reads: { type: 'File[]', doc: "Aligned Reads file(s) from which CNVs will be discovered" } 
-  light_root: { type: 'boolean?', doc: "Create a smaller root file?" }
+  aligned_reads: {type: 'File[]', doc: "Aligned Reads file(s) from which CNVs will\
+      \ be discovered", "sbg:fileTypes": "BAM, CRAM"}
+  light_root: {type: 'boolean?', doc: "Create a smaller root file?"}
 
   # RD Histogram
-  reference_fasta: { type: 'File', doc: "Reference fasta file" }
+  reference_fasta: {type: 'File', doc: "Reference fasta file", "sbg:suggestedValue": {
+      class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta},
+    "sbg:fileTypes": "FASTA, FA"}
 
   # Memory Control
-  extract_max_memory: { type: 'int?', doc: "Max memory to allocate to extract reads" }
-  his_max_memory: { type: 'int?', doc: "Max memory to allocate to rd histogram generation" }
-  stat_max_memory: { type: 'int?', doc: "Max memory to allocate to calculate statistics" }
-  eval_max_memory: { type: 'int?', doc: "Max memory to allocate to evaluation" }
-  partition_max_memory: { type: 'int?', doc: "Max memory to allocate to partition" }
-  call_max_memory: { type: 'int?', doc: "Max memory to allocate to call" }
-  vcf_max_memory: { type: 'int?', doc: "Max memory to allocate to vcf creation" }
+  extract_max_memory: {type: 'int?', doc: "Max memory to allocate to extract reads"}
+  his_max_memory: {type: 'int?', doc: "Max memory to allocate to rd histogram generation"}
+  stat_max_memory: {type: 'int?', doc: "Max memory to allocate to calculate statistics"}
+  eval_max_memory: {type: 'int?', doc: "Max memory to allocate to evaluation"}
+  partition_max_memory: {type: 'int?', doc: "Max memory to allocate to partition"}
+  call_max_memory: {type: 'int?', doc: "Max memory to allocate to call"}
+  vcf_max_memory: {type: 'int?', doc: "Max memory to allocate to vcf creation"}
   # Core control
-  extract_cores: { type: 'int?', doc: "Cores to allocate to extract reads" }
-  his_cores: { type: 'int?', doc: "Cores to allocate to rd histogram generation" }
-  stat_cores: { type: 'int?', doc: "Cores to allocate to calculate statistics" }
-  eval_cores: { type: 'int?', doc: "Cores to allocate to evaluation" }
-  partition_cores: { type: 'int?', doc: "Cores to allocate to partition" }
-  call_cores: { type: 'int?', doc: "Cores to allocate to call" }
-  vcf_cores: { type: 'int?', doc: "Cores to allocate to vcf creation" }
+  extract_cores: {type: 'int?', doc: "Cores to allocate to extract reads"}
+  his_cores: {type: 'int?', doc: "Cores to allocate to rd histogram generation"}
+  stat_cores: {type: 'int?', doc: "Cores to allocate to calculate statistics"}
+  eval_cores: {type: 'int?', doc: "Cores to allocate to evaluation"}
+  partition_cores: {type: 'int?', doc: "Cores to allocate to partition"}
+  call_cores: {type: 'int?', doc: "Cores to allocate to call"}
+  vcf_cores: {type: 'int?', doc: "Cores to allocate to vcf creation"}
 
 outputs:
-  vcf: { type: 'File', outputSource: cnvnator2vcf/output, doc: "Called CNVs in VCF format" } 
-  called_cnvs:  { type: 'File', outputSource: cnvnator_call/output, doc: "Called CNVs from aligned_reads" } 
-  average_rd:  { type: 'File', outputSource: cnvnator_evaluation/output, doc: "Average RD stats" }
+  vcf: {type: 'File', outputSource: cnvnator2vcf/output, doc: "Called CNVs in VCF\
+      \ format"}
+  called_cnvs: {type: 'File', outputSource: cnvnator_call/output, doc: "Called CNVs\
+      \ from aligned_reads"}
+  average_rd: {type: 'File', outputSource: cnvnator_evaluation/output, doc: "Average\
+      \ RD stats"}
 
 steps:
   cnvnator_extract_reads:
@@ -61,7 +72,7 @@ steps:
     in:
       input_reads: aligned_reads
       chrom: chromosomes
-      output_root: { source: output_basename, valueFrom: $(self).root }
+      output_root: {source: output_basename, valueFrom: $(self).root}
       lite: light_root
       max_memory: extract_max_memory
       cpu: extract_cores
@@ -116,7 +127,7 @@ steps:
     run: ../tools/cnvnator2vcf.cwl
     in:
       input_calls: cnvnator_call/output
-      reference_name: { source: reference_fasta, valueFrom: $(self.nameroot) }
+      reference_name: {source: reference_fasta, valueFrom: $(self.nameroot)}
       prefix: output_basename
       max_memory: vcf_max_memory
       cpu: vcf_cores
@@ -127,9 +138,9 @@ $namespaces:
 hints:
 - class: sbg:maxNumberOfParallelInstances
   value: 2
-sbg:license: Apache License 2.0
-sbg:publisher: KFDRC
-sbg:categories:
+"sbg:license": Apache License 2.0
+"sbg:publisher": KFDRC
+"sbg:categories":
 - BAM
 - CNV
 - CNVNATOR

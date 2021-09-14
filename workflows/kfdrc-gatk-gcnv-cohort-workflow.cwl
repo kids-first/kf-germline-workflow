@@ -28,19 +28,19 @@ requirements:
 inputs:
   # Multistep
   reference_tar: {type: 'File', doc: "TAR containing reference fasta and associated\
-      \ indecies. Must include FAI and DICT!", sbg:fileTypes: "TAR, TAR.GZ, TGZ"}
+      \ indecies. Must include FAI and DICT!", "sbg:fileTypes": "TAR, TAR.GZ, TGZ"}
   intervals: {type: 'File', doc: "Picard or GATK-style interval list of regions to\
       \ process. For WGS, this should typically only include the chromosomes of interest.",
-    sbg:fileTypes: "INTERVALS, INTERVAL_LIST, LIST"}
+    "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
   blacklist_intervals: {type: 'File?', doc: "Picard or GATK-style interval list of\
-      \ regions to ignore", sbg:fileTypes: "INTERVALS, INTERVAL_LIST, LIST"}
+      \ regions to ignore", "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
   normal_bams: {type: 'File[]', secondaryFiles: [.bai], doc: "List of normal BAMs,\
-      \ and their associated BAIs, that comprise the cohort.", sbg:fileTypes: "BAM"}
+      \ and their associated BAIs, that comprise the cohort.", "sbg:fileTypes": "BAM"}
   cohort_entity_id: {type: 'string', doc: "Name of the cohort. Will be used as a prefix\
       \ for output filenames."}
   contig_ploidy_priors: {type: 'File', doc: "TSV file containing prior probabilities\
       \ for the ploidy of each contig, with column headers: CONTIG_NAME, PLOIDY_PRIOR_0,\
-      \ PLOIDY_PRIOR_1, ...", sbg:fileTypes: "TSV"}
+      \ PLOIDY_PRIOR_1, ...", "sbg:fileTypes": "TSV"}
   num_intervals_per_scatter: {type: 'int', doc: "Number of intervals (i.e., targets\
       \ or bins) in each scatter for GermlineCNVCaller. If total number of intervals\
       \ is not divisible by the value provided, the last scatter will contain the\
@@ -60,13 +60,13 @@ inputs:
       \ If false, rely on PCA-based denoising to correct for GC bias. Tool will default\
       \ to true."}
   mappability_track_bed: {type: 'File?', doc: "Umap single-read mappability track\
-      \ in .bed format. Overlapping intervals must be merged.", sbg:fileTypes: "BED"}
+      \ in .bed format. Overlapping intervals must be merged.", "sbg:fileTypes": "BED"}
   mappability_track_bed_idx: {type: 'File?', doc: "IDX index for mappability_track_bed.",
-    sbg:fileTypes: "IDX"}
+    "sbg:fileTypes": "IDX"}
   segmental_duplication_track_bed: {type: 'File?', doc: "Segmental-duplication track\
-      \ in .bed format. Overlapping intervals must be merged.", sbg:fileTypes: "BED"}
+      \ in .bed format. Overlapping intervals must be merged.", "sbg:fileTypes": "BED"}
   segmental_duplication_track_bed_idx: {type: 'File?', doc: "IDX index for segmental_duplication_track_bed.",
-    sbg:fileTypes: "IDX"}
+    "sbg:fileTypes": "IDX"}
   feature_query_lookahead: {type: 'int?', doc: "Number of bases to cache when querying\
       \ feature tracks."}
 
@@ -527,9 +527,9 @@ steps:
 
 $namespaces:
   sbg: https://sevenbridges.com
-sbg:license: Apache License 2.0
-sbg:publisher: KFDRC
-sbg:categories:
+"sbg:license": Apache License 2.0
+"sbg:publisher": KFDRC
+"sbg:categories":
 - BAM
 - CNV
 - COHORT

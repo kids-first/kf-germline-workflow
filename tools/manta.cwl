@@ -1,7 +1,7 @@
 cwlVersion: v1.0
 class: CommandLineTool
 id: kfdrc-manta-sv
-label: Manta sv caller
+label: Manta SV Caller
 doc: 'Calls structural variants.  Tool designed to pick correct run mode based on if tumor, normal, or both crams are given'
 requirements:
   - class: ShellCommandRequirement

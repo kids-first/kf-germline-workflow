@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: CommandLineTool
 id: cnvkit-batch
 requirements:
@@ -15,17 +15,15 @@ requirements:
 baseCommand: [cnvkit.py,batch]
 
 inputs:
-  input_bam: { type: 'File[]?', inputBinding: { position: 99 }, secondaryFiles: [.bai], doc: "Mapped sequence reads" }
-  input_cram: { type: 'File[]?', inputBinding: { position: 99 }, secondaryFiles: [.crai], doc: "Mapped sequence reads" }
+  input_reads: { type: 'File[]?', inputBinding: { position: 99 }, secondaryFiles: ['.bai?','^.bai?','.crai?','^.crai?'], doc: "Mapped sequence reads in BAM or CRAM format" }
   sequencing_method: { type: ['null', { type: enum, symbols: ["hybrid","amplicon","wgs"], name: "sequencing_method" } ], inputBinding: { prefix: "--seq-method" }, doc: "Sequencing assay type: hybridization capture ('hybrid'), targeted amplicon sequencing ('amplicon'), or whole genome sequencing ('wgs'). Determines whether and how to use antitarget bins. [Default: hybrid]" }
   segmentation_method: { type: ['null', { type: enum, symbols: ["cbs","flasso","haar","none","hmm","hmm-tumor","hmm-germline"], name: "segmentation_method" } ], inputBinding: { prefix: "--segment-method" }, doc: "Method used in the 'segment' step. [Default: cbs]" }
-  male_ref: { type: boolean?, inputBinding: { prefix: "--male-reference" }, doc: "Use or assume a male reference" }
-  count_reads: { type: boolean?, inputBinding: { prefix: "--count-reads" }, doc: "Get read depths by counting read midpoints within each bin." }
-  drop_low_coverage: { type: boolean?, inputBinding: { prefix: "--drop-low-coverage" }, doc: "Drop very-low-coverage bins before segmentation to avoid false-positive deletions in poor-quality tumor samples." }
+  male_ref: { type: 'boolean?', inputBinding: { prefix: "--male-reference" }, doc: "Use or assume a male reference" }
+  count_reads: { type: 'boolean?', inputBinding: { prefix: "--count-reads" }, doc: "Get read depths by counting read midpoints within each bin." }
+  drop_low_coverage: { type: 'boolean?', inputBinding: { prefix: "--drop-low-coverage" }, doc: "Drop very-low-coverage bins before segmentation to avoid false-positive deletions in poor-quality tumor samples." }
 
   # Build your own Copy Number Reference
-  input_normal_bams: { type: 'File[]?', inputBinding: { prefix: "--normal" }, secondaryFiles: [.bai], doc: "Normal samples (.bam) used to construct the pooled, paired, or flat reference. If this option is used but no filenames are given, a 'flat' reference will be built. Otherwise, all filenames following this option will be used." }
-  input_normal_crams: { type: 'File[]?', inputBinding: { prefix: "--normal" }, secondaryFiles: [.crai], doc: "Normal samples (.bam) used to construct the pooled, paired, or flat reference. If this option is used but no filenames are given, a 'flat' reference will be built. Otherwise, all filenames following this option will be used." }
+  input_normal_reads: { type: 'File[]?', inputBinding: { prefix: "--normal" }, secondaryFiles: ['.bai?','^.bai?','.crai?','^.crai?'], doc: "Normal samples (.bam/.cram) used to construct the pooled, paired, or flat reference. If this option is used but no filenames are given, a 'flat' reference will be built. Otherwise, all filenames following this option will be used." }
   reference_fasta: { type: 'File?', inputBinding: { prefix: "--fasta" }, secondaryFiles: [.fai], doc: "Reference genome, FASTA format; needed if cnv kit cnn not already built" }
   targets_file: { type: 'File?', inputBinding: { prefix: "--targets" }, doc: "Target intervals (.bed or .list)" }
   antitargets_file: { type: 'File?', inputBinding: { prefix: "--antitargets" }, doc: "Antitarget intervals (.bed or .list)" }
@@ -46,8 +44,8 @@ inputs:
   diagram_plot: { type: 'boolean?', inputBinding: { prefix: "--diagram" }, doc: "Create an ideogram of copy ratios on chromosomes as a PDF." }
 
   # Resource Control
-  cpu: { type: int?, inputBinding: { prefix: "--processes" }, default: 16, doc: "Number of subprocesses used to running each of the BAM files in parallel. Without an argument, use the maximum number of available CPUs." }
-  ram: { type: int?, default: 32, doc: "GB of RAM to allocate to this task" }
+  cpu: { type: 'int?', inputBinding: { prefix: "--processes" }, default: 16, doc: "Number of subprocesses used to running each of the BAM files in parallel. Without an argument, use the maximum number of available CPUs." }
+  ram: { type: 'int?', default: 32, doc: "GB of RAM to allocate to this task" }
 
 outputs:
   output_cnr:
@@ -64,7 +62,7 @@ outputs:
     type: 'File[]?'
     outputBinding:
       glob: '*.bintest.cns'
-    doc: "Binned filtered CNS file"
+    doc: "Per-sample binned filtered CNS file"
   output_cnn:
     type: 'File'
     outputBinding:
