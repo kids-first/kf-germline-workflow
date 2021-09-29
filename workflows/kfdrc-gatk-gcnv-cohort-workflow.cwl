@@ -395,7 +395,7 @@ steps:
   determine_germline_contig_ploidy_cohort:
     run: ../tools/gatk_determinegermlinecontigploidy_cohort.cwl
     in:
-      cohort_entity_id: cohort_entity_id
+      output_basename: cohort_entity_id
       intervals_list: filter_intervals/filtered_intervals
       read_count_files: collect_read_counts/counts
       contig_ploidy_priors: contig_ploidy_priors
@@ -431,7 +431,7 @@ steps:
     scatterMethod: dotproduct
     in:
       scatter_index: index_scattered_intervals_list_array/index_array
-      cohort_entity_id: cohort_entity_id
+      output_basename: cohort_entity_id
       intervals_list: scatter_intervals/scattered_intervals_lists
       contig_ploidy_calls_tar: determine_germline_contig_ploidy_cohort/contig_ploidy_calls_tar
       read_count_files: collect_read_counts/counts
@@ -485,7 +485,7 @@ steps:
     out: [transposed_array]
 
   index_entity_id_array:
-    run: ../tools/expression_create_index_array.cwl
+    run: ../tools/expression_create_index_array_string.cwl
     in:
       array: collect_read_counts/entity_id
     out: [index_array]

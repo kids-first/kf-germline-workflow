@@ -26,7 +26,7 @@ arguments:
       --contig-ploidy-priors $(inputs.contig_ploidy_priors.path)
       --interval-merging-rule $(inputs.interval_merging_rule)
       --output out
-      --output-prefix $(inputs.cohort_entity_id)
+      --output-prefix $(inputs.output_basename)
       --verbosity $(inputs.verbosity)
       --mapping-error-rate $(inputs.mapping_error)
       --mean-bias-standard-deviation $(inputs.mean_bias_sd)
@@ -34,11 +34,11 @@ arguments:
       --sample-psi-scale $(inputs.psi_scale_sample)
       $(inputs.interals_list ? "-L " + inputs.intervals_list.path : '')
 
-      tar czf $(inputs.cohort_entity_id)-contig-ploidy-model.tar.gz -C out/$(inputs.cohort_entity_id)-model .
+      tar czf $(inputs.output_basename)-contig-ploidy-model.tar.gz -C out/$(inputs.output_basename)-model .
 
-      tar czf $(inputs.cohort_entity_id)-contig-ploidy-calls.tar.gz -C out/$(inputs.cohort_entity_id)-calls .
+      tar czf $(inputs.output_basename)-contig-ploidy-calls.tar.gz -C out/$(inputs.output_basename)-calls .
 inputs:
-  cohort_entity_id: { type: 'string', doc: "String value representing the cohort entity id" }
+  output_basename: { type: 'string', doc: "String value to use as the basename for the outputs" }
   intervals_list: { type: 'File?', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   read_count_files: { type: 'File[]', doc: "Input paths for read-count files containing integer read counts in genomic intervals for all samples. All intervals specified via -L/-XL must be contained; if none are specified, then intervals must be identical and in the same order for all samples. If read-count files are given by Google Cloud Storage paths, have the extension .counts.tsv or .counts.tsv.gz, and have been indexed by IndexFeatureFile, only the specified intervals will be queried and streamed; this can reduce disk usage by avoiding the complete localization of all read-count files" }
   contig_ploidy_priors: { type: 'File', doc: "Input file specifying contig-ploidy priors. If only a single sample is specified, this input should not be provided. If multiple samples are specified, this input is required" }

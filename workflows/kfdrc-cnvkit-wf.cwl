@@ -45,14 +45,17 @@ inputs:
   output_basename: {type: 'string', doc: "Basename to use for outputs"}
 
   # Batch
-  input_reads: {type: 'File[]', inputBinding: {position: 99}, secondaryFiles: ['.bai?',
-      '^.bai?', '.crai?', '^.crai?'], doc: "Mapped sequence reads in CRAM or BAM format",
-    "sbg:fileTypes": "BAM, CRAM"}
+  input_reads: {type: 'File[]', inputBinding: {position: 99}, secondaryFiles: [{pattern: ".bai",
+        required: false}, {pattern: "^.bai", required: false}, {pattern: ".crai",
+        required: false}, {pattern: "^.crai", required: false}], doc: "Mapped sequence\
+      \ reads in CRAM or BAM format", "sbg:fileTypes": "BAM, CRAM"}
   input_normal_reads: {type: 'File[]?', inputBinding: {prefix: "--normal"}, secondaryFiles: [
-      '.bai?', '^.bai?', '.crai?', '^.crai?'], doc: "Normal samples (.bam/.cram) used\
-      \ to construct the pooled, paired, or flat reference. If this option is used\
-      \ but no filenames are given, a 'flat' reference will be built. Otherwise, all\
-      \ filenames following this option will be used.", "sbg:fileTypes": "BAM, CRAM"}
+      {pattern: ".bai", required: false}, {pattern: "^.bai", required: false}, {pattern: ".crai",
+        required: false}, {pattern: "^.crai", required: false}], doc: "Normal samples\
+      \ (.bam/.cram) used to construct the pooled, paired, or flat reference. If this\
+      \ option is used but no filenames are given, a 'flat' reference will be built.\
+      \ Otherwise, all filenames following this option will be used.", "sbg:fileTypes": "BAM,\
+      \ CRAM"}
   reference_fasta: {type: 'File?', secondaryFiles: [.fai], doc: "Reference genome,\
       \ FASTA format; needed if cnv kit cnn not already built", "sbg:suggestedValue": {
       class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta,
