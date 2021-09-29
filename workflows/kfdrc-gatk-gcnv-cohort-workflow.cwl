@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: Workflow
 id: kfdrc-gatk-cnv-germline-cohort-workflow
 label: Kids First DRC GATK Germline CNV Cohort Workflow
@@ -34,8 +34,10 @@ inputs:
     "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
   blacklist_intervals: {type: 'File?', doc: "Picard or GATK-style interval list of\
       \ regions to ignore", "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
-  normal_bams: {type: 'File[]', secondaryFiles: [.bai], doc: "List of normal BAMs,\
-      \ and their associated BAIs, that comprise the cohort.", "sbg:fileTypes": "BAM"}
+  normal_reads: {type: 'File[]', secondaryFiles: [{pattern: ".bai", required: false},
+      {pattern: "^.bai", required: false}, {pattern: ".crai", required: false}, {
+        pattern: "^.crai", required: false}], doc: "List of normal reads, and their\
+      \ associated indecies, that comprise the cohort.", "sbg:fileTypes": "BAM,CRAM"}
   cohort_entity_id: {type: 'string', doc: "Name of the cohort. Will be used as a prefix\
       \ for output filenames."}
   contig_ploidy_priors: {type: 'File', doc: "TSV file containing prior probabilities\
@@ -359,11 +361,11 @@ steps:
     - class: sbg:AWSInstanceType
       value: c5.9xlarge
     run: ../tools/gatk_collectreadcounts.cwl
-    scatter: bam
+    scatter: reads
     in:
       reference: bundle_secondaries/output
       sequence_dictionary: untar_reference/dict
-      bam: normal_bams
+      reads: normal_reads
       intervals_list: preprocess_intervals/preprocessed_intervals
       disabled_read_filters: disabled_read_filters_for_collect_counts
       max_memory: collect_read_counts_max_memory
