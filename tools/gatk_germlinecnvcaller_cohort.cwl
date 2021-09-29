@@ -32,7 +32,7 @@ arguments:
       --contig-ploidy-calls contig-ploidy-calls
       --interval-merging-rule $(inputs.interval_merging_rule)
       --output out
-      --output-prefix $(inputs.cohort_entity_id)
+      --output-prefix $(inputs.output_basename)
       --verbosity $(inputs.verbosity)
       $(inputs.annotated_intervals ? "--annotated-intervals " + inputs.annotated_intervals.path : "")
       $(inputs.p_alt == null ? "" : "--p-alt " + inputs.p_alt)
@@ -73,9 +73,9 @@ arguments:
       $(inputs.caller_external_admixing_rate == null ? "" : "--caller-external-admixing-rate " + inputs.caller_external_admixing_rate)
       $(inputs.disable_annealing == null ? "" : "--disable-annealing " + inputs.disable_annealing)
 
-      tar czf $(inputs.cohort_entity_id)-gcnv-model-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.cohort_entity_id)-model .
+      tar czf $(inputs.output_basename)-gcnv-model-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.output_basename)-model .
 
-      tar czf $(inputs.cohort_entity_id)-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.cohort_entity_id)-tracking .
+      tar czf $(inputs.output_basename)-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.output_basename)-tracking .
 
       CURRENT_SAMPLE=0
 
@@ -86,13 +86,13 @@ arguments:
       while [ $CURRENT_SAMPLE -lt $NUM_SAMPLES ]; do
           sleep 10
           CURRENT_SAMPLE_WITH_LEADING_ZEROS=${ return "$(printf \"%0${NUM_DIGITS}d\" $CURRENT_SAMPLE)" }
-          tar czf $(inputs.cohort_entity_id)-gcnv-calls-shard-$(inputs.scatter_index)-sample-$CURRENT_SAMPLE_WITH_LEADING_ZEROS.tar.gz -C out/$(inputs.cohort_entity_id)-calls/SAMPLE_$CURRENT_SAMPLE .
+          tar czf $(inputs.output_basename)-gcnv-calls-shard-$(inputs.scatter_index)-sample-$CURRENT_SAMPLE_WITH_LEADING_ZEROS.tar.gz -C out/$(inputs.output_basename)-calls/SAMPLE_$CURRENT_SAMPLE .
           let CURRENT_SAMPLE=CURRENT_SAMPLE+1
       done
 
       rm -rf contig-ploidy-calls
 inputs:
-  cohort_entity_id: { type: 'string' , doc: "String value representing the cohort entity id" }
+  output_basename: { type: 'string' , doc: "String value to use as basename for the outputs" }
   scatter_index: { type: 'int' }
   intervals_list: { type: 'File', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   contig_ploidy_calls_tar: { type: 'File', doc: "GZipped TAR file containing contig-ploidy calls directory (output of DetermineGermlineContigPloidy)." }

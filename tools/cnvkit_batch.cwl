@@ -15,7 +15,7 @@ requirements:
 baseCommand: [cnvkit.py,batch]
 
 inputs:
-  input_reads: { type: 'File[]?', inputBinding: { position: 99 }, secondaryFiles: ['.bai?','^.bai?','.crai?','^.crai?'], doc: "Mapped sequence reads in BAM or CRAM format" }
+  input_reads: { type: 'File[]?', inputBinding: { position: 99 }, secondaryFiles: [ { pattern: ".bai", required: false }, { pattern: '^.bai', required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false } ], doc: "Mapped sequence reads in BAM or CRAM format" }
   sequencing_method: { type: ['null', { type: enum, symbols: ["hybrid","amplicon","wgs"], name: "sequencing_method" } ], inputBinding: { prefix: "--seq-method" }, doc: "Sequencing assay type: hybridization capture ('hybrid'), targeted amplicon sequencing ('amplicon'), or whole genome sequencing ('wgs'). Determines whether and how to use antitarget bins. [Default: hybrid]" }
   segmentation_method: { type: ['null', { type: enum, symbols: ["cbs","flasso","haar","none","hmm","hmm-tumor","hmm-germline"], name: "segmentation_method" } ], inputBinding: { prefix: "--segment-method" }, doc: "Method used in the 'segment' step. [Default: cbs]" }
   male_ref: { type: 'boolean?', inputBinding: { prefix: "--male-reference" }, doc: "Use or assume a male reference" }
@@ -23,7 +23,7 @@ inputs:
   drop_low_coverage: { type: 'boolean?', inputBinding: { prefix: "--drop-low-coverage" }, doc: "Drop very-low-coverage bins before segmentation to avoid false-positive deletions in poor-quality tumor samples." }
 
   # Build your own Copy Number Reference
-  input_normal_reads: { type: 'File[]?', inputBinding: { prefix: "--normal" }, secondaryFiles: ['.bai?','^.bai?','.crai?','^.crai?'], doc: "Normal samples (.bam/.cram) used to construct the pooled, paired, or flat reference. If this option is used but no filenames are given, a 'flat' reference will be built. Otherwise, all filenames following this option will be used." }
+  input_normal_reads: { type: 'File[]?', inputBinding: { prefix: "--normal" }, secondaryFiles: [ { pattern: ".bai", required: false }, { pattern: "^.bai", required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false } ], doc: "Normal samples (.bam/.cram) used to construct the pooled, paired, or flat reference. If this option is used but no filenames are given, a 'flat' reference will be built. Otherwise, all filenames following this option will be used." }
   reference_fasta: { type: 'File?', inputBinding: { prefix: "--fasta" }, secondaryFiles: [.fai], doc: "Reference genome, FASTA format; needed if cnv kit cnn not already built" }
   targets_file: { type: 'File?', inputBinding: { prefix: "--targets" }, doc: "Target intervals (.bed or .list)" }
   antitargets_file: { type: 'File?', inputBinding: { prefix: "--antitargets" }, doc: "Antitarget intervals (.bed or .list)" }
