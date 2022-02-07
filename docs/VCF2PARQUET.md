@@ -1,33 +1,19 @@
-cwlVersion: v1.0
-class: CommandLineTool
-id: pyspark-vcf2parquet
-doc: 'Tool to optionally normalize and convert input vcf to parquet file'
-requirements:
-  - class: ShellCommandRequirement
-  - class: InlineJavascriptRequirement
-  - class: InitialWorkDirRequirement
-    listing:
-      - entryname: pyspark_vcf2parquet.py
-        entry:
-          $include: ../scripts/pyspark_vcf2parquet.py
+# KFDRC VCF-to-Parquet Tool
+This is a tool designed to convert vcf files to parquet output.
+Conversion allows for more efficient usage of spark cluster capabilities
 
-  - class: DockerRequirement
-    dockerPull: 'migbro/pyspark:3.1.2'
-  - class: ResourceRequirement
-    ramMin: ${ return inputs.ram * 1000 }
-    coresMin: $(inputs.cpu)
+![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
 
-baseCommand: [spark-submit]
+## Inputs
+Needed:
+ - `input_vcf`: VCF file to convert
+ - `output_basename`: Output file prefix to use
+Optional:
+ - `normalize_flag`: Set to true if you'd like to normalize file before converting. Recommended
+ - `reference_genome`: Must provide fai indexed fasta file if normalizing
 
-arguments:
-  - position: 0
-    shellQuote: false
-    valueFrom: >-
-      --packages io.projectglow:glow-spark3_2.12:1.1.2
-      --conf spark.hadoop.io.compression.codecs=io.projectglow.sql.util.BGZFCodec
-      --driver-memory $(inputs.ram)G 
-      pyspark_vcf2parquet.py
-
+### Comprehensive
+```yaml
 inputs:
   input_vcf: { type: 'File', inputBinding: { prefix: "--input_vcf" }, doc: "VCF to convert" }
   output_basename: { type: 'string', inputBinding: { prefix: "--output_basename" }, doc: "Output prefix of dirname for parquet files" }
@@ -38,9 +24,15 @@ inputs:
   cpu: { type: 'int?', default: 36, doc: "CPU cores to allocate to this task" }
   ram: { type: 'int?', default: 60, doc: "GB of RAM to allocate to this task" }
 
+
+```
+
+## Outputs:
+```yaml
 outputs:
   parquet_dir:
     type: 'Directory'
     outputBinding:
       glob: $(inputs.output_basename).parquet
     doc: "Resultant parquet file directory bundle"
+```
