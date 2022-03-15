@@ -24,7 +24,6 @@ inputs:
   reference_fasta: { type: File, inputBinding: { prefix: "--fasta" }, secondaryFiles: [ .fai ], doc: "Reference genome used" }
   sites: { type: File, inputBinding: { prefix: "--sites" }, doc: "vcf file with common sites" }
 
-
 outputs:
   somalier_output:
     type: File
