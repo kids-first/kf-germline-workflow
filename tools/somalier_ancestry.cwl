@@ -6,8 +6,8 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 32000
-    coresMin: 16
+    ramMin: ${ return inputs.memory * 1000 }
+    coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'brentp/somalier:v0.2.15'
 baseCommand: [tar, -xzf]
@@ -39,6 +39,8 @@ inputs:
   untar_sites_prefix: { type: string, doc: "dir name that is created when somalier_sites in un-tarred" }
   output_basename: { type: string, doc: "String prefix for output results",
   inputBinding: { position: 1, prefix: "-o" } }
+  cores: { type: 'int?', doc: "Num cores to make available to this tool", default: 8}
+  memory: { type: 'int?', doc: "Amount of ram in GB to make available to this tool", default: 16 }
 
 outputs:
   somalier_tsv:
