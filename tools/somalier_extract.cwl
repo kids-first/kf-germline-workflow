@@ -11,16 +11,12 @@ requirements:
   - class: DockerRequirement
     dockerPull: 'brentp/somalier:v0.2.15'
 baseCommand: [somalier, extract]
-arguments:
-  - position: 1
-    shellQuote: false
-    valueFrom: >-
-      $(inputs.input_file.path)
 
 inputs:
   input_file: { type: File, secondaryFiles: [ { pattern: ".bai", required: false },
     { pattern: "^.bai", required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false },
-    { pattern: ".tbi", required: false } ], doc: "BAM/CRAM/VCF input. BAM/CRAM recommended when available over vcf"}
+    { pattern: ".tbi", required: false } ], doc: "BAM/CRAM/VCF input. BAM/CRAM recommended when available over vcf", 
+    inputBinding: { position: 2} }
   reference_fasta: { type: File, inputBinding: { prefix: "--fasta" }, secondaryFiles: [ .fai ], doc: "Reference genome used" }
   sites: { type: File, inputBinding: { prefix: "--sites" }, doc: "vcf file with common sites" }
 

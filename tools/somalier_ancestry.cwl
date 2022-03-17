@@ -26,7 +26,7 @@ inputs:
   input_somalier: { type: 'File[]', doc: "Files in somalier format to calculate ancestry on"}
   labels: { type: File, doc: "tsv file with population labels for somalier sites",
   inputBinding: { position: 1, prefix: '--labels'} }
-  somalier_sites: { type: File, doc: "vcf file with common sites",
+  somalier_sites: { type: File, doc: "somalier-format population reference tar ball",
   inputBinding: { position: 0 } }
   n_pcs: { type: 'int?', default: 5, doc: "number of principal components to use in the reduced dataset",
   inputBinding: { position: 1, prefix: '--n-pcs'} }
