@@ -20,7 +20,7 @@ inputs:
 Output is the converted `.somalier` output
 
 ## ancestry
-"can predict ancestry on a set of query samples given a set of labelled samples, for example from thousand genomes along with labels for"
+ From [somalier wiki](https://github.com/brentp/somalier/wiki/ancestry): "somalier can predict ancestry on a set of query samples given a set of labelled samples, for example from thousand genomes along with labels for samples [sic]"
 
 ### Inputs:
 ```yaml
