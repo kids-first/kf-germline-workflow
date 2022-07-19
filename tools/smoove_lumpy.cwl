@@ -1,12 +1,16 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: kfdrc-smoove-lumpy-sv
+doc: |
+  smoove simplifies and speeds calling and genotyping SVs for short reads. It
+  also improves specificity by removing many spurious alignment signals that are
+  indicative of low-level noise and often contribute to spurious calls.
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: ${return inputs.cores * 2000}
-    coresMin: $(inputs.cpus)
+    ramMin: $(inputs.ram * 1000)
+    coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/smoove:0.2.5'
 baseCommand: ["/bin/bash", "-c"]
@@ -66,38 +70,21 @@ arguments:
       tabix $(inputs.output_basename)-smoove.genotyped.vcf.gz
 
 inputs:
-  reference: { type: File,  secondaryFiles: [.fai], label: Fasta genome assembly with index }
-  input_tumor_align:
-    type: File?
-    secondaryFiles: |
-      ${
-        var path = inputs.input_tumor_align.location+".crai";
-        if (inputs.input_tumor_align.nameext == ".bam"){
-          path = inputs.input_tumor_align.location+".bai";
-        }
-        return { "location": path, "class": "File"};
-      }
-
-  input_normal_align:
-      type: File?
-      secondaryFiles: |
-        ${
-          var path = inputs.input_normal_align.location+".crai";
-          if (inputs.input_normal_align.nameext == ".bam"){
-            path = inputs.input_normal_align.location+".bai";
-          }
-          return { "location": path, "class": "File"};
-        }
+  reference: { type: 'File',  secondaryFiles: [{pattern: '.fai', required: true}], doc: "Fasta genome assembly with samtools index" }
+  input_tumor_align: { type: 'File?', secondaryFiles: [{pattern: '.crai', required: false}, {pattern: '.bai', required: false}], doc: "BAM/CRAM file containing aligned reads from the tumor sample." }
+  input_normal_align: { type: 'File?', secondaryFiles: [{pattern: '.crai', required: false}, {pattern: '.bai', required: false}], doc: "BAM/CRAM file containing aligned reads from the normal sample." }
+  exclude_bed: {type: 'File?', doc: "Bed file with regions to exlude from analysis, i.e. non-canonical chromosomes. Highly recommneded."}
   duphold_flag: {type: ['null', {type: enum, name: duphold_flag, symbols: ["Y", "N"] }], doc: "Run Brent P duphold and annotate DUP and DEL with depth change", default: "Y"}
   disable_smoove: {type: ['null', {type: enum, name: disable_smoove, symbols: ["Y", "N"] }], doc: "Disable smoove filtering, just do standard lumpy_filter", default: "N"}
-  exclude_bed: {type: ['null', File], doc: "Bed file with regions to exlude from analysis, i.e. non-canonical chromosomes. Highly recommneded."}
-  output_basename: string
-  cores: {type: ['null', int], default: 16}
-  support: {type: ['null', int], doc: "Min support for a variant. App default is 4."}
+  support: {type: 'int?', doc: "Min support for a variant. App default is 4."}
+  output_basename: { type: 'string', doc: "String to use as the basename for ouptuts" }
+  cores: {type: 'int?', default: 16, doc: "Cores to allocate to this task" }
+  ram: {type: 'int?', default: 32, doc: "GB of RAM to allocate to this task" }
 
 outputs:
   output:
     type: File
     outputBinding:
       glob: '*-smoove.genotyped.vcf.gz'
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]
+    doc: "GZIPPED VCF containing structural variant calls"
