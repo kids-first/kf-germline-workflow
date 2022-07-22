@@ -65,7 +65,7 @@ inputs:
 
   germline: { type: 'boolean?', inputBinding: { prefix: '--germline', position: 0}, doc: "Sets recommended settings for case-only analysis (eg germline). (-I, -L5, assembles NM >= 3 reads)" }
   rules: { type: 'boolean?', inputBinding: { valueFrom: "$(self ? '--rules all' : '')", position: 0 }, doc: "Default behavior is just assemble clipped/discordant/unmapped/gapped reads. Override?" }
-  highly_parallel: { type: 'boolean?', default: false, inputBinding: { prefix: '--hp', position: 0 }, doc: "Highly parallel. Don't write output until completely done. More memory, but avoids all thread-locks." }
+  highly_parallel: { type: 'boolean?', inputBinding: { prefix: '--hp', position: 0 }, doc: "Highly parallel. Don't write output until completely done. More memory, but avoids all thread-locks." }
   no_interchrom_lookup: { type: 'boolean?', inputBinding: { prefix: '--no-interchrom-lookup', position: 0 }, doc: "Set true to not do mate-region lookup if mates are mapped to different chromosome." }
 
   mate_lookup_min: { type: 'int?', inputBinding: { prefix: '--mate-lookup-min', position: 0 }, doc: "Minimum number of somatic reads required to attempt mate-region lookup" }
