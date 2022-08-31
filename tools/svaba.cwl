@@ -71,8 +71,8 @@ inputs:
   mate_lookup_min: { type: 'int?', inputBinding: { prefix: '--mate-lookup-min', position: 0 }, doc: "Minimum number of somatic reads required to attempt mate-region lookup" }
 
   output_basename: { type: 'string', inputBinding: { prefix: '--id-string', position: 0 }, doc: "String specifying the analysis ID to be used as part of ID common." }
-  cores: { type: 'int?', default: 8, inputBinding: { prefix: '--threads', position: 0 }, doc: "Use NUM threads to run svaba." }
-  ram: { type: 'int?', default: 8, doc: "Minimum ram to allocate to the task." }
+  cores: { type: 'int?', default: 16, inputBinding: { prefix: '--threads', position: 0 }, doc: "Use NUM threads to run svaba." }
+  ram: { type: 'int?', default: 16, doc: "Minimum ram to allocate to the task." }
 outputs:
   alignments: { type: 'File', outputBinding: { glob: "*.alignments.txt.gz" }, doc: "An ASCII plot of variant-supporting contigs and the BWA-MEM alignment of reads to the contigs" }
   bps: { type: 'File', outputBinding: { glob: "*.bps.txt.gz" }, doc: "Raw, unfiltered variants" }
