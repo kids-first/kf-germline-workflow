@@ -1,4 +1,4 @@
-# Kids First Data Resource Center Germline Structural Variant Caller Workflow 
+# Kids First Data Resource Center Germline Structural Variant Caller Workflow
 
 <p align="center">
   <img src="https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png">
@@ -65,7 +65,7 @@ potential pathogenicity and ii) filter out SV potential false positives.
 ## Input Files
 
 At the moment the workflow uses only a few inputs:
-- `input_bams`: The germline BAM input that has been aligned to a reference
+- `germline_bam`: The germline BAM input that has been aligned to a reference
   genome.
 - `indexed_reference_fasta`: The reference genome fasta (and associated
   indicies) to which the germline BAM was aligned.
@@ -75,7 +75,7 @@ At the moment the workflow uses only a few inputs:
 these are the annotations installed with v3.1.1 of the software. Newer or older
 annotations can be slotted in here as needed.
 - `annotsv_genome_build`: The genome build of the reference fasta. AnnotSV is
-  capable of annotating the following genomes: "GRCh37","GRCh38","mm9","mm10". 
+  capable of annotating the following genomes: "GRCh37","GRCh38","mm9","mm10".
 - `output_basename`: Basename to use for the outputs.
 
 ## Output Files
