@@ -6,8 +6,8 @@
 
 The Kids First Data Resource Center (KFDRC) Germline Structural Variant (SV)
 Caller Workflow is a common workflow language (CWL) implmentation to generate
-SV calls from an aligned reads BAM file. The workflow makes use of Manta and
-SvABA to call varaiants then annotates these variants using AnnotSV.
+SV calls from an aligned reads BAM or CRAM file. The workflow makes use of
+Manta and SvABA to call varaiants then annotates these variants using AnnotSV.
 
 ## Relevant Softwares and Versions
 
@@ -50,8 +50,8 @@ and has built-in support for case-control experiments (e.g. tumor/normal, or
 trios or quads). In case/control mode, any number of cases and controls (but
 min of 1 case) can be input, and will jointly assemble all sequences together.
 If both a case and control are present, variants are output separately in
-"somatic" and "germline" VCFs. If only a single BAM is present (input with the
--t flag), a single SV and a single indel VCF will be emitted.
+"somatic" and "germline" VCFs. If only a single BAM/CRAM is present (input with
+the -t flag), a single SV and a single indel VCF will be emitted.
 
 A BWA-MEM index reference genome must also be supplied with -G.
 
@@ -65,10 +65,10 @@ potential pathogenicity and ii) filter out SV potential false positives.
 ## Input Files
 
 At the moment the workflow uses only a few inputs:
-- `germline_bam`: The germline BAM input that has been aligned to a reference
-  genome.
+- `germline_reads`: The germline BAM/CRAM input that has been aligned to a
+  reference genome.
 - `indexed_reference_fasta`: The reference genome fasta (and associated
-  indicies) to which the germline BAM was aligned.
+  indicies) to which the germline BAM/CRAM was aligned.
 - `annotsv_annotations_dir`: These annotations are simply those from the
   install-human-annotation installation process run during AnnotSV installation
 (see: https://github.com/lgmgeo/AnnotSV/#quick-installation). Specifically

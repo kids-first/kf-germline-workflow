@@ -11,8 +11,8 @@ doc: |
 
   The Kids First Data Resource Center (KFDRC) Germline Structural Variant (SV)
   Caller Workflow is a common workflow language (CWL) implmentation to generate
-  SV calls from an aligned reads BAM file. The workflow makes use of Manta and
-  SvABA to call varaiants then annotates these variants using AnnotSV.
+  SV calls from an aligned reads BAM or CRAM file. The workflow makes use of
+  Manta and SvABA to call varaiants then annotates these variants using AnnotSV.
 
   ## Relevant Softwares and Versions
 
@@ -55,8 +55,8 @@ doc: |
   trios or quads). In case/control mode, any number of cases and controls (but
   min of 1 case) can be input, and will jointly assemble all sequences together.
   If both a case and control are present, variants are output separately in
-  "somatic" and "germline" VCFs. If only a single BAM is present (input with the
-  -t flag), a single SV and a single indel VCF will be emitted.
+  "somatic" and "germline" VCFs. If only a single BAM/CRAM is present (input with
+  the -t flag), a single SV and a single indel VCF will be emitted.
 
   A BWA-MEM index reference genome must also be supplied with -G.
 
@@ -70,10 +70,10 @@ doc: |
   ## Input Files
 
   At the moment the workflow uses only a few inputs:
-  - `germline_bam`: The germline BAM input that has been aligned to a reference
-    genome.
+  - `germline_reads`: The germline BAM/CRAM input that has been aligned to a
+    reference genome.
   - `indexed_reference_fasta`: The reference genome fasta (and associated
-    indicies) to which the germline BAM was aligned.
+    indicies) to which the germline BAM/CRAM was aligned.
   - `annotsv_annotations_dir`: These annotations are simply those from the
     install-human-annotation installation process run during AnnotSV installation
   (see: https://github.com/lgmgeo/AnnotSV/#quick-installation). Specifically
@@ -136,8 +136,10 @@ inputs:
         {class: File, path: 6063901d357c3a53540ca81e, name: Homo_sapiens_assembly38.fasta.64.bwt},
         {class: File, path: 6063901c357c3a53540ca801, name: Homo_sapiens_assembly38.fasta.64.pac},
         {class: File, path: 60639015357c3a53540ca7a9, name: Homo_sapiens_assembly38.fasta.64.sa}]}
-  germline_bam: {type: 'File', secondaryFiles: [{pattern: '^.bai', required: false},
-      {pattern: '.bai', required: false}], doc: "Input BAM file", "sbg:fileTypes": "BAM"}
+  germline_reads: {type: 'File', secondaryFiles: [{pattern: '^.bai', required: false},
+      {pattern: '.bai', required: false}, {pattern: '^.crai', required: false}, {
+        pattern: '.crai', required: false}], doc: "Input BAM file", "sbg:fileTypes": "BAM,\
+      \ CRAM"}
 
   annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV\
       \ annotations", "sbg:fileTypes": "TAR, TAR.GZ, TGZ", "sbg:suggestedValue": {
@@ -178,7 +180,7 @@ steps:
     run: ../tools/svaba.cwl
     in:
       tumor_bams:
-        source: germline_bam
+        source: germline_reads
         valueFrom: $([self])
       reference_genome: indexed_reference_fasta
       germline:
@@ -197,7 +199,7 @@ steps:
     in:
       reference: indexed_reference_fasta
       input_normal_reads:
-        source: germline_bam
+        source: germline_reads
         valueFrom: $([self])
       output_basename:
         source: output_basename
