@@ -21,9 +21,9 @@ inputs:
   gnomad_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional bgzipped annotation vcf file"}
   clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional bgzipped annotation vcf file"}
   # VEP-specific
-  vep_ram: {type: 'int?', default: 32, doc: "In GB, may need to increase this value depending on the size/complexity of input"}
-  vep_cores: {type: 'int?', default: 16, doc: "Number of cores to use. May need to increase for really large inputs"}
-  vep_buffer_size: {type: 'int?', default: 5000, doc: "Increase or decrease to balance speed and memory usage"}
+  vep_ram: {type: 'int?', default: 48, doc: "In GB, may need to increase this value depending on the size/complexity of input"}
+  vep_cores: {type: 'int?', default: 36, doc: "Number of cores to use. May need to increase for really large inputs"}
+  vep_buffer_size: {type: 'int?', default: 100000, doc: "Increase or decrease to balance speed and memory usage"}
   vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache"}
   vep_verbose: { type: 'boolean?', doc: "Turn on verbose logging for debug purposes", default: false }
   dbnsfp: { type: 'File?', secondaryFiles: [.tbi,^.readme.txt], doc: "VEP-formatted plugin file, index, and readme file containing dbNSFP annotations" }
@@ -52,7 +52,7 @@ steps:
     out: [normalized_vcf]
 
   bcftools_strip_info:
-    when: $(inputs.bcftools_strip_columns != null)
+    when: $(inputs.strip_info != null)
     run: ../tools/bcftools_strip_ann.cwl
     in:
       input_vcf: normalize_vcf/normalized_vcf
@@ -87,7 +87,7 @@ steps:
     out: [output_vcf]
 
   bcftools_gnomad_annotate:
-    when: $(inputs.gnomad_annotation_vcf != null)
+    when: $(inputs.annotation_vcf != null)
     run: ../tools/bcftools_annotate.cwl
     in:
       input_vcf: vep_annotate_vcf/output_vcf
@@ -98,7 +98,7 @@ steps:
     out: [bcftools_annotated_vcf]
 
   bcftools_clinvar_annotate:
-    when: $(inputs.clinvar_annotation_vcf != null)
+    when: $(inputs.annotation_vcf != null)
     run: ../tools/bcftools_annotate.cwl
     in:
       input_vcf:

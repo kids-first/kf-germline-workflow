@@ -159,7 +159,7 @@ arguments:
       ${if(inputs.dbnsfp) {return "--plugin dbNSFP," + inputs.dbnsfp.path + "," + inputs.dbnsfp_fields} else {return ""}}
       ${if(inputs.dbscsnv) {return "--plugin dbscSNV,"+inputs.dbscsnv.path} else {return ""}}
       ${if(inputs.intervar) {return "--custom "+inputs.intervar.path+",Intervar,vcf,exact,0,STATUS"} else {return ""}}
-      | bgzip -c -@ ${return inputs.cores >=8 4 ? 1 } > $(inputs.output_basename).$(inputs.tool_name).vep.vcf.gz &&
+      | bgzip -c -@ ${ return inputs.cores >= 8 ? 4 : 1; } > $(inputs.output_basename).$(inputs.tool_name).vep.vcf.gz &&
       tabix $(inputs.output_basename).$(inputs.tool_name).vep.vcf.gz
 
 inputs:
