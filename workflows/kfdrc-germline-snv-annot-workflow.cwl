@@ -8,7 +8,9 @@ requirements:
 - class: MultipleInputFeatureRequirement
 - class: SubworkflowFeatureRequirement
 inputs:
-  indexed_reference_fasta: {type: 'File', secondaryFiles: [.fai, ^.dict]}
+  indexed_reference_fasta: {type: 'File', secondaryFiles: [.fai, ^.dict], "sbg:suggestedValue": {class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta,
+      secondaryFiles: [{class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict},
+        {class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai}]}}
   input_vcf: {type: 'File', secondaryFiles: ['.tbi'], doc: "Input vcf to annotate"}
   output_basename: string
   tool_name: string
@@ -32,14 +34,17 @@ inputs:
   vep_buffer_size: {type: 'int?', default: 100000, doc: "Increase or decrease to balance speed and memory usage"}
   vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache",
     "sbg:suggestedValue": {class: File, path: 63248585dd7df46f4f14ef7c, name: homo_sapiens_merged_vep_105_GRCh38.tar.gz}}
-  dbnsfp: { type: 'File?', secondaryFiles: [.tbi,^.readme.txt], doc: "VEP-formatted plugin file, index, and readme file containing dbNSFP annotations" }
+  dbnsfp: { type: 'File?', secondaryFiles: [.tbi,^.readme.txt], doc: "VEP-formatted plugin file, index, and readme file containing dbNSFP annotations", "sbg:suggestedValue": {
+      class: File, path: 6298b53b4d85bc2e02ceb7a3, name: dbNSFP4.3a_grch38.gz, secondaryFiles: [
+      {class: File, path: 6298b6064d85bc2e02ceb8f7, name: dbNSFP4.3a_grch38.gz.tbi},
+      {class: File, path: 62b1ea096894ba72bd535422, name: dbNSFP4.3a_grch38.readme.txt}]} }
   dbnsfp_fields: { type: 'string?', doc: "csv string with desired fields to annotate. Use ALL to grab all",
     default: 'SIFT4G_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,VEST4_score,VEST4_rankscore,MetaSVM_pred,MetaLR_pred,MetaRNN_pred,M-CAP_pred,REVEL_score,REVEL_rankscore,PrimateAI_pred,DEOGEN2_pred,BayesDel_noAF_pred,ClinPred_pred,LIST-S2_pred,Aloft_pred,fathmm-MKL_coding_pred,fathmm-XF_coding_pred,Eigen-phred_coding,Eigen-PC-phred_coding,phyloP100way_vertebrate,phyloP100way_vertebrate_rankscore,phastCons100way_vertebrate,phastCons100way_vertebrate_rankscore,TWINSUK_AC,TWINSUK_AF,ALSPAC_AC,ALSPAC_AF,UK10K_AC,UK10K_AF,gnomAD_exomes_controls_AC,gnomAD_exomes_controls_AN,gnomAD_exomes_controls_AF,gnomAD_exomes_controls_nhomalt,gnomAD_exomes_controls_POPMAX_AC,gnomAD_exomes_controls_POPMAX_AN,gnomAD_exomes_controls_POPMAX_AF,gnomAD_exomes_controls_POPMAX_nhomalt,Interpro_domain,GTEx_V8_gene,GTEx_V8_tissue'
     }
   merged: { type: 'boolean?', doc: "Set to true if merged cache used", default: true }
   run_cache_existing: { type: 'boolean?', doc: "Run the check_existing flag for cache", default: true }
   run_cache_af: { type: 'boolean?', doc: "Run the allele frequency flags for cache", default: true }
-  run_stats: { type: boolean, doc: "Create stats file? Disable for speed", default: false }
+  run_stats: { type: 'boolean?', doc: "Create stats file? Disable for speed", default: false }
   cadd_indels: { type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin file and index containing CADD indel annotations", "sbg:suggestedValue": {
       class: File, path: 632a2b417535110eb78312a6, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz, secondaryFiles: [{
       class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz.tbi}]}}
