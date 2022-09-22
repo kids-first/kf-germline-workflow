@@ -8,8 +8,8 @@ This workflow is used to annotate germline outputs with popular annotation resou
 1. Normalize VCF
 1. Strip pre-existing annotations (optional) to prevent downstream conflicts
 1. Annotate with VEP 105. Default plugins include:
-  - dbnsfp
-  - cadd
+   - dbnsfp
+   - cadd
 1. Use bcftools to annotate with an external reference (default gnomad 3.1.1)
 1. Use bcftools to annotate with another external reference (default clinvar)
 1. Simple rename outputs step
@@ -119,7 +119,10 @@ gnomad_3_1_1_splice_ai_consequence
 ```
 
 ### [ClinVar 20220507](https://www.ncbi.nlm.nih.gov/clinvar/)
-A curated resource with annotations of clinical significance per variant. By default, we annotate the following:
+A curated resource with annotations of clinical significance per variant. Note, for this pipeline, the default reference was modified by:
+   - Switching from `1` chromosome nomenclature to `chr1`, and especailly `MT` -> `chrM`
+   - Removing the entry assigned to `NW_009646201.1`. It's a benign it and also not present in our fasta reference.
+By default, we annotate the following:
 ```
 ALLELEID
 CLNDN
@@ -156,8 +159,8 @@ CLNVI
       class: File, path: 6324ef5ad01163633daa00d8, name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{
       class: File, path: 6324ef5ad01163633daa00d7, name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
   clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional bgzipped annotation vcf file", "sbg:suggestedValue": {
-      class: File, path: 632a2a572a5194517cfbed80, name: clinvar_20220507.vcf.gz, secondaryFiles: [{
-      class: File, path: 632a2a572a5194517cfbed81, name: clinvar_20220507.vcf.gz.tbi}]}}
+      class: File, path: 632c6cbb2a5194517cff1593, name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [{
+      class: File, path: 632c6cbb2a5194517cff1592, name: clinvar_20220507_chr.vcf.gz.tbi}]}}
   # VEP-specific
   vep_ram: {type: 'int?', default: 48, doc: "In GB, may need to increase this value depending on the size/complexity of input"}
   vep_cores: {type: 'int?', default: 32, doc: "Number of cores to use. May need to increase for really large inputs"}
