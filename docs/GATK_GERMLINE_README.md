@@ -1,7 +1,7 @@
 # Kids First DRC Single Sample Genotyping Workflow
 Kids First Data Resource Center Single Sample Genotyping Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc_jointgenotyping_refinement_workflow.cwl).
 While the Joint Genotyping Workflow is meant to be used with trios, this workflow is meant for processing single samples.
-The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP.
+The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP bcftools (see [Kids First DRC Germline SNV Annotation Workflow docs](https://github.com/kids-first/kf-germline-workflow/blob/master/docs/GERMLINE_SNV_ANNOT_README.md) ).
 Unlike the Joint Genotyping Workflow, a germline-oriented [GATK hard filtering process](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants) is performed and CalculateGenotypePosteriors has been removed.
 While somatic samples can be run through this workflow, be wary that the filtering process is specifically tuned for germline data.
 
@@ -11,10 +11,7 @@ Alternatively, if you'd like to run it locally using `cwltool`, a basic primer o
 ![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
 
 ### Runtime Estimates
-1. Trio of 6-7 GB gVCFs on spot instances: 210 minutes & $5.50
-1. Trio of 1-2 GB gVCFs on spot instances: 180 minutes & $3.25
-1. Single 6 GB gVCF on spot instances: 125 minutes & $1.25
-1. Single 1.5 GB gVCF on spot instances: 130 minutes & $1.00
+Single 6 GB gVCF on spot instances: 420 minutes & $4.00
 
 ### Tips To Run:
 1. inputs vcf files are the gVCF files from GATK Haplotype Caller, need to have the index **.tbi** files copy to the same project too.
@@ -36,9 +33,16 @@ Alternatively, if you'd like to run it locally using `cwltool`, a basic primer o
     -  Homo_sapiens_assembly38.fasta
     -  1000G_phase3_v4_20130502.sites.hg38.vcf
     -  hg38.even.handcurated.20k.intervals
-    -  homo_sapiens_vep_93_GRCh38_convert_cache.tar.gz, from ftp://ftp.ensembl.org/pub/release-93/variation/indexed_vep_cache/ - variant effect predictor cache.
     -  wgs_evaluation_regions.hg38.interval_list
+    -  homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz, from ftp://ftp.ensembl.org/pub/release-105/variation/indexed_vep_cache/, then indexed using `convert_cache.pl`
+        See germline annotation docs linked above.
+    -  gnomad_3.1.1.vwb_subset.vcf.gz
+    -  clinvar_20220507_chr.vcf.gz
+    -  dbNSFP4.3a_grch38.gz
+    -  CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz
+    -  CADDv1.6-38-whole_genome_SNVs.tsv.gz
+    -  Exons.all.hg38.intervar.2021-07-31.vcf.gz
+
+
 ## Other Resources
 - dockerfiles: https://github.com/d3b-center/bixtools
-
-![pipeline flowchart](https://github.com/kids-first/kf-germline-workflow/raw/master/docs/single_genotyping_0_1_0.png)

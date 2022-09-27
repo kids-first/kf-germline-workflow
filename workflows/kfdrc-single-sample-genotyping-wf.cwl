@@ -6,20 +6,17 @@ doc: |
   # Kids First DRC Single Sample Genotyping Workflow
   Kids First Data Resource Center Single Sample Genotyping Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc_jointgenotyping_refinement_workflow.cwl).
   While the Joint Genotyping Workflow is meant to be used with trios, this workflow is meant for processing single samples.
-  The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP.
+  The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP bcftools (see [Kids First DRC Germline SNV Annotation Workflow docs](https://github.com/kids-first/kf-germline-workflow/blob/master/docs/GERMLINE_SNV_ANNOT_README.md) ).
   Unlike the Joint Genotyping Workflow, a germline-oriented [GATK hard filtering process](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants) is performed and CalculateGenotypePosteriors has been removed.
   While somatic samples can be run through this workflow, be wary that the filtering process is specifically tuned for germline data.
 
   If you would like to run this workflow using the cavatica public app, a basic primer on running public apps can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-Cavatica-af5ebb78c38a4f3190e32e67b4ce12bb).
-  Alternatively, if you would like to run it locally using `cwltool`, a basic primer on that can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-CWLtool-b8dbbde2dc7742e4aff290b0a878344d) and combined with app-specific info from the readme below.
+  Alternatively, if you'd like to run it locally using `cwltool`, a basic primer on that can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-CWLtool-b8dbbde2dc7742e4aff290b0a878344d) and combined with app-specific info from the readme below.
 
   ![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
 
   ### Runtime Estimates
-  1. Trio of 6-7 GB gVCFs on spot instances: 210 minutes & $5.50
-  1. Trio of 1-2 GB gVCFs on spot instances: 180 minutes & $3.25
-  1. Single 6 GB gVCF on spot instances: 125 minutes & $1.25
-  1. Single 1.5 GB gVCF on spot instances: 130 minutes & $1.00
+  Single 6 GB gVCF on spot instances: 420 minutes & $4.00
 
   ### Tips To Run:
   1. inputs vcf files are the gVCF files from GATK Haplotype Caller, need to have the index **.tbi** files copy to the same project too.
@@ -41,12 +38,19 @@ doc: |
       -  Homo_sapiens_assembly38.fasta
       -  1000G_phase3_v4_20130502.sites.hg38.vcf
       -  hg38.even.handcurated.20k.intervals
-      -  homo_sapiens_vep_93_GRCh38_convert_cache.tar.gz, from ftp://ftp.ensembl.org/pub/release-93/variation/indexed_vep_cache/ - variant effect predictor cache.
       -  wgs_evaluation_regions.hg38.interval_list
+      -  homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz, from ftp://ftp.ensembl.org/pub/release-105/variation/indexed_vep_cache/, then indexed using `convert_cache.pl`
+          See germline annotation docs linked above.
+      -  gnomad_3.1.1.vwb_subset.vcf.gz
+      -  clinvar_20220507_chr.vcf.gz
+      -  dbNSFP4.3a_grch38.gz
+      -  CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz
+      -  CADDv1.6-38-whole_genome_SNVs.tsv.gz
+      -  Exons.all.hg38.intervar.2021-07-31.vcf.gz
+
+
   ## Other Resources
   - dockerfiles: https://github.com/d3b-center/bixtools
-
-  ![pipeline flowchart](https://github.com/kids-first/kf-germline-workflow/raw/master/docs/single_genotyping_0_1_0.png)
 
 requirements:
 - class: ScatterFeatureRequirement
@@ -113,18 +117,18 @@ inputs:
       name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{class: File, path: 6324ef5ad01163633daa00d7,
           name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
   clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
-      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 632a2a572a5194517cfbed80,
-      name: clinvar_20220507.vcf.gz, secondaryFiles: [{class: File, path: 632a2a572a5194517cfbed81,
-          name: clinvar_20220507.vcf.gz.tbi}]}}
+      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 632c6cbb2a5194517cff1593,
+      name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [{class: File, path: 632c6cbb2a5194517cff1592,
+          name: clinvar_20220507_chr.vcf.gz.tbi}]}}
   # VEP-specific
-  vep_ram: {type: 'int?', default: 48, doc: "In GB, may need to increase this value\
+  vep_ram: {type: 'int?', default: 32, doc: "In GB, may need to increase this value\
       \ depending on the size/complexity of input"}
-  vep_cores: {type: 'int?', default: 32, doc: "Number of cores to use. May need to\
+  vep_cores: {type: 'int?', default: 16, doc: "Number of cores to use. May need to\
       \ increase for really large inputs"}
   vep_buffer_size: {type: 'int?', default: 100000, doc: "Increase or decrease to balance\
       \ speed and memory usage"}
   vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache",
-    "sbg:suggestedValue": {class: File, path: 63248585dd7df46f4f14ef7c, name: homo_sapiens_merged_vep_105_GRCh38.tar.gz}}
+    "sbg:suggestedValue": {class: File, path: 6332f8e47535110eb79c794f, name: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz}}
   dbnsfp: {type: 'File?', secondaryFiles: [.tbi, ^.readme.txt], doc: "VEP-formatted\
       \ plugin file, index, and readme file containing dbNSFP annotations", "sbg:suggestedValue": {
       class: File, path: 6298b53b4d85bc2e02ceb7a3, name: dbNSFP4.3a_grch38.gz, secondaryFiles: [
@@ -141,8 +145,11 @@ inputs:
       \ and index containing CADD SNV annotations", "sbg:suggestedValue": {class: File,
       path: 632a2b417535110eb78312a4, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz,
       secondaryFiles: [{class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz.tbi}]}}
-  intervar: {type: 'File?', doc: "Intervar vcf-formatted file. See docs for custom\
-      \ build instructions", secondaryFiles: [.tbi]}
+  intervar: {type: 'File?', doc: "Intervar vcf-formatted file. Exonic SNVs only -\
+      \ for more comprehensive run InterVar. See docs for custom build instructions",
+    secondaryFiles: [.tbi], "sbg:suggestedValue": {class: File, path: 633348619968f3738e4ec4b5,
+      name: Exons.all.hg38.intervar.2021-07-31.vcf.gz, secondaryFiles: [{class: File,
+          path: 633348619968f3738e4ec4b6, name: Exons.all.hg38.intervar.2021-07-31.vcf.gz.tbi}]}}
 
 outputs:
   collectvariantcallingmetrics: {type: 'File[]', doc: 'Variant calling summary and
@@ -333,7 +340,7 @@ steps:
       vep_buffer_size: vep_buffer_size
       vep_cache: vep_cache
       dbnsfp: dbnsfp
-      dbnsfp_fields: dbnsfp_fields 
+      dbnsfp_fields: dbnsfp_fields
       cadd_indels: cadd_indels
       cadd_snvs: cadd_snvs
       merged: merged
