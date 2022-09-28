@@ -6,7 +6,7 @@ doc: |
   # Kids First DRC Single Sample Genotyping Workflow
   Kids First Data Resource Center Single Sample Genotyping Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc_jointgenotyping_refinement_workflow.cwl).
   While the Joint Genotyping Workflow is meant to be used with trios, this workflow is meant for processing single samples.
-  The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP.
+  The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP bcftools (see [Kids First DRC Germline SNV Annotation Workflow docs](https://github.com/kids-first/kf-germline-workflow/blob/master/docs/GERMLINE_SNV_ANNOT_README.md) ).
   Unlike the Joint Genotyping Workflow, a germline-oriented [GATK hard filtering process](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants) is performed and CalculateGenotypePosteriors has been removed.
   While somatic samples can be run through this workflow, be wary that the filtering process is specifically tuned for germline data.
 
@@ -16,10 +16,7 @@ doc: |
   ![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
 
   ### Runtime Estimates
-  1. Trio of 6-7 GB gVCFs on spot instances: 210 minutes & $5.50
-  1. Trio of 1-2 GB gVCFs on spot instances: 180 minutes & $3.25
-  1. Single 6 GB gVCF on spot instances: 125 minutes & $1.25
-  1. Single 1.5 GB gVCF on spot instances: 130 minutes & $1.00
+  Single 6 GB gVCF on spot instances: 420 minutes & $4.00
 
   ### Tips To Run:
   1. inputs vcf files are the gVCF files from GATK Haplotype Caller, need to have the index **.tbi** files copy to the same project too.
@@ -41,12 +38,19 @@ doc: |
       -  Homo_sapiens_assembly38.fasta
       -  1000G_phase3_v4_20130502.sites.hg38.vcf
       -  hg38.even.handcurated.20k.intervals
-      -  homo_sapiens_vep_93_GRCh38_convert_cache.tar.gz, from ftp://ftp.ensembl.org/pub/release-93/variation/indexed_vep_cache/ - variant effect predictor cache.
       -  wgs_evaluation_regions.hg38.interval_list
+      -  homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz, from ftp://ftp.ensembl.org/pub/release-105/variation/indexed_vep_cache/, then indexed using `convert_cache.pl`
+          See germline annotation docs linked above.
+      -  gnomad_3.1.1.vwb_subset.vcf.gz
+      -  clinvar_20220507_chr.vcf.gz
+      -  dbNSFP4.3a_grch38.gz
+      -  CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz
+      -  CADDv1.6-38-whole_genome_SNVs.tsv.gz
+      -  Exons.all.hg38.intervar.2021-07-31.vcf.gz
+
+
   ## Other Resources
   - dockerfiles: https://github.com/d3b-center/bixtools
-
-  ![pipeline flowchart](https://github.com/kids-first/kf-germline-workflow/raw/master/docs/single_genotyping_0_1_0.png)
 
 requirements:
 - class: ScatterFeatureRequirement
@@ -89,8 +93,6 @@ inputs:
       class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta}}
   unpadded_intervals_file: {type: File, doc: 'hg38.even.handcurated.20k.intervals',
     "sbg:suggestedValue": {class: File, path: 5f500135e4b0370371c051b1, name: hg38.even.handcurated.20k.intervals}}
-  vep_cache: {type: File, doc: 'Variant effect predictor cache file', "sbg:suggestedValue": {
-      class: File, path: 5f500135e4b0370371c051b5, name: homo_sapiens_vep_93_GRCh38_convert_cache.tar.gz}}
   wgs_evaluation_interval_list: {type: File, doc: 'wgs_evaluation_regions.hg38.interval_list',
     "sbg:suggestedValue": {class: File, path: 60639017357c3a53540ca7d3, name: wgs_evaluation_regions.hg38.interval_list}}
   snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP\
@@ -104,6 +106,50 @@ inputs:
       \ the max-Gaussians forces the program to group variants into a smaller number\
       \ of clusters, which results in more variants per cluster."}
   output_basename: string
+  tool_name: string
+  # Annotation
+  bcftools_annot_gnomad_columns: {type: 'string?', doc: "csv string of columns from\
+      \ annotation to port into the input vcf, i.e", default: "INFO/gnomad_3_1_1_AC:=INFO/AC,INFO/gnomad_3_1_1_AN:=INFO/AN,INFO/gnomad_3_1_1_AF:=INFO/AF,INFO/gnomad_3_1_1_nhomalt:=INFO/nhomalt,INFO/gnomad_3_1_1_AC_popmax:=INFO/AC_popmax,INFO/gnomad_3_1_1_AN_popmax:=INFO/AN_popmax,INFO/gnomad_3_1_1_AF_popmax:=INFO/AF_popmax,INFO/gnomad_3_1_1_nhomalt_popmax:=INFO/nhomalt_popmax,INFO/gnomad_3_1_1_AC_controls_and_biobanks:=INFO/AC_controls_and_biobanks,INFO/gnomad_3_1_1_AN_controls_and_biobanks:=INFO/AN_controls_and_biobanks,INFO/gnomad_3_1_1_AF_controls_and_biobanks:=INFO/AF_controls_and_biobanks,INFO/gnomad_3_1_1_AF_non_cancer:=INFO/AF_non_cancer,INFO/gnomad_3_1_1_primate_ai_score:=INFO/primate_ai_score,INFO/gnomad_3_1_1_splice_ai_consequence:=INFO/splice_ai_consequence"}
+  bcftools_annot_clinvar_columns: {type: 'string?', doc: "csv string of columns from\
+      \ annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
+  gnomad_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
+      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 6324ef5ad01163633daa00d8,
+      name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{class: File, path: 6324ef5ad01163633daa00d7,
+          name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
+  clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
+      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 632c6cbb2a5194517cff1593,
+      name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [{class: File, path: 632c6cbb2a5194517cff1592,
+          name: clinvar_20220507_chr.vcf.gz.tbi}]}}
+  # VEP-specific
+  vep_ram: {type: 'int?', default: 32, doc: "In GB, may need to increase this value\
+      \ depending on the size/complexity of input"}
+  vep_cores: {type: 'int?', default: 16, doc: "Number of cores to use. May need to\
+      \ increase for really large inputs"}
+  vep_buffer_size: {type: 'int?', default: 100000, doc: "Increase or decrease to balance\
+      \ speed and memory usage"}
+  vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache",
+    "sbg:suggestedValue": {class: File, path: 6332f8e47535110eb79c794f, name: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz}}
+  dbnsfp: {type: 'File?', secondaryFiles: [.tbi, ^.readme.txt], doc: "VEP-formatted\
+      \ plugin file, index, and readme file containing dbNSFP annotations", "sbg:suggestedValue": {
+      class: File, path: 6298b53b4d85bc2e02ceb7a3, name: dbNSFP4.3a_grch38.gz, secondaryFiles: [
+        {class: File, path: 6298b6064d85bc2e02ceb8f7, name: dbNSFP4.3a_grch38.gz.tbi},
+        {class: File, path: 62b1ea096894ba72bd535422, name: dbNSFP4.3a_grch38.readme.txt}]}}
+  dbnsfp_fields: {type: 'string?', doc: "csv string with desired fields to annotate.\
+      \ Use ALL to grab all", default: 'SIFT4G_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,VEST4_score,VEST4_rankscore,MetaSVM_pred,MetaLR_pred,MetaRNN_pred,M-CAP_pred,REVEL_score,REVEL_rankscore,PrimateAI_pred,DEOGEN2_pred,BayesDel_noAF_pred,ClinPred_pred,LIST-S2_pred,Aloft_pred,fathmm-MKL_coding_pred,fathmm-XF_coding_pred,Eigen-phred_coding,Eigen-PC-phred_coding,phyloP100way_vertebrate,phyloP100way_vertebrate_rankscore,phastCons100way_vertebrate,phastCons100way_vertebrate_rankscore,TWINSUK_AC,TWINSUK_AF,ALSPAC_AC,ALSPAC_AF,UK10K_AC,UK10K_AF,gnomAD_exomes_controls_AC,gnomAD_exomes_controls_AN,gnomAD_exomes_controls_AF,gnomAD_exomes_controls_nhomalt,gnomAD_exomes_controls_POPMAX_AC,gnomAD_exomes_controls_POPMAX_AN,gnomAD_exomes_controls_POPMAX_AF,gnomAD_exomes_controls_POPMAX_nhomalt,Interpro_domain,GTEx_V8_gene,GTEx_V8_tissue'}
+  merged: {type: 'boolean?', doc: "Set to true if merged cache used", default: true}
+  cadd_indels: {type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin\
+      \ file and index containing CADD indel annotations", "sbg:suggestedValue": {
+      class: File, path: 632a2b417535110eb78312a6, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz,
+      secondaryFiles: [{class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz.tbi}]}}
+  cadd_snvs: {type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin file\
+      \ and index containing CADD SNV annotations", "sbg:suggestedValue": {class: File,
+      path: 632a2b417535110eb78312a4, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz,
+      secondaryFiles: [{class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz.tbi}]}}
+  intervar: {type: 'File?', doc: "Intervar vcf-formatted file. Exonic SNVs only -\
+      \ for more comprehensive run InterVar. See docs for custom build instructions",
+    secondaryFiles: [.tbi], "sbg:suggestedValue": {class: File, path: 633348619968f3738e4ec4b5,
+      name: Exons.all.hg38.intervar.2021-07-31.vcf.gz, secondaryFiles: [{class: File,
+          path: 633348619968f3738e4ec4b6, name: Exons.all.hg38.intervar.2021-07-31.vcf.gz.tbi}]}}
 
 outputs:
   collectvariantcallingmetrics: {type: 'File[]', doc: 'Variant calling summary and
@@ -111,9 +157,7 @@ outputs:
   peddy_html: {type: 'File[]', doc: 'html summary of peddy results', outputSource: peddy/output_html}
   peddy_csv: {type: 'File[]', doc: 'csv details of peddy results', outputSource: peddy/output_csv}
   peddy_ped: {type: 'File[]', doc: 'ped format summary of peddy results', outputSource: peddy/output_peddy}
-  vep_annotated_vcf: {type: File, outputSource: vep_annotate/output_vcf}
-  vcf_summary_stats: {type: File, outputSource: vep_annotate/output_txt}
-  vep_warn: {type: 'File?', outputSource: vep_annotate/warn_txt}
+  vep_annotated_vcf: {type: 'File[]', outputSource: annotate_vcf/annotated_vcf}
 
 steps:
   prepare_reference:
@@ -168,6 +212,9 @@ steps:
     out: [out_intervals]
   gatk_import_genotype_filtergvcf_merge:
     run: ../tools/gatk_import_genotype_filtergvcf_merge.cwl
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: r4.4xlarge;ebs-gp2;500
     doc: 'Use GATK GenomicsDBImport, VariantFiltration GenotypeGVCFs, and picard MakeSitesOnlyVcf
       to genotype, filter and merge gVCF based on known sites'
     in:
@@ -208,6 +255,9 @@ steps:
     out: [recalibration, tranches]
   gatk_snpsvariantrecalibratorscattered:
     run: ../tools/gatk_snpsvariantrecalibratorscattered.cwl
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: r4.4xlarge;ebs-gp2;500
     doc: 'Create recalibration model for known sites from input data using GATK VariantRecalibrator,
       tranch values, and known site VCFs'
     in:
@@ -228,6 +278,9 @@ steps:
     out: [output]
   gatk_applyrecalibration:
     run: ../tools/gatk_applyrecalibration.cwl
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: r4.4xlarge;ebs-gp2;500
     doc: 'Apply recalibration to snps and indels'
     in:
       indels_recalibration: gatk_indelsvariantrecalibrator/recalibration
@@ -269,20 +322,34 @@ steps:
       dbsnp_vcf: index_dbsnp/output
       wgs_evaluation_interval_list: wgs_evaluation_interval_list
     out: [output]
-  vep_annotate:
+
+  annotate_vcf:
+    run: ../workflows/kfdrc-germline-snv-annot-workflow.cwl
+    doc: 'annotate variants'
     in:
+      indexed_reference_fasta: prepare_reference/indexed_fasta
       input_vcf: gatk_hardfiltering/hardfiltered_vcf
-      reference_fasta: prepare_reference/indexed_fasta
       output_basename: output_basename
-      cache: vep_cache
-    out: [output_vcf, output_txt, warn_txt]
-    run: ../tools/variant_effect_predictor.cwl
+      tool_name: tool_name
+      bcftools_annot_gnomad_columns: bcftools_annot_gnomad_columns
+      bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
+      gnomad_annotation_vcf: gnomad_annotation_vcf
+      clinvar_annotation_vcf: clinvar_annotation_vcf
+      vep_ram: vep_ram
+      vep_cores: vep_cores
+      vep_buffer_size: vep_buffer_size
+      vep_cache: vep_cache
+      dbnsfp: dbnsfp
+      dbnsfp_fields: dbnsfp_fields
+      cadd_indels: cadd_indels
+      cadd_snvs: cadd_snvs
+      merged: merged
+      intervar: intervar
+    out: [annotated_vcf]
 
 $namespaces:
   sbg: https://sevenbridges.com
 hints:
-- class: 'sbg:AWSInstanceType'
-  value: r4.4xlarge;ebs-gp2;500
 - class: sbg:maxNumberOfParallelInstances
   value: 2
 "sbg:license": Apache License 2.0
@@ -295,5 +362,5 @@ hints:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v0.1.0'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v0.4.0'
   label: github-release
