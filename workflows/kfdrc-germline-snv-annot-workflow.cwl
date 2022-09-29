@@ -195,7 +195,7 @@ doc: |-
         class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz.tbi}]}}
     cadd_snvs: { type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin file and index containing CADD SNV annotations", "sbg:suggestedValue": {
         class: File, path: 632a2b417535110eb78312a4, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz, secondaryFiles: [{
-        class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz.tbi}]} }
+        class: File, path: 632a2b417535110eb78312a3, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz.tbi}]} }
     intervar: { type: 'File?', doc: "Intervar vcf-formatted file. Exonic SNVs only - for more comprehensive run InterVar. See docs for custom build instructions", secondaryFiles: [.tbi], "sbg:suggestedValue": {
             class: File, path: 633348619968f3738e4ec4b5, name: Exons.all.hg38.intervar.2021-07-31.vcf.gz, secondaryFiles: [{
             class: File, path: 633348619968f3738e4ec4b6, name: Exons.all.hg38.intervar.2021-07-31.vcf.gz.tbi}]} }
@@ -216,7 +216,7 @@ inputs:
         {class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai}]}}
   input_vcf: {type: 'File', secondaryFiles: ['.tbi'], doc: "Input vcf to annotate"}
   output_basename: string
-  tool_name: string
+  tool_name: { type: string, doc: "File name string suffx to use for output files" }
 
   bcftools_prefilter_csv: {type: 'string?', doc: "csv of bcftools filter params if\
       \ you want to prefilter before annotation"}
@@ -265,7 +265,7 @@ inputs:
   cadd_snvs: {type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin file\
       \ and index containing CADD SNV annotations", "sbg:suggestedValue": {class: File,
       path: 632a2b417535110eb78312a4, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz,
-      secondaryFiles: [{class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz.tbi}]}}
+      secondaryFiles: [{class: File, path: 632a2b417535110eb78312a3, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz.tbi}]}}
   intervar: {type: 'File?', doc: "Intervar vcf-formatted file. Exonic SNVs only -\
       \ for more comprehensive run InterVar. See docs for custom build instructions",
     secondaryFiles: [.tbi], "sbg:suggestedValue": {class: File, path: 633348619968f3738e4ec4b5,
