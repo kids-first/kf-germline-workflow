@@ -369,5 +369,14 @@ steps:
           \ var pro_tbi=self[0] + '.' + self[1] + '.norm.annot.vcf.gz.tbi'; return\
           \ [pro_vcf, pro_tbi];}"
     out: [renamed_files]
+
+$namespaces:
+  sbg: https://sevenbridges.com
+
 sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
+
+"sbg:links":
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v0.4.1'
+  label: github-release
+
