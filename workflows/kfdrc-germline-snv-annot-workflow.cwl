@@ -365,8 +365,8 @@ steps:
           \ return [self[i],self[i].secondaryFiles[0]]; } } }"
       rename_to:
         source: [output_basename, tool_name]
-        valueFrom: "${var pro_vcf=self[0] + '.' + self[1] + '.norm.annot.vcf.gz';\
-          \ var pro_tbi=self[0] + '.' + self[1] + '.norm.annot.vcf.gz.tbi'; return\
+        valueFrom: "${var pro_vcf=self[0] + '.' + self[1] + '.vcf.gz';\
+          \ var pro_tbi=self[0] + '.' + self[1] + '.vcf.gz.tbi'; return\
           \ [pro_vcf, pro_tbi];}"
     out: [renamed_files]
 
