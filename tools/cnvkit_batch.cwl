@@ -1,6 +1,12 @@
 cwlVersion: v1.1
 class: CommandLineTool
 id: cnvkit-batch
+doc: >
+  CNVkit Batch command
+
+  Known issue: CNVkit batch is incapable of processing CRAMs with an input CNN
+  file. This edge case is because you cannot have both --reference and --fasta
+  declared. Without --fasta declared, CNVkit will fail to read CRAM files.
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
@@ -23,8 +29,9 @@ inputs:
   drop_low_coverage: { type: 'boolean?', inputBinding: { prefix: "--drop-low-coverage" }, doc: "Drop very-low-coverage bins before segmentation to avoid false-positive deletions in poor-quality tumor samples." }
 
   # Build your own Copy Number Reference
-  input_normal_reads: { type: 'File[]?', inputBinding: { prefix: "--normal" }, secondaryFiles: [ { pattern: ".bai", required: false }, { pattern: "^.bai", required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false } ], doc: "Normal samples (.bam/.cram) used to construct the pooled, paired, or flat reference. If this option is used but no filenames are given, a 'flat' reference will be built. Otherwise, all filenames following this option will be used." }
-  reference_fasta: { type: 'File?', inputBinding: { prefix: "--fasta" }, secondaryFiles: [.fai], doc: "Reference genome, FASTA format; needed if cnv kit cnn not already built" }
+  build_flat_reference: { type: 'boolean?', inputBinding: { prefix: "--normal" }, doc: "For samples without associated normal reads, such as germline or tumor only, set this value to true. It will create a 'flat' reference using no normal samples." }
+  input_normal_reads: { type: 'File[]?', inputBinding: { prefix: "--normal" }, secondaryFiles: [ { pattern: ".bai", required: false }, { pattern: "^.bai", required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false } ], doc: "Normal samples (.bam/.cram) used to construct the pooled or paired reference." }
+  reference_fasta: { type: 'File?', inputBinding: { prefix: "--fasta" }, secondaryFiles: [.fai], doc: "Reference genome, FASTA format; needed if cnv kit cnn not already built. Also required for CRAM inputs." }
   targets_file: { type: 'File?', inputBinding: { prefix: "--targets" }, doc: "Target intervals (.bed or .list)" }
   antitargets_file: { type: 'File?', inputBinding: { prefix: "--antitargets" }, doc: "Antitarget intervals (.bed or .list)" }
   annotation_file: { type: 'File?', inputBinding: { prefix: "--annotate" }, doc: "Use gene models from this file to assign names to the target regions. Format: UCSC refFlat.txt or ensFlat.txt file (preferred), or BED, interval list, GFF, or similar." }
