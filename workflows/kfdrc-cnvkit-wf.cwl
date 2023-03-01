@@ -1,4 +1,4 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: Workflow
 id: kfdrc-cnvkit-wf
 label: Kids First DRC CNVKit Workflow

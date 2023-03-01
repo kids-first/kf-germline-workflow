@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: cnvkit-export-seg
 requirements:
@@ -11,6 +11,12 @@ requirements:
     coresMin: $(inputs.cpu)
 
 baseCommand: [cnvkit.py,export,seg]
+
+arguments:
+  - position: 99
+    shellQuote: false
+    valueFrom: |
+      1>&2
 
 inputs:
   input_copy_ratios: { type: 'File', inputBinding: { position: 99 }, doc: "Segmented copy ratio data file(s) (*.cns), the output of the 'segment' sub-command." }

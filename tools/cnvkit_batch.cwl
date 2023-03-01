@@ -1,4 +1,4 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: CommandLineTool
 id: cnvkit-batch
 doc: >
@@ -20,8 +20,14 @@ requirements:
 
 baseCommand: [cnvkit.py,batch]
 
+arguments:
+  - position: 99
+    shellQuote: false
+    valueFrom: |
+      1>&2
+
 inputs:
-  input_reads: { type: 'File[]?', inputBinding: { position: 99 }, secondaryFiles: [ { pattern: ".bai", required: false }, { pattern: '^.bai', required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false } ], doc: "Mapped sequence reads in BAM or CRAM format" }
+  input_reads: { type: 'File[]?', inputBinding: { position: 9 }, secondaryFiles: [ { pattern: ".bai", required: false }, { pattern: '^.bai', required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false } ], doc: "Mapped sequence reads in BAM or CRAM format" }
   sequencing_method: { type: ['null', { type: enum, symbols: ["hybrid","amplicon","wgs"], name: "sequencing_method" } ], inputBinding: { prefix: "--seq-method" }, doc: "Sequencing assay type: hybridization capture ('hybrid'), targeted amplicon sequencing ('amplicon'), or whole genome sequencing ('wgs'). Determines whether and how to use antitarget bins. [Default: hybrid]" }
   segmentation_method: { type: ['null', { type: enum, symbols: ["cbs","flasso","haar","none","hmm","hmm-tumor","hmm-germline"], name: "segmentation_method" } ], inputBinding: { prefix: "--segment-method" }, doc: "Method used in the 'segment' step. [Default: cbs]" }
   male_ref: { type: 'boolean?', inputBinding: { prefix: "--male-reference" }, doc: "Use or assume a male reference" }
