@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_filterintervals
 doc: "Filters intervals based on annotations and/or count statistics"
@@ -6,7 +6,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.max_memory * 1000 }
+    ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'

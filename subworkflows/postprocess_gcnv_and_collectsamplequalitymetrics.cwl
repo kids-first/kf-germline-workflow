@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: Workflow
 id: postprocess_gcnv_and_collectsamplequalitymetrics
 requirements:
