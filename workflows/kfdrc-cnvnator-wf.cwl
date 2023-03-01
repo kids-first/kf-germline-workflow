@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: Workflow
 id: kfdrc-cnvnator-wf
 label: Kids First DRC CNVnator Workflow
@@ -29,25 +29,24 @@ doc: |
   - dockerfiles: https://github.com/d3b-center/bixtools
 
 requirements:
-- class: SubworkflowFeatureRequirement
+- class: ScatterFeatureRequirement
 
 inputs:
   # Multistep
   output_basename: {type: 'string', doc: "String value to use for the basename of\
       \ all outputs"}
-  chromosomes: {type: 'string[]?', doc: "Restrict analysis to only those chromosomes\
-      \ listed"}
+  calling_contigs: { type: 'File', doc: "File containing the names of contigs/chromosomes on which to perform analysis" }
   bin_size: {type: 'int', doc: "Size of bins to use for analysis. Bin size should\
       \ be equal to a whole number of 100 bases (e.g., 2500, 3700,\u2026)"}
   disable_gc_correction: {type: 'boolean?', doc: "Do not to use GC corrected RD signal"}
 
   # Extract
-  aligned_reads: {type: 'File[]', doc: "Aligned Reads file(s) from which CNVs will\
+  aligned_reads: {type: 'File[]', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai', required: false}, {pattern: '^.crai', required: false}], doc: "Aligned Reads file(s) from which CNVs will\
       \ be discovered", "sbg:fileTypes": "BAM, CRAM"}
   light_root: {type: 'boolean?', doc: "Create a smaller root file?"}
 
   # RD Histogram
-  reference_fasta: {type: 'File', doc: "Reference fasta file", "sbg:suggestedValue": {
+  reference_fasta: {type: 'File', secondaryFiles: [{pattern: '.fai', required: true}], doc: "Reference fasta file", "sbg:suggestedValue": {
       class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta},
     "sbg:fileTypes": "FASTA, FA"}
 
@@ -59,6 +58,7 @@ inputs:
   partition_max_memory: {type: 'int?', doc: "Max memory to allocate to partition"}
   call_max_memory: {type: 'int?', doc: "Max memory to allocate to call"}
   vcf_max_memory: {type: 'int?', doc: "Max memory to allocate to vcf creation"}
+  samtools_ram: {type: 'int?', default: 16, doc: "GB of ram to allocate to samtools view" }
   # Core control
   extract_cores: {type: 'int?', doc: "Cores to allocate to extract reads"}
   his_cores: {type: 'int?', doc: "Cores to allocate to rd histogram generation"}
@@ -67,6 +67,7 @@ inputs:
   partition_cores: {type: 'int?', doc: "Cores to allocate to partition"}
   call_cores: {type: 'int?', doc: "Cores to allocate to call"}
   vcf_cores: {type: 'int?', doc: "Cores to allocate to vcf creation"}
+  samtools_cpu: {type: 'int?', default: 8, doc: "CPUs to allocate to samtools view" }
 
 outputs:
   vcf: {type: 'File', outputSource: cnvnator2vcf/output, doc: "Called CNVs in VCF\
@@ -77,11 +78,47 @@ outputs:
       \ RD stats"}
 
 steps:
+  cnvnator_scatter_contigs:
+    run: ../tools/cnvnator_scatter_contigs.cwl
+    in:
+      cnv_contigs: calling_contigs
+    out: [scattered_contigs]
+  samtools_view:
+    run: ../tools/samtools_view.cwl
+    scatter: [input_reads]
+    when: $(inputs.input_reads.nameext != ".bam")
+    in:
+      input_reads: aligned_reads
+      reference_fasta: reference_fasta
+      output_bam:
+        valueFrom: $(1 == 1)
+      include_header:
+        valueFrom: $(1 == 1)
+      write_index:
+        valueFrom: $(1 == 1)
+      output_filename:
+        valueFrom: $(inputs.input_reads.nameroot).bam##idx##$(inputs.input_reads.nameroot).bam.bai
+      cpu: samtools_cpu
+      ram: samtools_ram
+    out: [output]
   cnvnator_extract_reads:
     run: ../tools/cnvnator_extract_reads.cwl
     in:
-      input_reads: aligned_reads
-      chrom: chromosomes
+      input_reads:
+        source: [samtools_view/output, aligned_reads]
+        valueFrom: |
+          ${
+            var out = [];
+            for (var i = 0; i < self[1].length; i++) {
+              if (self[0][i] != null) {
+                out.push(self[0][i]);
+              } else {
+                out.push(self[1][i]);
+              }
+            }
+            return out;
+          }
+      chrom: cnvnator_scatter_contigs/scattered_contigs
       output_root: {source: output_basename, valueFrom: $(self).root}
       lite: light_root
       max_memory: extract_max_memory
@@ -93,7 +130,7 @@ steps:
       input_root: cnvnator_extract_reads/output
       bin_size: bin_size
       ref_fasta: reference_fasta
-      chrom: chromosomes
+      chrom: cnvnator_scatter_contigs/scattered_contigs
       max_memory: his_max_memory
       cpu: his_cores
     out: [output]
@@ -119,7 +156,7 @@ steps:
       input_root: cnvnator_calculate_statistics/output
       bin_size: bin_size
       disable_gc_correction: disable_gc_correction
-      chrom: chromosomes
+      chrom: cnvnator_scatter_contigs/scattered_contigs
       max_memory: partition_max_memory
       cpu: partition_cores
     out: [output]
@@ -129,7 +166,7 @@ steps:
       input_root: cnvnator_partition/output
       bin_size: bin_size
       disable_gc_correction: disable_gc_correction
-      chrom: chromosomes
+      chrom: cnvnator_scatter_contigs/scattered_contigs
       max_memory: call_max_memory
       cpu: call_cores
     out: [output]

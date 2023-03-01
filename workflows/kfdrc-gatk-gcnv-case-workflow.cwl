@@ -29,7 +29,7 @@ inputs:
   # Multistep
   reference_tar: {type: 'File', doc: "TAR containing reference fasta and associated\
       \ indecies. Must include FAI and DICT!", "sbg:fileTypes": "TAR, TAR.GZ, TGZ"}
-  intervals: {type: 'File', doc: "Picard or GATK-style interval list of regions to\
+  intervals: {type: 'File?', doc: "Picard or GATK-style interval list of regions to\
       \ process. For WGS, this should typically only include the chromosomes of interest.",
     "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
   blacklist_intervals: {type: 'File?', doc: "Picard or GATK-style interval list of\
