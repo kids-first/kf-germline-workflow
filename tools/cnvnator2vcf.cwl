@@ -1,11 +1,11 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: cnvnator2vcf
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.max_memory * 1000 }
+    ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cnvnator:v0.4.1'
@@ -19,7 +19,5 @@ inputs:
   cpu: { type: 'int?', default: 1, doc: "Number of CPUs to allocate to this task." }
 outputs:
   output:
-    type: File
-    outputBinding:
-      glob: $(inputs.input_calls.nameroot).vcf
+    type: stdout
 stdout: $(inputs.input_calls.nameroot).vcf
