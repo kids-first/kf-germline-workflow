@@ -77,7 +77,7 @@ arguments:
       while [ $CURRENT_SAMPLE -lt $NUM_SAMPLES ]; do
           sleep 10
           CURRENT_SAMPLE_WITH_LEADING_ZEROS=${ return "$(printf \"%0${NUM_DIGITS}d\" $CURRENT_SAMPLE)" }
-          tar czf case-gcnv-calls-shard-$(inputs.scatter_index)-sample-$CURRENT_SAMPLE_WITH_LEADING_ZEROS.tar.gz -C out/case-calls/SAMPLE_$CURRENT_SAMPLE .
+          tar czf case-gcnv-calls-shard-$(inputs.scatter_index)-sample-$CURRENT_SAMPLE_WITH_LEADING_ZEROS.tar.gz -C out/case-calls/SAMPLE_$CURRENT_SAMPLE . || :
           let CURRENT_SAMPLE=CURRENT_SAMPLE+1
       done
 

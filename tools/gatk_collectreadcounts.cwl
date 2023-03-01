@@ -64,5 +64,5 @@ inputs:
   max_memory: { type: 'int?', default: 2, doc: "GB of RAM to allocate to the task." }
   cores: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
-  entity_id: { type: 'string', outputBinding: { outputEval: '$(inputs.bam.nameroot)' } }
+  entity_id: { type: 'string', outputBinding: { outputEval: '$(inputs.reads.nameroot)' } }
   counts: { type: 'File', outputBinding: { glob: "*.hdf5" } }
