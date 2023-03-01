@@ -1,17 +1,22 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: cnvnator_calculate_statistics
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.max_memory * 1000 }
+    ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cpu)
   - class: InitialWorkDirRequirement
     listing: $(inputs.input_root)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cnvnator:v0.4.1'
 baseCommand: [cnvnator]
+arguments:
+  - position: 99
+    shellQuote: false
+    valueFrom: |
+      1>&2
 inputs:
   bin_size: { type: 'int', inputBinding: { prefix: '-stat'}, doc: "Size of the bins for the task" }
   input_root: { type: 'File', inputBinding: { prefix: '-root'}, doc: "Input root file" } 
