@@ -12,8 +12,14 @@ requirements:
 
 baseCommand: [cnvkit.py,genemetrics]
 
+arguments:
+  - position: 99
+    shellQuote: false
+    valueFrom: |
+      1>&2
+
 inputs:
-  input_copy_ratios: { type: 'File', inputBinding: { position: 99 }, doc: "Processed sample coverage data file (*.cnr), the output of the 'fix' sub-command" }
+  input_copy_ratios: { type: 'File', inputBinding: { position: 9 }, doc: "Processed sample coverage data file (*.cnr), the output of the 'fix' sub-command" }
   segment: { type: 'File?', inputBinding: { prefix: "--segment" }, doc: "Segmentation calls (.cns), the output of the 'segment' command)" }
   threshold: { type: 'float?', inputBinding: { prefix: "--threshold" }, doc: "Copy number change threshold to report a gene gain/loss. [Default: 0.2]" }
   min_probes: { type: 'int?', inputBinding: { prefix: "--min-probes" }, doc: "Minimum number of covered probes to report a gain/loss. [Default: 3]" }

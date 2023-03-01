@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: cnvkit-call
 requirements:
@@ -11,6 +11,12 @@ requirements:
     coresMin: $(inputs.cpu)
 
 baseCommand: [cnvkit.py,call]
+
+arguments:
+  - position: 99
+    shellQuote: false
+    valueFrom: |
+      1>&2
 
 inputs:
   input_copy_ratios: { type: 'File', inputBinding: { position: 99 }, doc: "Copy ratios (.cnr or .cns)." }
@@ -27,7 +33,7 @@ inputs:
   output_filename: { type: 'string?', inputBinding: { prefix: "--output" }, doc: "Output table file name (CNR-like table of segments, .cns)." }
 
   # Options to additionally process SNP b-allele frequencies for allelic copy number
-  input_b_allele: { type: 'File?', inputBinding: { prefix: "--vcf" }, secondaryFiles: [.tbi], doc: "VCF file name containing variants for calculation of b-allele frequencies." }
+  input_b_allele: { type: 'File?', inputBinding: { prefix: "--vcf" }, secondaryFiles: [{ pattern: '.tbi', required: true }], doc: "VCF file name containing variants for calculation of b-allele frequencies." }
   sample_id: { type: 'string?', inputBinding: { prefix: "--sample-id" }, doc: "Name of the sample in the VCF (-v/--vcf) to use for b-allele frequency extraction." }
   normal_id: { type: 'string?', inputBinding: { prefix: "--normal-id" }, doc: "Corresponding normal sample ID in the input VCF (-v/--vcf). This sample is used to select only germline SNVs to calculate b-allele frequencies." }
   min_variant_depth: { type: 'int?', inputBinding: { prefix: "--min-variant-depth" }, doc: "Minimum read depth for a SNV to be used in the b-allele frequency calculation. [Default: 20]" }
