@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_indexfeaturefile
 doc: "Creates an index for a feature file, e.g. VCF or BED file."
@@ -8,7 +8,6 @@ requirements:
   - class: InitialWorkDirRequirement
     listing: [$(inputs.input_file),$(inputs.input_index)]
   - class: InlineJavascriptRequirement
-  - class: ResourceRequirement
   - class: ShellCommandRequirement
 baseCommand: []
 arguments:

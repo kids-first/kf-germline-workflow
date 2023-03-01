@@ -1,4 +1,4 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: Workflow
 id: kfdrc-gatk-cnv-germline-cohort-workflow
 label: Kids First DRC GATK Germline CNV Cohort Workflow
@@ -303,17 +303,7 @@ steps:
     run: ../tools/untar_indexed_reference.cwl
     in:
       reference_tar: reference_tar
-    out: [fasta, fai, dict, alt, amb, ann, bwt, pac, sa]
-
-  bundle_secondaries:
-    run: ../tools/bundle_secondaryfiles.cwl
-    in:
-      primary_file: untar_reference/fasta
-      secondary_files:
-        source: [untar_reference/fai, untar_reference/dict, untar_reference/alt, untar_reference/amb,
-          untar_reference/ann, untar_reference/bwt, untar_reference/pac, untar_reference/sa]
-        linkMerge: merge_flattened
-    out: [output]
+    out: [ indexed_fasta, dict ]
 
   index_mappability_track:
     run: ../tools/gatk_indexfeaturefile.cwl
@@ -332,7 +322,7 @@ steps:
   preprocess_intervals:
     run: ../tools/gatk_preprocessintervals.cwl
     in:
-      reference: bundle_secondaries/output
+      reference: untar_reference/indexed_fasta
       sequence_dictionary: untar_reference/dict
       intervals_list: intervals
       blacklist_intervals_list: blacklist_intervals
@@ -346,7 +336,7 @@ steps:
     run: ../tools/gatk_annotateintervals.cwl
     in:
       do_explicit_gc_correction: do_explicit_gc_correction
-      reference: bundle_secondaries/output
+      reference: untar_reference/indexed_fasta
       sequence_dictionary: untar_reference/dict
       intervals_list: preprocess_intervals/preprocessed_intervals
       mappability_track: index_mappability_track/output
@@ -363,7 +353,7 @@ steps:
     run: ../tools/gatk_collectreadcounts.cwl
     scatter: reads
     in:
-      reference: bundle_secondaries/output
+      reference: untar_reference/indexed_fasta
       sequence_dictionary: untar_reference/dict
       reads: normal_reads
       intervals_list: preprocess_intervals/preprocessed_intervals

@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: ExpressionTool
 id: expression_transpose_two_dimension_file_array
 doc: "Take two dimensional file array and transpose it. From: https://gist.github.com/femto113/1784503#gistcomment-2163931"

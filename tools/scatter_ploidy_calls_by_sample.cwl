@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: scatter_ploidy_calls_by_sample
 doc: "Archive call files by sample, renaming so they will be glob'd in order"
@@ -6,7 +6,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.ram * 1000 }
+    ramMin: $(inputs.ram * 1000)
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'

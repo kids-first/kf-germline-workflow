@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_determinegermlinecontigploidy_case
 doc: "Determines the baseline contig ploidy for germline samples given counts data. Case mode."
@@ -6,7 +6,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.max_memory * 1000 }
+    ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'broadinstitute/gatk:4.2.0.0'

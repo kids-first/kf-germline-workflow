@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_germlinecnvcaller_cohort
 doc: "Calls copy-number variants in germline samples given their counts and the output of DetermineGermlineContigPloidy. Run in cohort mode."
@@ -6,7 +6,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.max_memory * 1000 }
+    ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'broadinstitute/gatk:4.2.0.0'

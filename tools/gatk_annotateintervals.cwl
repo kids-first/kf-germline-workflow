@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_annotateintervals
 doc: >-
@@ -7,7 +7,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.max_memory * 1000 }
+    ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
@@ -29,7 +29,7 @@ arguments:
       $(inputs.segmental_duplication_track ? "--segmental-duplication-track " + inputs.segmental_duplication_track.path : '')
 inputs:
   do_explicit_gc_correction: { type: 'boolean?', default: true, doc: "Trigger to turn off this tool and echo the command" }
-  reference: { type: 'File', secondaryFiles: ['.fai'], doc: "Reference fasta" }
+  reference: { type: 'File', secondaryFiles: [{ pattern: '.fai', required: true }], doc: "Reference fasta" }
   sequence_dictionary: { type: 'File', doc: "Use the given sequence dictionary as the master/canonical sequence dictionary. Must be a .dict file." }
   intervals_list: { type: 'File', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   interval_merging_rule:

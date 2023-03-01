@@ -1,10 +1,13 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_preprocessintervals
 doc: "Prepares bins for coverage collection"
 requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
+  - class: ResourceRequirement
+    ramMin: $(inputs.max_memory * 1000)
+    coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
 baseCommand: ['/bin/bash', '-c']
@@ -24,7 +27,7 @@ arguments:
       $(inputs.intervals_list ? "-L " + inputs.intervals_list.path : '')
       $(inputs.blacklist_intervals_list ? "-XL " + inputs.blacklist_intervals_list.path : '')
 inputs:
-  reference: { type: 'File' , secondaryFiles: ['.fai'] , doc: "Reference fasta" }
+  reference: { type: 'File' , secondaryFiles: [{ pattern: '.fai', required: true }] , doc: "Reference fasta" }
   sequence_dictionary: { type: 'File?', doc: "Use the given sequence dictionary as the master/canonical sequence dictionary. Must be a .dict file." }
   intervals_list: { type: 'File?', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   blacklist_intervals_list: { type: 'File?', doc: "One or more genomic intervals to exclude from processing. Use this input when providing interval list files or other file based inputs." }

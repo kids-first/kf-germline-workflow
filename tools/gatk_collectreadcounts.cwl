@@ -1,4 +1,4 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_collectreadcounts
 doc: "Collects read counts at specified intervals. The count for each interval is calculated by counting the number of read starts that lie in the interval."
@@ -6,7 +6,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.max_memory * 1000 }
+    ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
@@ -30,20 +30,10 @@ arguments:
       ${ if (inputs.output_format == 'TSV_GZ') { return 'bgzip ' + inputs.reads.nameroot + '.' + inputs.output_format.replace('_GZ','').toLowerCase() } else if (inputs.output_format == 'TSV') { return '/gatk --javaOptions "-Xmx' + Math.floor(inputs.max_memory*1000/1.074-1) + 'm" IndexFeatureFile -I ' + inputs.reads.nameroot + '.' + inputs.output_format.replace('_GZ','').toLowerCase() } else { return '' } }
 
 inputs:
-  reference:
-    type: 'File'
-    doc: "Reference fasta"
-    secondaryFiles: ['.fai']
-  sequence_dictionary:
-    type: 'File'
-    doc: "Use the given sequence dictionary as the master/canonical sequence dictionary. Must be a .dict file."
-  reads:
-    type: 'File'
-    secondaryFiles: [ { pattern: ".bai", required: false }, { pattern: "^.bai", required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false } ]
-    doc: "BAM/CRAM File containing reads"
-  intervals_list:
-    type: 'File'
-    doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs."
+  reference: { type: 'File', secondaryFiles: [{ pattern: '.fai', required: true }], doc: "Reference fasta" }
+  sequence_dictionary: { type: 'File', doc: "Use the given sequence dictionary as the master/canonical sequence dictionary. Must be a .dict file." }
+  reads: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: false }, { pattern: "^.bai", required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false }], doc: "BAM/CRAM File containing reads" }
+  intervals_list: { type: 'File', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   interval_merging_rule:
     type:
       - 'null'
