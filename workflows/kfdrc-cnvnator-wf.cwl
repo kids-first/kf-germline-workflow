@@ -41,8 +41,7 @@ inputs:
   disable_gc_correction: {type: 'boolean?', doc: "Do not to use GC corrected RD signal"}
 
   # Extract
-  aligned_reads: {type: 'File[]', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai', required: false}, {pattern: '^.crai', required: false}], doc: "Aligned Reads file(s) from which CNVs will\
-      \ be discovered", "sbg:fileTypes": "BAM, CRAM"}
+  aligned_reads: {type: 'File[]', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai', required: false}, {pattern: '^.crai', required: false}], doc: "Aligned Reads file(s) from which CNVs will be discovered", "sbg:fileTypes": "BAM, CRAM"}
   light_root: {type: 'boolean?', doc: "Create a smaller root file?"}
 
   # RD Histogram
@@ -58,7 +57,6 @@ inputs:
   partition_max_memory: {type: 'int?', doc: "Max memory to allocate to partition"}
   call_max_memory: {type: 'int?', doc: "Max memory to allocate to call"}
   vcf_max_memory: {type: 'int?', doc: "Max memory to allocate to vcf creation"}
-  samtools_ram: {type: 'int?', default: 16, doc: "GB of ram to allocate to samtools view" }
   # Core control
   extract_cores: {type: 'int?', doc: "Cores to allocate to extract reads"}
   his_cores: {type: 'int?', doc: "Cores to allocate to rd histogram generation"}
@@ -67,7 +65,6 @@ inputs:
   partition_cores: {type: 'int?', doc: "Cores to allocate to partition"}
   call_cores: {type: 'int?', doc: "Cores to allocate to call"}
   vcf_cores: {type: 'int?', doc: "Cores to allocate to vcf creation"}
-  samtools_cpu: {type: 'int?', default: 8, doc: "CPUs to allocate to samtools view" }
 
 outputs:
   vcf: {type: 'File', outputSource: cnvnator2vcf/output, doc: "Called CNVs in VCF\
@@ -83,41 +80,11 @@ steps:
     in:
       cnv_contigs: calling_contigs
     out: [scattered_contigs]
-  samtools_view:
-    run: ../tools/samtools_view.cwl
-    scatter: [input_reads]
-    when: $(inputs.input_reads.nameext != ".bam")
-    in:
-      input_reads: aligned_reads
-      reference_fasta: reference_fasta
-      output_bam:
-        valueFrom: $(1 == 1)
-      include_header:
-        valueFrom: $(1 == 1)
-      write_index:
-        valueFrom: $(1 == 1)
-      output_filename:
-        valueFrom: $(inputs.input_reads.nameroot).bam##idx##$(inputs.input_reads.nameroot).bam.bai
-      cpu: samtools_cpu
-      ram: samtools_ram
-    out: [output]
   cnvnator_extract_reads:
     run: ../tools/cnvnator_extract_reads.cwl
     in:
-      input_reads:
-        source: [samtools_view/output, aligned_reads]
-        valueFrom: |
-          ${
-            var out = [];
-            for (var i = 0; i < self[1].length; i++) {
-              if (self[0][i] != null) {
-                out.push(self[0][i]);
-              } else {
-                out.push(self[1][i]);
-              }
-            }
-            return out;
-          }
+      input_reads: aligned_reads
+      reference: reference_fasta
       chrom: cnvnator_scatter_contigs/scattered_contigs
       output_root: {source: output_basename, valueFrom: $(self).root}
       lite: light_root
