@@ -15,8 +15,8 @@ inputs:
 
   indexed_reference_fasta: { type: 'File', secondaryFiles: [{ pattern: ".fai", required: true }], doc: "Reference fasta with FAI index" }
   calling_contigs: { type: 'string[]?', default: ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY", "chrM"], doc: "Contings over which to call." } 
-  input_tumor_reads: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false }], doc: "BAM file containing mapped reads from the tumor sample" }
-  input_normal_reads: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false }], doc: "BAM file containing mapped reads from the normal sample" }
+  input_reads: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false }], doc: "BAM file containing mapped reads from the germline sample" }
+  input_normal_reads: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false }], doc: "BAM file containing mapped reads from an unmatched normal sample" }
   gc_content_wiggle: { type: 'File', doc: "The GC-content wiggle file. Can be gzipped" }
   output_basename: { type: 'string', doc: "String to use as basename for outputs." }
 
@@ -25,28 +25,28 @@ inputs:
   bam2seqz_cpu: { type: 'int?', doc: "Number of CPUs to allocate to Sequenza bam2seqz." }
   seqz_binning_ram: { type: 'int?', doc: "Maximum GB of RAM to allocate to Sequenza seqz binning." }
   seqz_binning_cpu: { type: 'int?', doc: "Number of CPUs to allocate to Sequenza seqz binning." }
-  sequenza_ram: { type: 'int?', doc: "Maximum GB of RAM to allocate to Sequenza R." }
-  sequenza_cpu: { type: 'int?', doc: "Number of CPUs to allocate to Sequenza R." }
+#  sequenza_ram: { type: 'int?', doc: "Maximum GB of RAM to allocate to Sequenza R." }
+#  sequenza_cpu: { type: 'int?', doc: "Number of CPUs to allocate to Sequenza R." }
 
 outputs:
   seqz: { type: 'File', outputSource: sequenza_combine_seqz/output }
   small_seqz: { type: 'File', outputSource: sequenza_seqz_binning/seqz }
-  cn_bars: { type: 'File', outputSource: sequenza_coyote/cn_bars }
-  cp_contours: { type: 'File', outputSource: sequenza_coyote/cp_contours }
-  alt_fit: { type: 'File', outputSource: sequenza_coyote/alt_fit }
-  alt_solutions: { type: 'File', outputSource: sequenza_coyote/alt_solutions }
-  chr_depths: { type: 'File', outputSource: sequenza_coyote/chr_depths }
-  chr_view: { type: 'File', outputSource: sequenza_coyote/chr_view }
-  confints_cp: { type: 'File', outputSource: sequenza_coyote/confints_cp }
-  gc_plots: { type: 'File', outputSource: sequenza_coyote/gc_plots }
-  genome_view: { type: 'File', outputSource: sequenza_coyote/genome_view }
-  model_fit: { type: 'File', outputSource: sequenza_coyote/model_fit }
-  mutations: { type: 'File', outputSource: sequenza_coyote/mutations }
-  segments: { type: 'File', outputSource: sequenza_coyote/segments }
-  sequenza_cp_table: { type: 'File', outputSource: sequenza_coyote/sequenza_cp_table }
-  sequenza_extract: { type: 'File', outputSource: sequenza_coyote/sequenza_extract }
-  sequenza_log: { type: 'File', outputSource: sequenza_coyote/sequenza_log }
-  max_likelihood: { type: 'File', outputSource: sequenza_coyote/max_likelihood }
+#  cn_bars: { type: 'File', outputSource: sequenza_coyote/cn_bars }
+#  cp_contours: { type: 'File', outputSource: sequenza_coyote/cp_contours }
+#  alt_fit: { type: 'File', outputSource: sequenza_coyote/alt_fit }
+#  alt_solutions: { type: 'File', outputSource: sequenza_coyote/alt_solutions }
+#  chr_depths: { type: 'File', outputSource: sequenza_coyote/chr_depths }
+#  chr_view: { type: 'File', outputSource: sequenza_coyote/chr_view }
+#  confints_cp: { type: 'File', outputSource: sequenza_coyote/confints_cp }
+#  gc_plots: { type: 'File', outputSource: sequenza_coyote/gc_plots }
+#  genome_view: { type: 'File', outputSource: sequenza_coyote/genome_view }
+#  model_fit: { type: 'File', outputSource: sequenza_coyote/model_fit }
+#  mutations: { type: 'File', outputSource: sequenza_coyote/mutations }
+#  segments: { type: 'File', outputSource: sequenza_coyote/segments }
+#  sequenza_cp_table: { type: 'File', outputSource: sequenza_coyote/sequenza_cp_table }
+#  sequenza_extract: { type: 'File', outputSource: sequenza_coyote/sequenza_extract }
+#  sequenza_log: { type: 'File', outputSource: sequenza_coyote/sequenza_log }
+#  max_likelihood: { type: 'File', outputSource: sequenza_coyote/max_likelihood }
 
 steps:
   sequenza_bam2seqz:
@@ -56,8 +56,9 @@ steps:
     run: ../tools/sequenza_bam2seqz.cwl
     scatter: [chromosome]
     in:
-      input_normal: input_normal_reads
-      input_tumor: input_tumor_reads
+      input_normal: input_reads
+      input_normal2: input_normal_reads
+      input_tumor: input_reads
       indexed_reference: indexed_reference_fasta
       input_wiggle: gc_content_wiggle
       chromosome: calling_contigs 
@@ -90,18 +91,18 @@ steps:
       ram: seqz_binning_ram
     out: [seqz]
 
-  sequenza_coyote:
-    # This is a long running low core/high ram job. Ideally runs alone on the least costly instance.
-    hints:
-      - class: 'sbg:AWSInstanceType'
-        value: r5.2xlarge
-    run: ../tools/sequenza_coyote.cwl
-    in:
-      input_seqz: sequenza_seqz_binning/seqz
-      sample_name: output_basename
-      cpu: sequenza_cpu
-      ram: sequenza_ram
-    out: [cn_bars, cp_contours, alt_fit, alt_solutions, chr_depths, chr_view, confints_cp, gc_plots, genome_view, model_fit, mutations, segments, sequenza_cp_table, sequenza_extract, sequenza_log, max_likelihood]
+#  sequenza_coyote:
+#    # This is a long running low core/high ram job. Ideally runs alone on the least costly instance.
+#    hints:
+#      - class: 'sbg:AWSInstanceType'
+#        value: r5.2xlarge
+#    run: ../tools/sequenza_coyote.cwl
+#    in:
+#      input_seqz: sequenza_seqz_binning/seqz
+#      sample_name: output_basename
+#      cpu: sequenza_cpu
+#      ram: sequenza_ram
+#    out: [cn_bars, cp_contours, alt_fit, alt_solutions, chr_depths, chr_view, confints_cp, gc_plots, genome_view, model_fit, mutations, segments, sequenza_cp_table, sequenza_extract, sequenza_log, max_likelihood]
 
 $namespaces:
   sbg: https://sevenbridges.com
