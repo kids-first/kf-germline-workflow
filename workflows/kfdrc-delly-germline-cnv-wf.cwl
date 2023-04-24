@@ -1,9 +1,9 @@
 cwlVersion: v1.2
 class: Workflow
 id: kfdrc-delly-germline-cnv-wf
-label: Kids First DRC Delly Germline CNV Workflow 
+label: Kids First DRC Delly Germline CNV Workflow
 doc: |
-  # KFDRC Delly Germline CNV Workflow 
+  # KFDRC Delly Germline CNV Workflow
 
   ### Known Issues
 
@@ -23,15 +23,20 @@ inputs:
   indexed_reference_fasta: {type: 'File', secondaryFiles: [{pattern: ".fai", required: true}], doc: "Reference fasta and fai index" }
   mappability_map: { type: 'File', secondaryFiles: [{pattern: ".fai", required: false}, {pattern: ".gzi", required: false}], doc: "Mappability map for sample. Chromosomes should match reference." }
   output_basename: {type: 'string', doc: "Basename to use for outputs"}
+  samtools_cpu: { type: 'int?', default: 4, doc: "CPUs to allocate to samtools view" }
+  samtools_ram: { type: 'int?', default: 8, doc: "GB of RAM to allocate to samtools view" }
 
 outputs:
   genotyped_bcfs: {type: 'File[]', outputSource: delly_cnv_genotype/output }
-  merged_cnvs: {type: 'File', outputSource: bcftools_merge/output }
-  germline_cnvs: {type: 'File', outputSource: delly_classify/output } 
+  merged_cnvs: {type: 'File', outputSource: bcftools_merge_index/output }
+  germline_cnvs: {type: 'File', outputSource: delly_classify/output }
 
 steps:
   samtools_view:
     run: ../tools/samtools_view.cwl
+    hints:
+      - class: 'sbg:AWSInstanceType'
+        value: c5.9xlarge
     scatter: [input_reads]
     when: $(inputs.input_reads.nameext != ".bam")
     in:
@@ -45,10 +50,15 @@ steps:
         valueFrom: $(1 == 1)
       output_filename:
         valueFrom: $(inputs.input_reads.nameroot).bam##idx##$(inputs.input_reads.nameroot).bam.bai
+      cpu: samtools_cpu
+      ram: samtools_ram
     out: [output]
 
   stitch_bam_lists:
     run: ../tools/clt_passthrough_filelist.cwl
+    hints:
+      - class: 'sbg:AWSInstanceType'
+        value: c5.9xlarge
     in:
       infiles:
         source: [samtools_view/output, input_reads]
@@ -70,9 +80,12 @@ steps:
 
   delly_cnv_call:
     run: ../tools/delly_cnv.cwl
+    hints:
+      - class: 'sbg:AWSInstanceType'
+        value: c5.9xlarge
     scatter: [input_bam]
     in:
-      input_bam: stitch_bam_lists/output 
+      input_bam: stitch_bam_lists/output
       genome: indexed_reference_fasta
       mappability: mappability_map
       output_filename:
@@ -82,7 +95,7 @@ steps:
   delly_merge:
     run: ../tools/delly_merge.cwl
     in:
-      input_bcfs: delly_cnv_call/output 
+      input_bcfs: delly_cnv_call/output
       output_filename:
         valueFrom: "sites.bcf"
       minsize:
@@ -97,9 +110,12 @@ steps:
 
   delly_cnv_genotype:
     run: ../tools/delly_cnv.cwl
+    hints:
+      - class: 'sbg:AWSInstanceType'
+        value: c5.9xlarge
     scatter: [input_bam]
     in:
-      input_bam: stitch_bam_lists/output 
+      input_bam: stitch_bam_lists/output
       genome: indexed_reference_fasta
       mappability: mappability_map
       output_filename:
@@ -109,12 +125,13 @@ steps:
         valueFrom: $(1 == 1)
     out: [output]
 
-  bcftools_merge:
-    run: ../tools/bcftools_merge.cwl
+  bcftools_merge_index:
+    run: ../tools/bcftools_merge_index.cwl
     in:
-      input_vcfs: delly_cnv_genotype/output 
+      input_vcfs: delly_cnv_genotype/output
       output_filename:
-        valueFrom: "merged.bcf"
+        source: output_basename
+        valueFrom: $(self).merged.bcf
       merge:
         valueFrom: "id"
       output_type:
@@ -124,9 +141,10 @@ steps:
   delly_classify:
     run: ../tools/delly_classify.cwl
     in:
-      input_bcf: bcftools_merge/output 
+      input_bcf: bcftools_merge_index/output
       output_filename:
-        valueFrom: "filtered.bcf"
+        source: output_basename
+        valueFrom: $(self).filtered.bcf
       filter:
         valueFrom: "germline"
     out: [output]
@@ -138,10 +156,10 @@ $namespaces:
   sbg: https://sevenbridges.com
 hints:
 - class: sbg:maxNumberOfParallelInstances
-  value: 2
+  value: 4
 "sbg:license": Apache License 2.0
 "sbg:publisher": KFDRC
 "sbg:categories":
 - CNV
-- DELLY 
+- DELLY
 - GERMLINE

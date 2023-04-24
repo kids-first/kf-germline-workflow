@@ -1,6 +1,6 @@
 cwlVersion: v1.2
 class: CommandLineTool
-id: delly_classify 
+id: delly_classify
 doc: "Delly Classify tool"
 requirements:
   - class: ShellCommandRequirement
@@ -22,8 +22,11 @@ inputs:
     type:
       - 'null'
       - type: enum
-        name: filter 
+        name: filter
         symbols: ["somatic","germline"]
+    inputBinding:
+      position: 2
+      prefix: "--filter"
     doc: "Filter mode (somatic, germline)"
   minsize: { type: 'int?', inputBinding: { position: 2, prefix: "--minsize"}, doc: "min. CNV size" }
   maxsize: { type: 'int?', inputBinding: { position: 2, prefix: "--maxsize"}, doc: "max. CNV size" }
@@ -33,7 +36,7 @@ inputs:
   samples: { type: 'File?', inputBinding: { position: 2, prefix: "--samples"}, doc: "Two-column sample file listing sample name and tumor or control" }
   pgerm: { type: 'float?', inputBinding: { position: 2, prefix: "--pgerm"}, doc: "probability germline" }
   cn-offset: { type: 'float?', inputBinding: { position: 2, prefix: "--cn-offset"}, doc: "min. CN offset" }
-  
+
   # Germline Arguments
   ploidy: { type: 'int?', inputBinding: { position: 2, prefix: "--ploidy"}, doc: "baseline ploidy" }
   qual: { type: 'int?', inputBinding: { position: 2, prefix: "--qual"}, doc: "min. site quality" }
@@ -46,4 +49,4 @@ outputs:
   output:
     type: File
     outputBinding:
-      glob: $(inputs.output_filename) 
+      glob: $(inputs.output_filename)

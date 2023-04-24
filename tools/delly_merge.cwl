@@ -38,5 +38,6 @@ inputs:
 outputs:
   output:
     type: File
+    secondaryFiles: [{ pattern: '.csi', required: false }]
     outputBinding:
       glob: $(inputs.output_filename) 

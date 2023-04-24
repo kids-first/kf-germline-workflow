@@ -1,8 +1,8 @@
 cwlVersion: v1.2
 class: CommandLineTool
-id: bcftools_merge
+id: bcftools_merge_index
 doc: |
-  BCFTOOLS merge
+  BCFTOOLS merge and optionally index
 requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
@@ -17,11 +17,19 @@ arguments:
     shellQuote: false
     valueFrom: >
       bcftools merge
+  - position: 90
+    shellQuote: false
+    valueFrom: >
+      $(inputs.output_type == "b" || inputs.output_type == "z" ? "&& bcftools index --threads " + inputs.cpu : "")
+  - position: 99
+    shellQuote: false
+    valueFrom: >
+      $(inputs.output_type == "b" || inputs.output_type == "z" ? inputs.output_filename : "")
 
 inputs:
   # Required Inputs
   input_vcfs: { type: 'File[]', inputBinding: { position: 9 }, doc: "One or more VCF files to query." }
-  output_filename: { type: 'string', inputBinding: { position: 2, prefix: "--output-file"}, doc: "output file name" }
+  output_filename: { type: 'string', inputBinding: { position: 2, prefix: "--output"}, doc: "output file name" }
 
   # Merge Arguments
   force_samples: { type: 'boolean?', inputBinding: { position: 2, prefix: "--force-samples"}, doc: "resolve duplicate sample names" }
@@ -81,6 +89,15 @@ inputs:
     doc: |
       b: compressed BCF, u: uncompressed BCF, z: compressed VCF, v: uncompressed VCF [v]
 
+  # Index Arguments
+  force: { type: 'boolean?', inputBinding: { position: 92, prefix: "--force"}, doc: "overwrite index if it already exists" }
+  min_shift: { type: 'int?', inputBinding: { position: 92, prefix: "--min-shift"}, doc: "set minimal interval size for CSI indices to 2^INT [14]" }
+  output_index_filename: { type: 'string?', inputBinding: { position: 92, prefix: "--output-file"}, doc: "optional output index file name" }
+  csi: { type: 'boolean?', inputBinding: { position: 92, prefix: "--csi"}, doc: "generate CSI-format index for VCF/BCF files [default]" }
+  tbi: { type: 'boolean?', inputBinding: { position: 92, prefix: "--tbi"}, doc: "generate TBI-format index for VCF files" }
+  nrecords: { type: 'boolean?', inputBinding: { position: 92, prefix: "--nrecords"}, doc: "print number of records based on existing index file" }
+  stats: { type: 'boolean?', inputBinding: { position: 92, prefix: "--stats"}, doc: "print per contig stats based on existing index file" }
+
   cpu:
     type: 'int?'
     default: 2
@@ -95,5 +112,6 @@ inputs:
 outputs:
   output:
     type: 'File'
+    secondaryFiles: [{ pattern: '.csi', required: false }, { pattern: '.tbi', required: false }]
     outputBinding:
       glob: $(inputs.output_filename)

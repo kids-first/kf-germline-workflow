@@ -48,10 +48,11 @@ inputs:
   no_window_selection: { type: 'boolean?', inputBinding: { position: 2, prefix: "--no-window-selection"}, doc: "no scan window selection" }
 
   # Resource Control
-  cpu: {type: 'int?', default: 16, doc: "CPUs to allocate to this tool"}
-  ram: {type: 'int?', default: 32, doc: "GB of RAM to allocate to this tool"}
+  cpu: {type: 'int?', default: 4, doc: "CPUs to allocate to this tool"}
+  ram: {type: 'int?', default: 8, doc: "GB of RAM to allocate to this tool"}
 outputs:
   output:
     type: File
+    secondaryFiles: [{ pattern: '.csi', required: false }]
     outputBinding:
       glob: $(inputs.output_filename) 
