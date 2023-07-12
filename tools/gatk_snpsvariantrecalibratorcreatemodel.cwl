@@ -7,8 +7,8 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 7000
-    coresMin: 1
+    ramMin: $(inputs.ram * 1000)
+    coresMin: $(inputs.cpu)
 baseCommand: ["/bin/bash", "-c"]
 arguments:
   - position: 0
@@ -16,7 +16,7 @@ arguments:
     valueFrom: >-
       set -e
 
-      /gatk --java-options "-Xmx60g -Xms15g"
+      /gatk --java-options "-Xmx$(inputs.ram - 1)g -Xms$(Math.floor(inputs.ram / 2))g"
       VariantRecalibrator
       -V $(inputs.sites_only_variant_filtered_vcf.path)
       -O snps.recal
@@ -48,7 +48,7 @@ arguments:
       -an MQ
       -an SOR
       -an DP
-      || (>%2 echo 'Failed with max gaussians $(inputs.max_gaussians), trying ${return Math.max(inputs.max_gaussians-2, 1)}' && /gatk --java-options "-Xmx60g -Xms15g"
+      || (>%2 echo 'Failed with max gaussians $(inputs.max_gaussians), trying ${return Math.max(inputs.max_gaussians-2, 1)}' && /gatk --java-options "-Xmx$(inputs.ram - 1)g -Xms$(Math.floor(inputs.ram / 2))g"
       VariantRecalibrator
       -V $(inputs.sites_only_variant_filtered_vcf.path)
       -O snps.recal
@@ -98,6 +98,8 @@ inputs:
     type: File
     secondaryFiles: [.idx]
   max_gaussians: { type: 'int?', default: 6 }
+  cpu: { type: 'int?', default: 1, doc: "CPUs to allocate to this task" }
+  ram: { type: 'int?', default: 60, doc: "GB of RAM to allocate to this task" }
 outputs:
   model_report:
     type: File

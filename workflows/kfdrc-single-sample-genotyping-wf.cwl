@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: Workflow
 id: kfdrc-single-sample-genotyping-wf
 label: Kids First DRC Single Sample Genotyping Workflow
@@ -55,43 +55,19 @@ doc: |
 requirements:
 - class: ScatterFeatureRequirement
 - class: SubworkflowFeatureRequirement
+- class: MultipleInputFeatureRequirement
 
 inputs:
   input_vcfs: {type: 'File[]', doc: 'Input array of individual sample gVCF files'}
-  axiomPoly_resource_vcf: {type: File, doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz',
-    "sbg:suggestedValue": {class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz}}
-  axiomPoly_resource_tbi: {type: 'File?', doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi',
-    "sbg:suggestedValue": {class: File, path: 6063901d357c3a53540ca81b, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}}
-  dbsnp_vcf: {type: File, doc: 'Homo_sapiens_assembly38.dbsnp138.vcf', "sbg:suggestedValue": {
-      class: File, path: 6063901f357c3a53540ca84b, name: Homo_sapiens_assembly38.dbsnp138.vcf}}
-  dbsnp_idx: {type: 'File?', doc: 'Homo_sapiens_assembly38.dbsnp138.vcf.idx', "sbg:suggestedValue": {
-      class: File, path: 6063901e357c3a53540ca834, name: Homo_sapiens_assembly38.dbsnp138.vcf.idx}}
-  hapmap_resource_vcf: {type: File, doc: 'Hapmap genotype SNP input vcf', "sbg:suggestedValue": {
-      class: File, path: 60639016357c3a53540ca7be, name: hapmap_3.3.hg38.vcf.gz}}
-  hapmap_resource_tbi: {type: 'File?', doc: 'Hapmap genotype SNP input tbi', "sbg:suggestedValue": {
-      class: File, path: 60639016357c3a53540ca7c5, name: hapmap_3.3.hg38.vcf.gz.tbi}}
-  mills_resource_vcf: {type: File, doc: 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz',
-    "sbg:suggestedValue": {class: File, path: 6063901a357c3a53540ca7f3, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz}}
-  mills_resource_tbi: {type: 'File?', doc: 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi',
-    "sbg:suggestedValue": {class: File, path: 6063901c357c3a53540ca806, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi}}
-  omni_resource_vcf: {type: File, doc: '1000G_omni2.5.hg38.vcf.gz', "sbg:suggestedValue": {
-      class: File, path: 6063901e357c3a53540ca835, name: 1000G_omni2.5.hg38.vcf.gz}}
-  omni_resource_tbi: {type: 'File?', doc: '1000G_omni2.5.hg38.vcf.gz.tbi', "sbg:suggestedValue": {
-      class: File, path: 60639016357c3a53540ca7b1, name: 1000G_omni2.5.hg38.vcf.gz.tbi}}
-  one_thousand_genomes_resource_vcf: {type: File, doc: '1000G_phase1.snps.high_confidence.hg38.vcf.gz,
-      high confidence snps', "sbg:suggestedValue": {class: File, path: 6063901c357c3a53540ca80f,
-      name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz}}
-  one_thousand_genomes_resource_tbi: {type: 'File?', doc: '1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi,
-      high confidence snps', "sbg:suggestedValue": {class: File, path: 6063901e357c3a53540ca845,
-      name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi}}
+  axiomPoly_resource_vcf: {type: File, secondaryFiles: [{ pattern: '.tbi', required: true }], doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz', "sbg:suggestedValue": {class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz, secondaryFiles: [{class: File, path: 6063901d357c3a53540ca81b, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}]}}
+  dbsnp_vcf: {type: File, secondaryFiles: [{ pattern: '.idx', required: true }], doc: 'Homo_sapiens_assembly38.dbsnp138.vcf', "sbg:suggestedValue": { class: File, path: 6063901f357c3a53540ca84b, name: Homo_sapiens_assembly38.dbsnp138.vcf, secondaryFiles: [{class: File, path: 6063901e357c3a53540ca834, name: Homo_sapiens_assembly38.dbsnp138.vcf.idx}]}}
+  hapmap_resource_vcf: {type: File, secondaryFiles: [{ pattern: '.tbi', required: true }], doc: 'Hapmap genotype SNP input vcf', "sbg:suggestedValue": { class: File, path: 60639016357c3a53540ca7be, name: hapmap_3.3.hg38.vcf.gz, secondaryFiles: [{class: File, path: 60639016357c3a53540ca7c5, name: hapmap_3.3.hg38.vcf.gz.tbi}]}}
+  mills_resource_vcf: {type: File, secondaryFiles: [{ pattern: '.tbi', required: true }], doc: 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz', "sbg:suggestedValue": {class: File, path: 6063901a357c3a53540ca7f3, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz, secondaryFiles: [{class: File, path: 6063901c357c3a53540ca806, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi}]}}
+  omni_resource_vcf: {type: File, secondaryFiles: [{ pattern: '.tbi', required: true }], doc: '1000G_omni2.5.hg38.vcf.gz', "sbg:suggestedValue": { class: File, path: 6063901e357c3a53540ca835, name: 1000G_omni2.5.hg38.vcf.gz, secondaryFiles: [{class: File, path: 60639016357c3a53540ca7b1, name: 1000G_omni2.5.hg38.vcf.gz.tbi}]}}
+  one_thousand_genomes_resource_vcf: {type: File, secondaryFiles: [{ pattern: '.tbi', required: true }], doc: '1000G_phase1.snps.high_confidence.hg38.vcf.gz, high confidence snps', "sbg:suggestedValue": {class: File, path: 6063901c357c3a53540ca80f, name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz, secondaryFiles: [{class: File, path: 6063901e357c3a53540ca845, name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi}]}}
   ped: {type: File, doc: 'Ped file for the family relationship'}
-  reference_dict: {type: 'File?', doc: 'Homo_sapiens_assembly38.dict', "sbg:suggestedValue": {
-      class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}}
-  reference_fai: {type: 'File?', doc: 'Homo_sapiens_assembly38.fasta.fai', "sbg:suggestedValue": {
-      class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai}}
-  reference_fasta: {type: File, doc: 'Homo_sapiens_assembly38.fasta', "sbg:suggestedValue": {
-      class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta}}
-  unpadded_intervals_file: {type: File, doc: 'hg38.even.handcurated.20k.intervals',
+  indexed_reference_fasta: {type: File, secondaryFiles: [{ pattern: '.fai', required: true },{ pattern: '^.dict', required: true }], doc: 'Homo_sapiens_assembly38.fasta', "sbg:suggestedValue": { class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta, secondaryFiles: [{class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict},{class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai}]}}
+  unpadded_intervals_file: {type: File, doc: "Handcurated intervals over which the gVCF will be genotyped to create a VCF.",
     "sbg:suggestedValue": {class: File, path: 5f500135e4b0370371c051b1, name: hg38.even.handcurated.20k.intervals}}
   wgs_evaluation_interval_list: {type: File, doc: 'wgs_evaluation_regions.hg38.interval_list',
     "sbg:suggestedValue": {class: File, path: 60639017357c3a53540ca7d3, name: wgs_evaluation_regions.hg38.interval_list}}
@@ -160,49 +136,6 @@ outputs:
   vep_annotated_vcf: {type: 'File[]', outputSource: annotate_vcf/annotated_vcf}
 
 steps:
-  prepare_reference:
-    run: ../subworkflows/prepare_reference.cwl
-    in:
-      input_fasta: reference_fasta
-      input_fai: reference_fai
-      input_dict: reference_dict
-    out: [indexed_fasta, reference_dict]
-  index_axiomPoly:
-    run: ../tools/tabix_index.cwl
-    in:
-      input_file: axiomPoly_resource_vcf
-      input_index: axiomPoly_resource_tbi
-    out: [output]
-  index_dbsnp:
-    run: ../tools/gatk_indexfeaturefile.cwl
-    in:
-      input_file: dbsnp_vcf
-      input_index: dbsnp_idx
-    out: [output]
-  index_hapmap:
-    run: ../tools/tabix_index.cwl
-    in:
-      input_file: hapmap_resource_vcf
-      input_index: hapmap_resource_tbi
-    out: [output]
-  index_mills:
-    run: ../tools/tabix_index.cwl
-    in:
-      input_file: mills_resource_vcf
-      input_index: mills_resource_tbi
-    out: [output]
-  index_omni:
-    run: ../tools/tabix_index.cwl
-    in:
-      input_file: omni_resource_vcf
-      input_index: omni_resource_tbi
-    out: [output]
-  index_1k:
-    run: ../tools/tabix_index.cwl
-    in:
-      input_file: one_thousand_genomes_resource_vcf
-      input_index: one_thousand_genomes_resource_tbi
-    out: [output]
   dynamicallycombineintervals:
     run: ../tools/script_dynamicallycombineintervals.cwl
     doc: 'Merge interval lists based on number of gVCF inputs'
@@ -220,8 +153,8 @@ steps:
     in:
       input_vcfs: input_vcfs
       interval: dynamicallycombineintervals/out_intervals
-      dbsnp_vcf: index_dbsnp/output
-      reference_fasta: prepare_reference/indexed_fasta
+      dbsnp_vcf: dbsnp_vcf
+      reference_fasta: indexed_reference_fasta
     scatter: [interval]
     out: [variant_filtered_vcf, sites_only_vcf]
   gatk_gathervcfs:
@@ -235,10 +168,10 @@ steps:
     doc: 'Create recalibration model for snps using GATK VariantRecalibrator, tranch
       values, and known site VCFs'
     in:
-      dbsnp_resource_vcf: index_dbsnp/output
-      hapmap_resource_vcf: index_hapmap/output
-      omni_resource_vcf: index_omni/output
-      one_thousand_genomes_resource_vcf: index_1k/output
+      dbsnp_resource_vcf: dbsnp_vcf
+      hapmap_resource_vcf: hapmap_resource_vcf
+      omni_resource_vcf: omni_resource_vcf
+      one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
       sites_only_variant_filtered_vcf: gatk_gathervcfs/output
       max_gaussians: snp_max_gaussians
     out: [model_report]
@@ -247,9 +180,9 @@ steps:
     doc: 'Create recalibration model for indels using GATK VariantRecalibrator, tranch
       values, and known site VCFs'
     in:
-      axiomPoly_resource_vcf: index_axiomPoly/output
-      dbsnp_resource_vcf: index_dbsnp/output
-      mills_resource_vcf: index_mills/output
+      axiomPoly_resource_vcf: axiomPoly_resource_vcf
+      dbsnp_resource_vcf: dbsnp_vcf
+      mills_resource_vcf: mills_resource_vcf
       sites_only_variant_filtered_vcf: gatk_gathervcfs/output
       max_gaussians: indel_max_gaussians
     out: [recalibration, tranches]
@@ -263,10 +196,10 @@ steps:
     in:
       sites_only_variant_filtered_vcf: gatk_import_genotype_filtergvcf_merge/sites_only_vcf
       model_report: gatk_snpsvariantrecalibratorcreatemodel/model_report
-      hapmap_resource_vcf: index_hapmap/output
-      omni_resource_vcf: index_omni/output
-      one_thousand_genomes_resource_vcf: index_1k/output
-      dbsnp_resource_vcf: index_dbsnp/output
+      hapmap_resource_vcf: hapmap_resource_vcf
+      omni_resource_vcf: omni_resource_vcf
+      one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
+      dbsnp_resource_vcf: dbsnp_vcf
       max_gaussians: snp_max_gaussians
     scatter: [sites_only_variant_filtered_vcf]
     out: [recalibration, tranches]
@@ -316,18 +249,22 @@ steps:
     run: ../tools/picard_collectvariantcallingmetrics.cwl
     doc: 'picard calculate variant calling metrics'
     in:
-      input_vcf: gatk_gatherfinalvcf/output
-      reference_dict: prepare_reference/reference_dict
-      output_basename: output_basename
-      dbsnp_vcf: index_dbsnp/output
+      input_vcf: gatk_hardfiltering/hardfiltered_vcf
+      reference_dict:
+        source: indexed_reference_fasta
+        valueFrom: |
+          $(self.secondaryFiles.filter(function(e) {return e.nameext == '.dict'})[0])
+      output_basename:
+        source: output_basename
+        valueFrom: $(self).gatk.germline.hardfiltered
+      dbsnp_vcf: dbsnp_vcf
       wgs_evaluation_interval_list: wgs_evaluation_interval_list
     out: [output]
-
   annotate_vcf:
     run: ../workflows/kfdrc-germline-snv-annot-workflow.cwl
     doc: 'annotate variants'
     in:
-      indexed_reference_fasta: prepare_reference/indexed_fasta
+      indexed_reference_fasta: indexed_reference_fasta
       input_vcf: gatk_hardfiltering/hardfiltered_vcf
       output_basename: output_basename
       tool_name: tool_name

@@ -7,11 +7,8 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 7000
+    ramMin: 25000
     coresMin: 1
-hints:
-  - class: 'sbg:AWSInstanceType'
-    value: r4.2xlarge;ebs-gp2;500
 baseCommand: []
 arguments:
   - position: 0

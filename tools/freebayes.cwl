@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: freebayes
 doc: |-
@@ -7,13 +7,13 @@ doc: |-
   SNPs (single-nucleotide polymorphisms), indels (insertions and deletions), MNPs (multi-nucleotide
   polymorphisms), and complex events (composite insertion and substitution events) smaller than the
   length of a short-read sequencing alignment.
-  
+
   freebayes is haplotype-based, in the sense that it calls variants based on the literal sequences
   of reads aligned to a particular target, not their precise alignment. This model is a
   straightforward generalization of previous ones (e.g. PolyBayes, samtools, GATK) which detect or
   report variants based on alignments. This method avoids one of the core problems with
   alignment-based variant detection--- that identical sequences may have multiple possible alignments.
-  
+
   freebayes uses short-read alignments (BAM files with Phred+33 encoded quality scores, now standard)
   for any number of individuals from a population and a reference genome (in FASTA format) to
   determine the most-likely combination of genotypes for the population at each position in the
@@ -31,26 +31,19 @@ requirements:
     listing:
       - entryname: bams.txt
         entry: |-
-          ${
-              var text = ""
-              for (var i = 0; i < inputs.input_bams.length; i++) {
-                  text += inputs.input_bams[i].path + "\n"
-              }
-              return text
-          }
+          $(inputs.input_reads.map(function(e) {return e.path}).join("\n"))
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/freebayes:v1.3.2'
+    dockerPull: 'staphb/freebayes:1.3.6'
 
 baseCommand: [freebayes, --bam-list, bams.txt]
 
 inputs:
-
   # Input Variables
 
-  input_bams: { type: 'File[]', secondaryFiles: [^.bai], doc: "BAM files to be analyzed" }
-  reference_fasta: { type: 'File', inputBinding: { prefix: "--fasta-reference" }, secondaryFiles: [.fai], doc: "Reference fasta and fai index" }
+  input_reads: { type: 'File[]', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai', required: false}, {pattern: '^.crai', required: false}], doc: "Aligned reads files to be analyzed" }
+  reference_fasta: { type: 'File', inputBinding: { prefix: "--fasta-reference" }, secondaryFiles: [{pattern: '.fai', required: true}], doc: "Reference fasta and fai index" }
   targets_file: { type: 'File?', inputBinding: { prefix: "--targets" }, doc: "BED file containing targets for analysis" }
-  region_strings: { type: 'string[]?', inputBinding: { prefix: "--region", itemSeparator: ".." }, doc: "List containing BED-formatted strings (<chrom>:<start_position>-<end_position>;0-base coordinates, end_position not included) detailing target locations for analysis. Either '-' or '..' maybe used as a separator" }
+  region_strings: { type: 'string[]?', inputBinding: { prefix: "--region", itemSeparator: ".." }, doc: "List containing BED-formatted strings (<chrom>:<start_position>-<end_position>;0-base coordinates, end_position not included) detailing target locations for analysis." }
   samples_file: { type: 'File?', inputBinding: { prefix: "--samples" }, doc: "Limit analysis to samples listed (one per line) in the FILE. By default FreeBayes will analyze all samples in its input BAM files." }
   populations_file: { type: 'File?', inputBinding: { prefix: "--populations" }, doc: "Each line of FILE should list a sample and a population which it is part of.  The population-based bayesian inference model will then be partitioned on the basis of the populations." }
   cnv_map_file: { type: 'File?', inputBinding: { prefix: "--cnv-map" }, doc: "Read a copy number map from the BED file FILE, which has either a sample-level ploidy: (sample_name copy_number) or a region-specific format: (seq_name start end sample_name copy_number). For each region in each sample which does not have the default copy number as set by --ploidy. These fields can be delimited by space or tab." }
@@ -151,8 +144,8 @@ inputs:
   debug: { type: 'boolean?', default: false, inputBinding: { prefix: "--debug" }, doc: "Print debugging output." }
 
   # Resource Control
-  ram: { type: 'int?', default: 2, doc: "Minimum reserved RAM for the task. default: 16" }
-  cpu: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task. default: 4" }
+  ram: { type: 'int?', default: 8, doc: "Minimum reserved RAM for the task." }
+  cpu: { type: 'int?', default: 4, doc: "Minimum reserved number of CPU cores for the task." }
 
 outputs:
   output: { type: 'File', outputBinding: { glob: "*.freebayes.vcf" } }

@@ -19,14 +19,14 @@ steps:
   gatk_selectvariants_snps:
     run: ../tools/gatk_selectvariants.cwl
     in:
-      input_vcf: input_vcf 
+      input_vcf: input_vcf
       output_basename: output_basename
       selection: {valueFrom: "SNP"}
     out: [output]
   gatk_selectvariants_indels:
     run: ../tools/gatk_selectvariants.cwl
     in:
-      input_vcf: input_vcf 
+      input_vcf: input_vcf
       output_basename: output_basename
       selection: {valueFrom: "INDEL"}
     out: [output]

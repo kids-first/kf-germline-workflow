@@ -41,7 +41,7 @@ arguments:
 inputs:
   input_vcf: { type: 'File', secondaryFiles: [.tbi] }
   selection: { type: { type: 'enum', name: selection, symbols: ["SNP", "INDEL"] }, doc: "Type of variants in the input file" }
-  output_basename: { type: 'string', doc: "String value to use as the base for the output filename" } 
+  output_basename: { type: 'string', doc: "String value to use as the base for the output filename" }
   max_memory: { type: 'int?', default: 8, doc: "GB of memory to allocate to this task. default: 8" }
   cpu: { type: 'int?', default: 4, doc: "Number of CPUs to allocate to this task. default: 4" }
 outputs:

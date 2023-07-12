@@ -42,8 +42,8 @@ inputs:
   intervals_list: { type: 'File?', doc: "One or more genomic intervals over which to operate. Use this input when providing interval list files or other file based inputs." }
   read_count_files: { type: 'File[]', doc: "Input paths for read-count files containing integer read counts in genomic intervals for all samples. All intervals specified via -L/-XL must be contained; if none are specified, then intervals must be identical and in the same order for all samples. If read-count files are given by Google Cloud Storage paths, have the extension .counts.tsv or .counts.tsv.gz, and have been indexed by IndexFeatureFile, only the specified intervals will be queried and streamed; this can reduce disk usage by avoiding the complete localization of all read-count files" }
   contig_ploidy_priors: { type: 'File', doc: "Input file specifying contig-ploidy priors. If only a single sample is specified, this input should not be provided. If multiple samples are specified, this input is required" }
-  mapping_error: { type: 'float?', default: 0.01, doc: "Typical mapping error rate." }
-  mean_bias_sd: { type: 'float?', default: 0.01, doc: "Prior standard deviation of the contig-level mean coverage bias. If a single sample is provided, this input will be ignored." }
+  mapping_error: { type: 'float?', default: 0.3, doc: "Typical mapping error rate." }
+  mean_bias_sd: { type: 'float?', default: 1, doc: "Prior standard deviation of the contig-level mean coverage bias. If a single sample is provided, this input will be ignored." }
   psi_scale_global: { type: 'float?', default: 0.001, doc: "Prior scale of contig coverage unexplained variance. If a single sample is provided, this input will be ignored." }
   psi_scale_sample: { type: 'float?', default: 0.0001, doc: "Prior scale of the sample-specific correction to the coverage unexplained variance." }
   verbosity:
