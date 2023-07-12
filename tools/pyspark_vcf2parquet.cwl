@@ -25,7 +25,7 @@ arguments:
     valueFrom: >-
       --packages io.projectglow:glow-spark3_2.12:1.1.2
       --conf spark.hadoop.io.compression.codecs=io.projectglow.sql.util.BGZFCodec
-      --driver-memory $(inputs.ram)G 
+      --driver-memory $(inputs.ram)G
       pyspark_vcf2parquet.py
       ${
         var arg = " --output_basename ";

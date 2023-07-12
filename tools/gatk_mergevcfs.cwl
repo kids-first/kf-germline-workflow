@@ -27,7 +27,7 @@ arguments:
         }
         return cmd
       }
-      
+
 
 inputs:
   input_vcfs:

@@ -18,7 +18,7 @@ arguments:
     valueFrom: >-
       set -eo pipefail
 
-      (bcftools annotate -x $(inputs.strip_info) $(inputs.input_vcf.path) -O z 
+      (bcftools annotate -x $(inputs.strip_info) $(inputs.input_vcf.path) -O z
       -o $(inputs.output_basename).$(inputs.tool_name).INFO_stripped.vcf.gz &&
       tabix $(inputs.output_basename).$(inputs.tool_name).INFO_stripped.vcf.gz) ||
       (echo "Check errors, likely does not have INFO, trying to pass input instead" >&2; cp $(inputs.input_vcf.path) .;

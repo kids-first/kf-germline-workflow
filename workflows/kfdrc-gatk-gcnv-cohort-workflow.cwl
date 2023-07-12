@@ -27,8 +27,35 @@ requirements:
 
 inputs:
   # Multistep
-  reference_tar: {type: 'File', doc: "TAR containing reference fasta and associated\
-      \ indecies. Must include FAI and DICT!", "sbg:fileTypes": "TAR, TAR.GZ, TGZ"}
+  indexed_reference_fasta:
+    type: 'File'
+    secondaryFiles:
+    - {pattern: '^.dict', required: true}
+    - {pattern: '.fai', required: true}
+    - {pattern: '.64.alt', required: false}
+    - {pattern: '.64.amb', required: false}
+    - {pattern: '.64.ann', required: false}
+    - {pattern: '.64.bwt', required: false}
+    - {pattern: '.64.pac', required: false}
+    - {pattern: '.64.sa', required: false}
+    - {pattern: '.alt', required: false}
+    - {pattern: '.amb', required: false}
+    - {pattern: '.ann', required: false}
+    - {pattern: '.bwt', required: false}
+    - {pattern: '.pac', required: false}
+    - {pattern: '.sa', required: false}
+    doc: |
+      The reference genome fasta (and associated indicies) to which the germline BAM was aligned.
+    "sbg:fileTypes": "FASTA, FA"
+    "sbg:suggestedValue": {class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta,
+      secondaryFiles: [{class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict},
+        {class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai},
+        {class: File, path: 60639019357c3a53540ca7eb, name: Homo_sapiens_assembly38.fasta.64.alt},
+        {class: File, path: 6063901f357c3a53540ca84d, name: Homo_sapiens_assembly38.fasta.64.amb},
+        {class: File, path: 6063901f357c3a53540ca849, name: Homo_sapiens_assembly38.fasta.64.ann},
+        {class: File, path: 6063901d357c3a53540ca81e, name: Homo_sapiens_assembly38.fasta.64.bwt},
+        {class: File, path: 6063901c357c3a53540ca801, name: Homo_sapiens_assembly38.fasta.64.pac},
+        {class: File, path: 60639015357c3a53540ca7a9, name: Homo_sapiens_assembly38.fasta.64.sa}]}
   intervals: {type: 'File?', doc: "Picard or GATK-style interval list of regions to\
       \ process. For WGS, this should typically only include the chromosomes of interest.",
     "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
@@ -126,7 +153,7 @@ inputs:
       \ correction to the coverage unexplained variance."}
 
   # Germline CNV Caller
-  gcvn_p_alt: {type: 'float?', doc: "Total prior probability of alternative copy-number\
+  gcnv_p_alt: {type: 'float?', doc: "Total prior probability of alternative copy-number\
       \ states (the reference copy-number is set to the contig integer ploidy)"}
   gcnv_p_active: {type: 'float?', doc: "Prior probability of treating an interval\
       \ as CNV-active (in a CNV-active domains, all copy-number states are equally\
@@ -299,12 +326,6 @@ outputs:
     doc: "String value contained within the model_qc_status_file output."}
 
 steps:
-  untar_reference:
-    run: ../tools/untar_indexed_reference.cwl
-    in:
-      reference_tar: reference_tar
-    out: [ indexed_fasta, dict ]
-
   index_mappability_track:
     run: ../tools/gatk_indexfeaturefile.cwl
     in:
@@ -322,8 +343,11 @@ steps:
   preprocess_intervals:
     run: ../tools/gatk_preprocessintervals.cwl
     in:
-      reference: untar_reference/indexed_fasta
-      sequence_dictionary: untar_reference/dict
+      reference: indexed_reference_fasta
+      sequence_dictionary:
+        source: indexed_reference_fasta
+        valueFrom: |
+          $(self.secondaryFiles.filter(function(e) {return e.nameext == '.dict'})[0])
       intervals_list: intervals
       blacklist_intervals_list: blacklist_intervals
       padding: padding
@@ -336,8 +360,11 @@ steps:
     run: ../tools/gatk_annotateintervals.cwl
     in:
       do_explicit_gc_correction: do_explicit_gc_correction
-      reference: untar_reference/indexed_fasta
-      sequence_dictionary: untar_reference/dict
+      reference: indexed_reference_fasta
+      sequence_dictionary:
+        source: indexed_reference_fasta
+        valueFrom: |
+          $(self.secondaryFiles.filter(function(e) {return e.nameext == '.dict'})[0])
       intervals_list: preprocess_intervals/preprocessed_intervals
       mappability_track: index_mappability_track/output
       segmental_duplication_track: index_segmental_duplication_track/output
@@ -353,8 +380,11 @@ steps:
     run: ../tools/gatk_collectreadcounts.cwl
     scatter: reads
     in:
-      reference: untar_reference/indexed_fasta
-      sequence_dictionary: untar_reference/dict
+      reference: indexed_reference_fasta
+      sequence_dictionary:
+        source: indexed_reference_fasta
+        valueFrom: |
+          $(self.secondaryFiles.filter(function(e) {return e.nameext == '.dict'})[0])
       reads: normal_reads
       intervals_list: preprocess_intervals/preprocessed_intervals
       disabled_read_filters: disabled_read_filters_for_collect_counts
@@ -428,7 +458,7 @@ steps:
       contig_ploidy_calls_tar: determine_germline_contig_ploidy_cohort/contig_ploidy_calls_tar
       read_count_files: collect_read_counts/counts
       annotated_intervals: annotate_intervals/annotated_intervals
-      p_alt: gcvn_p_alt
+      p_alt: gcnv_p_alt
       p_active: gcnv_p_active
       cnv_coherence_length: gcnv_cnv_coherence_length
       class_coherence_length: gcnv_class_coherence_length

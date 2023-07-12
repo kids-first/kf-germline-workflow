@@ -73,9 +73,9 @@ arguments:
       $(inputs.caller_external_admixing_rate == null ? "" : "--caller-external-admixing-rate " + inputs.caller_external_admixing_rate)
       $(inputs.disable_annealing == null ? "" : "--disable-annealing " + inputs.disable_annealing)
 
-      tar czf $(inputs.output_basename)-gcnv-model-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.output_basename)-model .
+      tar czf $(inputs.output_basename)-gcnv-model-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.output_basename)-model . || :
 
-      tar czf $(inputs.output_basename)-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.output_basename)-tracking .
+      tar czf $(inputs.output_basename)-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz -C out/$(inputs.output_basename)-tracking . || :
 
       CURRENT_SAMPLE=0
 
@@ -98,15 +98,15 @@ inputs:
   read_count_files: { type: 'File[]', doc: "Input paths for read-count files containing integer read counts in genomic intervals for all samples. All intervals specified via -L/-XL must be contained; if none are specified, then intervals must be identical and in the same order for all samples. If read-count files are given by Google Cloud Storage paths, have the extension .counts.tsv or .counts.tsv.gz, and have been indexed by IndexFeatureFile, only the specified intervals will be queried and streamed; this can reduce disk usage by avoiding the complete localization of all read-count files" }
   annotated_intervals: { type: 'File?', doc: "Input annotated-intervals file containing annotations for GC content in genomic intervals (output of AnnotateIntervals). All intervals specified via -L must be contained. This input should not be provided if an input denoising-model directory is given (the latter already contains the annotated-interval file)." }
 
-  p_alt: {type: 'float?', doc: "Total prior probability of alternative copy-number states (the reference copy-number is set to the contig integer ploidy)"}
-  p_active: {type: 'float?', doc: "Prior probability of treating an interval as CNV-active (in a CNV-active domains, all copy-number states are equally likely to be called)."}
+  p_alt: {type: 'float?', default: 0.0005, doc: "Total prior probability of alternative copy-number states (the reference copy-number is set to the contig integer ploidy)"}
+  p_active: {type: 'float?', default: 0.1, doc: "Prior probability of treating an interval as CNV-active (in a CNV-active domains, all copy-number states are equally likely to be called)."}
   cnv_coherence_length: {type: 'float?', doc: "Coherence length of CNV events (in the units of bp)."}
   class_coherence_length: {type: 'float?', doc: "Coherence length of CNV-active and CNV-silent domains (in the units of bp)."}
   max_copy_number: {type: 'int?', doc: "Highest allowed copy-number state."}
-  max_bias_factors: {type: 'int?', doc: "Maximum number of bias factors."}
+  max_bias_factors: {type: 'int?', default: 6, doc: "Maximum number of bias factors."}
   mapping_error_rate: {type: 'float?', doc: "Typical mapping error rate."}
-  interval_psi_scale: {type: 'float?', doc: "Typical scale of interval-specific unexplained variance."}
-  sample_psi_scale: {type: 'float?', doc: "Typical scale of sample-specific correction to the unexplained variance."}
+  interval_psi_scale: {type: 'float?', default: 0.01, doc: "Typical scale of interval-specific unexplained variance."}
+  sample_psi_scale: {type: 'float?', default: 0.01, doc: "Typical scale of sample-specific correction to the unexplained variance."}
   depth_correction_tau: {type: 'float?', doc: "Precision of read depth pinning to its global value."}
   log_mean_bias_standard_deviation: {type: 'float?', doc: "Standard deviation of log mean bias."}
   init_ard_rel_unexplained_variance: {type: 'float?', doc: "Initial value of ARD prior precisions relative to the scale of interval-specific unexplained variance."}

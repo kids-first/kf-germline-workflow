@@ -3,14 +3,14 @@ class: CommandLineTool
 label: Sentieon_DNAscopeSV
 doc: |-
   Run Sentieon germline SV (DNAscope) tool.
-  
+
   ### Inputs:
   #### Required for all tools
   - ``Reference``: Location of the reference FASTA file.
   - ``Input BAM``: Location of the BAM/CRAM input file.
   ##### Optional for all tools
   - ``Interval``: interval in the reference that will be used in all tools. This argument can be specified as:
-    -  ``BED_FILE``: location of the BED file containing the intervals. 
+    -  ``BED_FILE``: location of the BED file containing the intervals.
     -  ``PICARD_INTERVAL_FILE``: location of the file containing the intervals, following the Picard interval standard.
     -  ``VCF_FILE``: location of VCF containing variant records whose genomic coordinates will be used as intervals.
   - ``Quality recalibration table``: location of the quality recalibration table output from the BQSR stage.
@@ -79,7 +79,7 @@ inputs:
 - id: recal_table
   label: Quality recalibration table
   doc: |-
-    Location of the quality recalibration table output from the BQSR stage. 
+    Location of the quality recalibration table output from the BQSR stage.
     Do not use this option if the input BAM has already been recalibrated.
   type: File?
   inputBinding:

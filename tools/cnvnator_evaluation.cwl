@@ -17,5 +17,5 @@ inputs:
   cpu: { type: 'int?', default: 1, doc: "Number of CPUs to allocate to this task." }
 outputs:
   output:
-    type: stdout 
+    type: stdout
 stdout: $(inputs.input_root.nameroot).cnvnator_eval.txt

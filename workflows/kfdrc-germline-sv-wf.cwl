@@ -155,6 +155,10 @@ inputs:
 
   output_basename: {type: 'string?', doc: "String value to use as basename for outputs"}
 
+  # Conditionals
+  run_svaba: { type: 'boolean?', default: true, doc: "Run the SVaba module?" }
+  run_manta: { type: 'boolean?', default: true, doc: "Run the Manta module?" }
+
   # Resource Requirements
   svaba_cpu: {type: 'int?', doc: "CPUs to allocate to SVaba"}
   svaba_ram: {type: 'int?', doc: "GB of RAM to allocate to SVava"}
@@ -162,15 +166,15 @@ inputs:
   manta_ram: {type: 'int?', doc: "GB of RAM to allocate to Manta"}
 
 outputs:
-  svaba_indels: {type: 'File', outputSource: svaba/germline_indel_vcf_gz, doc: "VCF\
+  svaba_indels: {type: 'File?', outputSource: svaba/germline_indel_vcf_gz, doc: "VCF\
       \ containing INDEL variants called by SvABA"}
-  svaba_svs: {type: 'File', outputSource: svaba/germline_sv_vcf_gz, doc: "VCF containing\
+  svaba_svs: {type: 'File?', outputSource: svaba/germline_sv_vcf_gz, doc: "VCF containing\
       \ SV called by SvABA"}
   svaba_annotated_svs: {type: 'File?', outputSource: annotsv_svaba/annotated_calls,
     doc: "TSV containing annotated variants from the svaba_svs output"}
-  manta_indels: {type: 'File', outputSource: manta/small_indels, doc: "VCF containing\
+  manta_indels: {type: 'File?', outputSource: manta/small_indels, doc: "VCF containing\
       \ INDEL variants called by Manta"}
-  manta_svs: {type: 'File', outputSource: manta/output_sv, doc: "VCF containing SV\
+  manta_svs: {type: 'File?', outputSource: manta/output_sv, doc: "VCF containing SV\
       \ called by Manta"}
   manta_annotated_svs: {type: 'File?', outputSource: annotsv_manta/annotated_calls,
     doc: "TSV containing annotated variants from the manta_svs output"}
@@ -178,7 +182,9 @@ outputs:
 steps:
   svaba:
     run: ../tools/svaba.cwl
+    when: $(inputs.run_svaba)
     in:
+      run_svaba: run_svaba
       tumor_bams:
         source: germline_reads
         valueFrom: $([self])
@@ -196,7 +202,9 @@ steps:
 
   manta:
     run: ../tools/manta.cwl
+    when: $(inputs.run_manta)
     in:
+      run_manta: run_manta
       reference: indexed_reference_fasta
       input_normal_reads:
         source: germline_reads
@@ -211,7 +219,9 @@ steps:
 
   annotsv_svaba:
     run: ../tools/annotsv.cwl
+    when: $(inputs.run_svaba)
     in:
+      run_svaba: run_svaba
       annotations_dir_tgz: annotsv_annotations_dir
       sv_input_file: svaba/germline_sv_vcf_gz
       genome_build: annotsv_genome_build
@@ -219,7 +229,9 @@ steps:
 
   annotsv_manta:
     run: ../tools/annotsv.cwl
+    when: $(inputs.run_manta)
     in:
+      run_manta: run_manta
       annotations_dir_tgz: annotsv_annotations_dir
       sv_input_file: manta/output_sv
       genome_build: annotsv_genome_build

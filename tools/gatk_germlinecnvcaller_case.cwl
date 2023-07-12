@@ -66,7 +66,7 @@ arguments:
       $(inputs.caller_external_admixing_rate == null ? "" : "--caller-external-admixing-rate " + inputs.caller_external_admixing_rate)
       $(inputs.disable_annealing == null ? "" : "--disable-annealing " + inputs.disable_annealing)
 
-      tar czf case-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz -C out/case-tracking .
+      tar czf case-gcnv-tracking-shard-$(inputs.scatter_index).tar.gz -C out/case-tracking . || :
 
       CURRENT_SAMPLE=0
 
@@ -90,11 +90,11 @@ inputs:
   contig_ploidy_calls_tar: { type: 'File', doc: "GZipped TAR file containing contig-ploidy calls directory (output of DetermineGermlineContigPloidy)." }
   read_count_files: { type: 'File[]', doc: "Input paths for read-count files containing integer read counts in genomic intervals for all samples. All intervals specified via -L/-XL must be contained; if none are specified, then intervals must be identical and in the same order for all samples. If read-count files are given by Google Cloud Storage paths, have the extension .counts.tsv or .counts.tsv.gz, and have been indexed by IndexFeatureFile, only the specified intervals will be queried and streamed; this can reduce disk usage by avoiding the complete localization of all read-count files" }
 
-  p_alt: {type: 'float?', doc: "Total prior probability of alternative copy-number states (the reference copy-number is set to the contig integer ploidy)"}
+  p_alt: {type: 'float?', default: 0.0005, doc: "Total prior probability of alternative copy-number states (the reference copy-number is set to the contig integer ploidy)"}
   cnv_coherence_length: {type: 'float?', doc: "Coherence length of CNV events (in the units of bp)."}
   max_copy_number: {type: 'int?', doc: "Highest allowed copy-number state."}
   mapping_error_rate: {type: 'float?', doc: "Typical mapping error rate."}
-  sample_psi_scale: {type: 'float?', doc: "Typical scale of sample-specific correction to the unexplained variance."}
+  sample_psi_scale: {type: 'float?', default: 0.01, doc: "Typical scale of sample-specific correction to the unexplained variance."}
   depth_correction_tau: {type: 'float?', doc: "Precision of read depth pinning to its global value."}
   copy_number_posterior_expectation_mode: {type: 'string?', doc: "The strategy for calculating copy number posterior expectations in the coverage denoising model."}
   active_class_padding_hybrid_mode: {type: 'int?', doc: "If copy-number-posterior-expectation-mode is set to HYBRID, CNV-active intervals determined at any time will be padded by this value (in the units of bp) in order to obtain the set of intervals on which copy number posterior expectation is performed exactly."}

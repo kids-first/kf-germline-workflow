@@ -19,7 +19,7 @@ arguments:
       1>&2
 inputs:
   bin_size: { type: 'int', inputBinding: { prefix: '-partition'}, doc: "Size of the bins for the task" }
-  input_root: { type: 'File', inputBinding: { prefix: '-root'}, doc: "Input root file" }
+  input_root: { type: 'File', inputBinding: { prefix: '-root', valueFrom: $(self.basename)}, doc: "Input root file" }
   chrom: { type: 'string[]?', inputBinding: { prefix: '-chrom' }, doc: "Chromosome name(s) on which this task will be performed" }
   disable_gc_correction: { type: 'boolean?', inputBinding: { prefix: '-ngc' }, doc: "Use this option to not use GC corrected RD signal" }
   max_memory: { type: 'int?', default: 2, doc: "GB of memory to allocate to this task." }

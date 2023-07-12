@@ -40,7 +40,7 @@ arguments:
 inputs:
   read_count_files: { type: 'File[]', doc: "Input paths for read-count files containing integer read counts in genomic intervals for all samples. All intervals specified via -L/-XL must be contained; if none are specified, then intervals must be identical and in the same order for all samples. If read-count files are given by Google Cloud Storage paths, have the extension .counts.tsv or .counts.tsv.gz, and have been indexed by IndexFeatureFile, only the specified intervals will be queried and streamed; this can reduce disk usage by avoiding the complete localization of all read-count files"}
   contig_ploidy_model_tar: { type: 'File', doc: "TAR of cohort model output from cohort mode Germline CNV run" }
-  mapping_error: { type: 'float?', default: 0.01, doc: "Typical mapping error rate." }
+  mapping_error: { type: 'float?', default: 0.3, doc: "Typical mapping error rate." }
   psi_scale_sample: { type: 'float?', default: 0.0001, doc: "Prior scale of the sample-specific correction to the coverage unexplained variance." }
   verbosity:
     type:

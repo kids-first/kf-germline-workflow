@@ -35,9 +35,8 @@ inputs:
   # Multistep
   output_basename: {type: 'string', doc: "String value to use for the basename of\
       \ all outputs"}
-  calling_contigs: { type: 'File', doc: "File containing the names of contigs/chromosomes on which to perform analysis" }
-  bin_size: {type: 'int', doc: "Size of bins to use for analysis. Bin size should\
-      \ be equal to a whole number of 100 bases (e.g., 2500, 3700,\u2026)"}
+  calling_contigs: { type: 'string[]', doc: "Names of contigs/chromosomes on which to perform analysis" }
+  bin_sizes: {type: 'int[]?', default: [100, 200, 300, 400, 500], doc: "Candidate bin sizes for analysis. Workflow will evaluate the bin sizes and select the best performing bin. Bin size should be equal to a whole number of 100 bases (e.g., 2500, 3700,\u2026)"}
   disable_gc_correction: {type: 'boolean?', doc: "Do not to use GC corrected RD signal"}
 
   # Extract
@@ -71,21 +70,16 @@ outputs:
       \ format"}
   called_cnvs: {type: 'File', outputSource: cnvnator_call/output, doc: "Called CNVs\
       \ from aligned_reads"}
-  average_rd: {type: 'File', outputSource: cnvnator_evaluation/output, doc: "Average\
+  average_rd: {type: 'File', outputSource: guess_bin_size/stat, doc: "Average\
       \ RD stats"}
 
 steps:
-  cnvnator_scatter_contigs:
-    run: ../tools/cnvnator_scatter_contigs.cwl
-    in:
-      cnv_contigs: calling_contigs
-    out: [scattered_contigs]
   cnvnator_extract_reads:
     run: ../tools/cnvnator_extract_reads.cwl
     in:
       input_reads: aligned_reads
       reference: reference_fasta
-      chrom: cnvnator_scatter_contigs/scattered_contigs
+      chrom: calling_contigs
       output_root: {source: output_basename, valueFrom: $(self).root}
       lite: light_root
       max_memory: extract_max_memory
@@ -93,37 +87,49 @@ steps:
     out: [output]
   cnvnator_rd_histogram:
     run: ../tools/cnvnator_rd_histogram.cwl
+    scatter: [bin_size]
     in:
       input_root: cnvnator_extract_reads/output
-      bin_size: bin_size
+      bin_size: bin_sizes
       ref_fasta: reference_fasta
-      chrom: cnvnator_scatter_contigs/scattered_contigs
+      chrom: calling_contigs
       max_memory: his_max_memory
       cpu: his_cores
     out: [output]
   cnvnator_calculate_statistics:
     run: ../tools/cnvnator_calculate_statistics.cwl
+    scatter: [input_root, bin_size]
+    scatterMethod: dotproduct
     in:
       input_root: cnvnator_rd_histogram/output
-      bin_size: bin_size
+      bin_size: bin_sizes
       max_memory: stat_max_memory
       cpu: stat_cores
     out: [output]
   cnvnator_evaluation:
     run: ../tools/cnvnator_evaluation.cwl
+    scatter: [input_root, bin_size]
+    scatterMethod: dotproduct
     in:
       input_root: cnvnator_calculate_statistics/output
-      bin_size: bin_size
+      bin_size: bin_sizes
       max_memory: eval_max_memory
       cpu: eval_cores
     out: [output]
+  guess_bin_size:
+    run: ../tools/guess_bin_size.cwl
+    in:
+      roots: cnvnator_calculate_statistics/output
+      stats: cnvnator_evaluation/output
+      bin_sizes: bin_sizes
+    out: [root, stat, bin_size]
   cnvnator_partition:
     run: ../tools/cnvnator_partition.cwl
     in:
-      input_root: cnvnator_calculate_statistics/output
-      bin_size: bin_size
+      input_root: guess_bin_size/root
+      bin_size: guess_bin_size/bin_size
       disable_gc_correction: disable_gc_correction
-      chrom: cnvnator_scatter_contigs/scattered_contigs
+      chrom: calling_contigs
       max_memory: partition_max_memory
       cpu: partition_cores
     out: [output]
@@ -131,9 +137,9 @@ steps:
     run: ../tools/cnvnator_call.cwl
     in:
       input_root: cnvnator_partition/output
-      bin_size: bin_size
+      bin_size: guess_bin_size/bin_size
       disable_gc_correction: disable_gc_correction
-      chrom: cnvnator_scatter_contigs/scattered_contigs
+      chrom: calling_contigs
       max_memory: call_max_memory
       cpu: call_cores
     out: [output]
