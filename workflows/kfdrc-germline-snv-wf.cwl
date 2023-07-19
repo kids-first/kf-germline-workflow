@@ -84,7 +84,6 @@ inputs:
       \ scale, the number of Gaussians for training should be turned down. Lowering\
       \ the max-Gaussians forces the program to group variants into a smaller number\
       \ of clusters, which results in more variants per cluster."}
-  tool_name: { type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files" }
 
   # Annotation
   bcftools_annot_gnomad_columns: {type: 'string?', doc: "csv string of columns from\
@@ -149,9 +148,10 @@ outputs:
   peddy_csv: {type: 'File[]', doc: 'csv details of peddy results', outputSource: single_sample_genotyping/peddy_csv}
   peddy_ped: {type: 'File[]', doc: 'ped format summary of peddy results', outputSource: single_sample_genotyping/peddy_ped}
   vep_annotated_gatk_vcf: {type: 'File[]', outputSource: single_sample_genotyping/vep_annotated_vcf}
+  vep_annotated_strelka_vcf: {type: 'File[]', outputSource: strelka2/annotated_pass_variants_vcf}
   freebayes_merged_vcf: {type: 'File', outputSource: freebayes/freebayes_merged_vcf}
-  strelka2_variants: {type: 'File', outputSource: strelka2/variants_vcf_gz}
-  strelka2_gvcfs: {type: 'File[]', outputSource: strelka2/genome_vcf_gzs}
+  strelka2_prepass_variants: {type: 'File', outputSource: strelka2/prepass_variants_vcf}
+  strelka2_gvcfs: {type: 'File[]', outputSource: strelka2/genome_vcfs}
 
 steps:
   file_to_file_array:
@@ -228,19 +228,35 @@ steps:
       freebayes_ram: freebayes_ram
     out: [freebayes_merged_vcf]
   strelka2:
-    run: ../tools/strelka2_germline.cwl
+    run: ../subworkflows/strelka2_germline.cwl
     when: $(inputs.run_strelka)
     in:
       run_strelka: run_strelka
       input_reads: file_to_file_array/out_file_array
-      reference: indexed_reference_fasta
+      indexed_reference_fasta: indexed_reference_fasta
       call_regions:
         source: [bgzip_tabix/output, calling_regions]
         pickValue: first_non_null
       output_basename: output_basename
-      cpu: strelka2_cpu
-      ram: strelka2_ram
-    out: [variants_vcf_gz, genome_vcf_gzs]
+      tool_name:
+        valueFrom: "strelka2.pass.vep_105"
+      bcftools_annot_gnomad_columns: bcftools_annot_gnomad_columns
+      bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
+      gnomad_annotation_vcf: gnomad_annotation_vcf
+      clinvar_annotation_vcf: clinvar_annotation_vcf
+      vep_buffer_size: vep_buffer_size
+      vep_cache: vep_cache
+      dbnsfp: dbnsfp
+      dbnsfp_fields: dbnsfp_fields
+      merged: merged
+      cadd_indels: cadd_indels
+      cadd_snvs: cadd_snvs
+      intervar: intervar
+      vep_ram: vep_ram
+      vep_cores: vep_cpu
+      strelka2_cpu: strelka2_cpu
+      strelka2_ram: strelka2_ram
+    out: [genome_vcfs, prepass_variants_vcf, annotated_pass_variants_vcf]
   bam_to_gvcf:
     run: ../subworkflows/bam_to_gvcf.cwl
     when: $(inputs.run_gatk)
@@ -286,7 +302,8 @@ steps:
       snp_max_gaussians: snp_max_gaussians
       indel_max_gaussians: indel_max_gaussians
       output_basename: output_basename
-      tool_name: tool_name
+      tool_name:
+        valueFrom: "single.vqsr.filtered.vep_105"
       bcftools_annot_gnomad_columns: bcftools_annot_gnomad_columns
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
       gnomad_annotation_vcf: gnomad_annotation_vcf

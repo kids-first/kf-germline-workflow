@@ -297,9 +297,10 @@ outputs:
   peddy_csv: {type: 'File[]?', doc: 'csv details of peddy results', outputSource: snv/peddy_csv}
   peddy_ped: {type: 'File[]?', doc: 'ped format summary of peddy results', outputSource: snv/peddy_ped}
   vep_annotated_gatk_vcf: {type: 'File[]?', outputSource: snv/vep_annotated_gatk_vcf}
+  vep_annotated_strelka_vcf: {type: 'File[]', outputSource: snv/vep_annotated_strelka_vcf}
   freebayes_merged_vcf: {type: 'File?', outputSource: snv/freebayes_merged_vcf}
-  strelka2_variants: {type: 'File?', outputSource: snv/strelka2_variants}
-  strelka2_gvcfs: {type: 'File[]?', outputSource: snv/strelka2_gvcfs}
+  strelka2_prepass_variants: {type: 'File', outputSource: snv/strelka2_prepass_variants}
+  strelka2_gvcfs: {type: 'File[]', outputSource: strelka2/strelka2_gvcfs}
   svaba_indels: {type: 'File?', outputSource: sv/svaba_indels, doc: "VCF containing INDEL variants called by SvABA"}
   svaba_svs: {type: 'File?', outputSource: sv/svaba_svs, doc: "VCF containing SV called by SvABA"}
   svaba_annotated_svs: {type: 'File?', outputSource: sv/svaba_annotated_svs, doc: "TSV containing annotated variants from the svaba_svs output"}
@@ -436,7 +437,7 @@ steps:
       run_gatk: run_gatk_gsnv
       run_freebayes: run_freebayes
       run_strelka: run_strelka
-    out: [ gatk_gvcf, gatk_gvcf_metrics, verifybamid_output, gatk_vcf_metrics, peddy_html, peddy_csv, peddy_ped, vep_annotated_gatk_vcf, freebayes_merged_vcf, strelka2_variants, strelka2_gvcfs ]
+    out: [ gatk_gvcf, gatk_gvcf_metrics, verifybamid_output, gatk_vcf_metrics, peddy_html, peddy_csv, peddy_ped, vep_annotated_gatk_vcf, freebayes_merged_vcf, vep_annotated_strelka_vcf, strelka2_prepass_variants, strelka2_gvcfs ]
   sv:
     run: ../workflows/kfdrc-germline-sv-wf.cwl
     in:
