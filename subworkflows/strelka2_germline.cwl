@@ -62,7 +62,7 @@ steps:
       cpu: strelka2_cpu
       ram: strelka2_ram
     out: [variants_vcf_gz, genome_vcf_gzs]
-  bcftools_view:
+  bcftools_view_index:
     run: ../tools/bcftools_view_index.cwl
     in:
       input_vcf: strelka2/variants_vcf_gz
@@ -79,7 +79,7 @@ steps:
     run: ../workflows/kfdrc-germline-snv-annot-workflow.cwl
     in:
       indexed_reference_fasta: indexed_reference_fasta
-      input_vcf: bcftools_view/output
+      input_vcf: bcftools_view_index/output
       output_basename: output_basename
       tool_name:
         valueFrom: "strelka2.pass.vep_105"

@@ -177,7 +177,6 @@ inputs:
       \ scale, the number of Gaussians for training should be turned down. Lowering\
       \ the max-Gaussians forces the program to group variants into a smaller number\
       \ of clusters, which results in more variants per cluster."}
-  tool_name: { type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files" }
 
   # SNV Annotation
   bcftools_annot_gnomad_columns: {type: 'string?', doc: "csv string of columns from\
@@ -297,10 +296,11 @@ outputs:
   peddy_csv: {type: 'File[]?', doc: 'csv details of peddy results', outputSource: snv/peddy_csv}
   peddy_ped: {type: 'File[]?', doc: 'ped format summary of peddy results', outputSource: snv/peddy_ped}
   vep_annotated_gatk_vcf: {type: 'File[]?', outputSource: snv/vep_annotated_gatk_vcf}
-  vep_annotated_strelka_vcf: {type: 'File[]', outputSource: snv/vep_annotated_strelka_vcf}
-  freebayes_merged_vcf: {type: 'File?', outputSource: snv/freebayes_merged_vcf}
+  vep_annotated_strelka_vcf: {type: 'File[]?', outputSource: snv/vep_annotated_strelka_vcf}
+  vep_annotated_freebayes_vcf: {type: 'File[]?', outputSource: snv/vep_annotated_freebayes_vcf}
+  freebayes_unfiltered_vcf: {type: 'File?', outputSource: snv/freebayes_unfiltered_vcf}
   strelka2_prepass_variants: {type: 'File', outputSource: snv/strelka2_prepass_variants}
-  strelka2_gvcfs: {type: 'File[]', outputSource: strelka2/strelka2_gvcfs}
+  strelka2_gvcfs: {type: 'File[]', outputSource: snv/strelka2_gvcfs}
   svaba_indels: {type: 'File?', outputSource: sv/svaba_indels, doc: "VCF containing INDEL variants called by SvABA"}
   svaba_svs: {type: 'File?', outputSource: sv/svaba_svs, doc: "VCF containing SV called by SvABA"}
   svaba_annotated_svs: {type: 'File?', outputSource: sv/svaba_annotated_svs, doc: "TSV containing annotated variants from the svaba_svs output"}
@@ -415,7 +415,6 @@ steps:
       ped: ped
       snp_max_gaussians: snp_max_gaussians
       indel_max_gaussians: indel_max_gaussians
-      tool_name: tool_name
       bcftools_annot_gnomad_columns: bcftools_annot_gnomad_columns
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
       gnomad_annotation_vcf: gnomad_annotation_vcf
@@ -437,7 +436,7 @@ steps:
       run_gatk: run_gatk_gsnv
       run_freebayes: run_freebayes
       run_strelka: run_strelka
-    out: [ gatk_gvcf, gatk_gvcf_metrics, verifybamid_output, gatk_vcf_metrics, peddy_html, peddy_csv, peddy_ped, vep_annotated_gatk_vcf, freebayes_merged_vcf, vep_annotated_strelka_vcf, strelka2_prepass_variants, strelka2_gvcfs ]
+    out: [ gatk_gvcf, gatk_gvcf_metrics, verifybamid_output, gatk_vcf_metrics, peddy_html, peddy_csv, peddy_ped, vep_annotated_gatk_vcf, freebayes_unfiltered_vcf, vep_annotated_freebayes_vcf, vep_annotated_strelka_vcf, strelka2_prepass_variants, strelka2_gvcfs ]
   sv:
     run: ../workflows/kfdrc-germline-sv-wf.cwl
     in:
