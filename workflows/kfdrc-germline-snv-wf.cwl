@@ -147,11 +147,12 @@ outputs:
   peddy_html: {type: 'File[]', doc: 'html summary of peddy results', outputSource: single_sample_genotyping/peddy_html}
   peddy_csv: {type: 'File[]', doc: 'csv details of peddy results', outputSource: single_sample_genotyping/peddy_csv}
   peddy_ped: {type: 'File[]', doc: 'ped format summary of peddy results', outputSource: single_sample_genotyping/peddy_ped}
-  vep_annotated_gatk_vcf: {type: 'File[]', outputSource: single_sample_genotyping/vep_annotated_vcf}
-  vep_annotated_strelka_vcf: {type: 'File[]', outputSource: strelka2/annotated_pass_variants_vcf}
-  freebayes_merged_vcf: {type: 'File', outputSource: freebayes/freebayes_merged_vcf}
+  freebayes_unfiltered_vcf: {type: 'File', outputSource: freebayes/unfiltered_vcf}
   strelka2_prepass_variants: {type: 'File', outputSource: strelka2/prepass_variants_vcf}
   strelka2_gvcfs: {type: 'File[]', outputSource: strelka2/genome_vcfs}
+  vep_annotated_gatk_vcf: {type: 'File[]', outputSource: single_sample_genotyping/vep_annotated_vcf}
+  vep_annotated_freebayes_vcf: {type: 'File[]', outputSource: freebayes/annotated_filtered_vcf}
+  vep_annotated_strelka_vcf: {type: 'File[]', outputSource: strelka2/annotated_pass_variants_vcf}
 
 steps:
   file_to_file_array:
@@ -224,9 +225,23 @@ steps:
       indexed_reference_fasta: indexed_reference_fasta
       scattered_calling_beds: scatter_regions/scattered_beds
       output_basename: output_basename
+      bcftools_annot_gnomad_columns: bcftools_annot_gnomad_columns
+      bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
+      gnomad_annotation_vcf: gnomad_annotation_vcf
+      clinvar_annotation_vcf: clinvar_annotation_vcf
+      vep_buffer_size: vep_buffer_size
+      vep_cache: vep_cache
+      dbnsfp: dbnsfp
+      dbnsfp_fields: dbnsfp_fields
+      merged: merged
+      cadd_indels: cadd_indels
+      cadd_snvs: cadd_snvs
+      intervar: intervar
+      vep_ram: vep_ram
+      vep_cores: vep_cpu
       freebayes_cpu: freebayes_cpu
       freebayes_ram: freebayes_ram
-    out: [freebayes_merged_vcf]
+    out: [unfiltered_vcf, annotated_filtered_vcf]
   strelka2:
     run: ../subworkflows/strelka2_germline.cwl
     when: $(inputs.run_strelka)
@@ -238,8 +253,6 @@ steps:
         source: [bgzip_tabix/output, calling_regions]
         pickValue: first_non_null
       output_basename: output_basename
-      tool_name:
-        valueFrom: "strelka2.pass.vep_105"
       bcftools_annot_gnomad_columns: bcftools_annot_gnomad_columns
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
       gnomad_annotation_vcf: gnomad_annotation_vcf
