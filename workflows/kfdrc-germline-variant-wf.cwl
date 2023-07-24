@@ -40,6 +40,7 @@ inputs:
         {class: File, path: 6063901c357c3a53540ca801, name: Homo_sapiens_assembly38.fasta.64.pac},
         {class: File, path: 60639015357c3a53540ca7a9, name: Homo_sapiens_assembly38.fasta.64.sa}]}
   aligned_reads: {type: 'File', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai', required: false}, {pattern: '^.crai', required: false}], doc: "Aligned Reads file(s) from which Germline Variants will be discovered", "sbg:fileTypes": "BAM, CRAM"}
+  input_gvcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "gVCF associated with input_reads. Providing this value will skip gVCF creation for the GATK pipeline.", "sbg:fileTypes": "VCF.GZ"}
   output_basename: {type: 'string', doc: "String value to use for the basename of all outputs"}
 
   # Intervals
@@ -394,6 +395,7 @@ steps:
     in:
       indexed_reference_fasta: indexed_reference_fasta
       input_reads: aligned_reads
+      input_gvcf: input_gvcf
       output_basename: output_basename
       biospecimen_name: biospecimen_name
       calling_regions: snv_calling_regions

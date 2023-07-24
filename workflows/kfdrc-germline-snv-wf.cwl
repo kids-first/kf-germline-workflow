@@ -25,6 +25,7 @@ inputs:
   output_basename: {type: 'string', doc: "String to use as the base for output filenames"}
   biospecimen_name: {type: 'string', doc: "String name of biospcimen"}
   input_reads: {type: 'File', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai', required: false}, {pattern: '^.crai', required: false}], doc: "Aligned reads files to be analyzed", "sbg:fileTypes": "BAM,CRAM"}
+  input_gvcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "gVCF associated with input_reads. Providing this value will skip gVCF creation for the GATK pipeline.", "sbg:fileTypes": "VCF.GZ"}
 
   # Regions of Interest
   calling_regions: { type: 'File', doc: "File, in BED or INTERVALLIST format, containing a set of genomic regions over which variants will be called.", "sbg:suggestedValue": {class: File, path: 60639018357c3a53540ca7df, name: wgs_calling_regions.hg38.interval_list} }
@@ -204,9 +205,18 @@ steps:
       preset:
         valueFrom: "bed"
     out: [output]
+  boolean_to_boolean_scatter:
+    run: ../tools/boolean_to_boolean.cwl
+    in:
+      in_bool:
+        source: [run_gatk, run_freebayes]
+        valueFrom: $(self[0] || self[1])
+    out: [out_bool]
   scatter_regions:
     run: ../subworkflows/scatter_regions.cwl
+    when: $(inputs.run_scatter_regions)
     in:
+      run_scatter_regions: boolean_to_boolean_scatter/out_bool
       input_regions: calling_regions
       reference_dict:
         source: indexed_reference_fasta
@@ -270,11 +280,18 @@ steps:
       strelka2_cpu: strelka2_cpu
       strelka2_ram: strelka2_ram
     out: [genome_vcfs, prepass_variants_vcf, annotated_pass_variants_vcf]
+  boolean_to_boolean_gvcf:
+    run: ../tools/boolean_to_boolean.cwl
+    in:
+      in_bool:
+        source: [run_gatk, input_gvcf]
+        valueFrom: $(self[0] && self[1] == null)
+    out: [out_bool]
   bam_to_gvcf:
     run: ../subworkflows/bam_to_gvcf.cwl
     when: $(inputs.run_gatk)
     in:
-      run_gatk: run_gatk
+      run_gatk: boolean_to_boolean_gvcf/out_bool
       input_bam:
         source: [samtools_view/output, input_reads]
         pickValue: first_non_null
@@ -294,7 +311,9 @@ steps:
     when: $(inputs.run_gatk)
     in:
       run_gatk: run_gatk
-      in_file: bam_to_gvcf/gvcf
+      in_file:
+        source: [input_gvcf, bam_to_gvcf/gvcf]
+        pickValue: first_non_null
     out: [out_file_array]
   single_sample_genotyping:
     run: ../workflows/kfdrc-single-sample-genotyping-wf.cwl
