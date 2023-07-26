@@ -2,7 +2,7 @@ cwlVersion: v1.2
 class: CommandLineTool
 id: bcftools_concat_sort_index
 doc: |
-  BCFTOOLS concat, sort, and optionally index 
+  BCFTOOLS concat, sort, and optionally index
 requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement

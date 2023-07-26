@@ -10,7 +10,7 @@ inputs:
 
 outputs:
   out_bool:
-    type: boolean 
+    type: boolean
     outputBinding:
       outputEval: |
         $(inputs.in_bool)
