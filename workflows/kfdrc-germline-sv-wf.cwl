@@ -3,7 +3,7 @@ class: Workflow
 id: kfdrc-germline-sv-wf
 label: Kids First DRC Germline SV Workflow
 doc: |
-  # Kids First Data Resource Center Germline Structural Variant Caller Workflow
+  # Kids First Data Resource Center Germline Structural Variant Workflow
 
   <p align="center">
     <img src="https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png">
@@ -69,34 +69,23 @@ doc: |
 
   ## Input Files
 
-  At the moment the workflow uses only a few inputs:
-  - `germline_reads`: The germline BAM/CRAM input that has been aligned to a
-    reference genome.
-  - `indexed_reference_fasta`: The reference genome fasta (and associated
-    indicies) to which the germline BAM/CRAM was aligned.
-  - `annotsv_annotations_dir`: These annotations are simply those from the
-    install-human-annotation installation process run during AnnotSV installation
-  (see: https://github.com/lgmgeo/AnnotSV/#quick-installation). Specifically
-  these are the annotations installed with v3.1.1 of the software. Newer or older
-  annotations can be slotted in here as needed.
-  - `annotsv_genome_build`: The genome build of the reference fasta. AnnotSV is
-    capable of annotating the following genomes: "GRCh37","GRCh38","mm9","mm10".
-  - `output_basename`: Basename to use for the outputs.
+  - Universal
+      - `germline_reads`: The germline BAM/CRAM input that has been aligned to a reference genome.
+      - `indexed_reference_fasta`: The reference genome fasta (and associated indicies) to which the germline BAM/CRAM was aligned.
+  - AnnotSV
+      - `annotsv_annotations_dir`: These annotations are simply those from the install-human-annotation installation process run during AnnotSV installation (see: https://github.com/lgmgeo/AnnotSV/#quick-installation). Specifically these are the annotations installed with v3.1.1 of the software. Newer or older annotations can be slotted in here as needed.
 
   ## Output Files
 
-      - Structural variant callers
-          - Manta
-              - `manta_svs`: Structural Variants called by Manta
-              - `manta_indels`: Small INDELs called by Manta
-          - SvABA
-              - `svaba_svs`: Structural Variants called by SvABA
-              - `svaba_indels`: Small INDELs called by SvABA
-          - AnnotSV
-              - `manta_annotated_svs`: This file contains all records from the `manta_svs` that AnnotSV could annotate.
-              - `manta_unannotated_svs`: This file contains all records from the `manta_svs` that AnnotSV could not annotate.
-              - `svaba_annotated_svs`: This file contains all records from the `svaba_svs` that AnnotSV could annotate.
-              - `svaba_unannotated_svs`: This file contains all records from the `svaba_svs` that AnnotSV could not annotate.
+  - Manta
+      - `manta_svs`: Structural Variants called by Manta
+      - `manta_indels`: Small INDELs called by Manta
+  - SvABA
+      - `svaba_svs`: Structural Variants called by SvABA
+      - `svaba_indels`: Small INDELs called by SvABA
+  - AnnotSV
+      - `manta_annotated_svs`: This file contains all records from the `manta_svs` that AnnotSV could annotate.
+      - `svaba_annotated_svs`: This file contains all records from the `svaba_svs` that AnnotSV could annotate.
 
   ## Basic Info
   - [D3b dockerfiles](https://github.com/d3b-center/bixtools)
@@ -140,7 +129,6 @@ inputs:
       {pattern: '.bai', required: false}, {pattern: '^.crai', required: false}, {
         pattern: '.crai', required: false}], doc: "Input BAM file", "sbg:fileTypes": "BAM,\
       \ CRAM"}
-
   annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV\
       \ annotations", "sbg:fileTypes": "TAR, TAR.GZ, TGZ", "sbg:suggestedValue": {
       class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
@@ -152,19 +140,13 @@ inputs:
       symbols: ["GRCh37", "GRCh38", "mm9", "mm10"]
     doc: |
       The genome build of the reference fasta. AnnotSV is capable of annotating the following genomes: "GRCh37","GRCh38","mm9","mm10".
-
   output_basename: {type: 'string?', doc: "String value to use as basename for outputs"}
-
-  # Conditionals
-  run_svaba: { type: 'boolean?', default: true, doc: "Run the SVaba module?" }
-  run_manta: { type: 'boolean?', default: true, doc: "Run the Manta module?" }
-
-  # Resource Requirements
+  run_svaba: {type: 'boolean?', default: true, doc: "Run the SVaba module?"}
+  run_manta: {type: 'boolean?', default: true, doc: "Run the Manta module?"}
   svaba_cpu: {type: 'int?', doc: "CPUs to allocate to SVaba"}
   svaba_ram: {type: 'int?', doc: "GB of RAM to allocate to SVava"}
   manta_cpu: {type: 'int?', doc: "CPUs to allocate to Manta"}
   manta_ram: {type: 'int?', doc: "GB of RAM to allocate to Manta"}
-
 outputs:
   svaba_indels: {type: 'File?', outputSource: svaba/germline_indel_vcf_gz, doc: "VCF\
       \ containing INDEL variants called by SvABA"}
@@ -178,7 +160,6 @@ outputs:
       \ called by Manta"}
   manta_annotated_svs: {type: 'File?', outputSource: annotsv_manta/annotated_calls,
     doc: "TSV containing annotated variants from the manta_svs output"}
-
 steps:
   svaba:
     run: ../tools/svaba.cwl
@@ -199,7 +180,6 @@ steps:
       ram: svaba_ram
     out: [alignments, bps, contigs, log, germline_indel_vcf_gz, germline_indel_unfiltered_vcf_gz,
       germline_sv_vcf_gz, germline_sv_unfiltered_vcf_gz]
-
   manta:
     run: ../tools/manta.cwl
     when: $(inputs.run_manta)
@@ -216,7 +196,6 @@ steps:
       cores: manta_cpu
       ram: manta_ram
     out: [output_sv, small_indels]
-
   annotsv_svaba:
     run: ../tools/annotsv.cwl
     when: $(inputs.run_svaba)
@@ -226,7 +205,6 @@ steps:
       sv_input_file: svaba/germline_sv_vcf_gz
       genome_build: annotsv_genome_build
     out: [annotated_calls, unannotated_calls]
-
   annotsv_manta:
     run: ../tools/annotsv.cwl
     when: $(inputs.run_manta)
@@ -236,7 +214,6 @@ steps:
       sv_input_file: manta/output_sv
       genome_build: annotsv_genome_build
     out: [annotated_calls, unannotated_calls]
-
 hints:
 - class: "sbg:maxNumberOfParallelInstances"
   value: 2
@@ -254,5 +231,5 @@ $namespaces:
 - SVABA
 - VCF
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v0.3.0'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.0.0'
   label: github-release
