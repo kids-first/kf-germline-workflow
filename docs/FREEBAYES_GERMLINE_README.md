@@ -5,7 +5,7 @@ and output basename and returns a single VCF file.
 
 The workflow improves on the base implementation of Freebayes in that runs the tool in parallel. The input
 reference dict is split into 50 smaller intervals which then is used for localized Freebayes variant
-calling. The resulting VCFs are then merged using GATK.  
+calling. The resulting VCFs are then merged using GATK.
 
 ### Runtime Estimates
 1. Trio of 65 GB BAMs on spot instances: 180 minutes & $2.00

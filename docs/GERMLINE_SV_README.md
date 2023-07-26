@@ -1,4 +1,4 @@
-# Kids First Data Resource Center Germline Structural Variant Caller Workflow
+# Kids First Data Resource Center Germline Structural Variant Workflow
 
 <p align="center">
   <img src="https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png">
@@ -64,34 +64,23 @@ potential pathogenicity and ii) filter out SV potential false positives.
 
 ## Input Files
 
-At the moment the workflow uses only a few inputs:
-- `germline_reads`: The germline BAM/CRAM input that has been aligned to a
-  reference genome.
-- `indexed_reference_fasta`: The reference genome fasta (and associated
-  indicies) to which the germline BAM/CRAM was aligned.
-- `annotsv_annotations_dir`: These annotations are simply those from the
-  install-human-annotation installation process run during AnnotSV installation
-(see: https://github.com/lgmgeo/AnnotSV/#quick-installation). Specifically
-these are the annotations installed with v3.1.1 of the software. Newer or older
-annotations can be slotted in here as needed.
-- `annotsv_genome_build`: The genome build of the reference fasta. AnnotSV is
-  capable of annotating the following genomes: "GRCh37","GRCh38","mm9","mm10".
-- `output_basename`: Basename to use for the outputs.
+- Universal
+    - `germline_reads`: The germline BAM/CRAM input that has been aligned to a reference genome.
+    - `indexed_reference_fasta`: The reference genome fasta (and associated indicies) to which the germline BAM/CRAM was aligned.
+- AnnotSV
+    - `annotsv_annotations_dir`: These annotations are simply those from the install-human-annotation installation process run during AnnotSV installation (see: https://github.com/lgmgeo/AnnotSV/#quick-installation). Specifically these are the annotations installed with v3.1.1 of the software. Newer or older annotations can be slotted in here as needed.
 
 ## Output Files
 
-    - Structural variant callers
-        - Manta
-            - `manta_svs`: Structural Variants called by Manta
-            - `manta_indels`: Small INDELs called by Manta
-        - SvABA
-            - `svaba_svs`: Structural Variants called by SvABA
-            - `svaba_indels`: Small INDELs called by SvABA
-        - AnnotSV
-            - `manta_annotated_svs`: This file contains all records from the `manta_svs` that AnnotSV could annotate.
-            - `manta_unannotated_svs`: This file contains all records from the `manta_svs` that AnnotSV could not annotate.
-            - `svaba_annotated_svs`: This file contains all records from the `svaba_svs` that AnnotSV could annotate.
-            - `svaba_unannotated_svs`: This file contains all records from the `svaba_svs` that AnnotSV could not annotate.
+- Manta
+    - `manta_svs`: Structural Variants called by Manta
+    - `manta_indels`: Small INDELs called by Manta
+- SvABA
+    - `svaba_svs`: Structural Variants called by SvABA
+    - `svaba_indels`: Small INDELs called by SvABA
+- AnnotSV
+    - `manta_annotated_svs`: This file contains all records from the `manta_svs` that AnnotSV could annotate.
+    - `svaba_annotated_svs`: This file contains all records from the `svaba_svs` that AnnotSV could annotate.
 
 ## Basic Info
 - [D3b dockerfiles](https://github.com/d3b-center/bixtools)
