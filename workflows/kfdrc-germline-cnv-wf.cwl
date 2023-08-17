@@ -256,20 +256,8 @@ inputs:
       \ module?"}
   run_cnvnator: {type: 'boolean?', default: true, doc: "Run the CNVnator module?"}
 outputs:
-  gatk_gcnv_preprocessed_intervals: {type: 'File?', outputSource: gatk_gcnv_case/preprocessed_intervals,
-    doc: "Preprocessed Picard interval-list file."}
   gatk_gcnv_read_counts_entity_ids: {type: 'string[]?', outputSource: gatk_gcnv_case/read_counts_entity_ids,
     doc: "List of file basename that were processed by CollectReadCounts"}
-  gatk_gcnv_read_counts: {type: 'File[]?', outputSource: gatk_gcnv_case/read_counts,
-    doc: "Counts file for each normal BAM input. This workflow produces HDF5 format\
-      \ results."}
-  gatk_gcnv_sample_contig_ploidy_calls_tars: {type: 'File[]?', outputSource: gatk_gcnv_case/sample_contig_ploidy_calls_tars,
-    doc: "Per sample TAR.GZ files containing the calls directory output by DetermineGermlineContigPloidy"}
-  gatk_gcnv_calls_tars: {type: ['null', {type: 'array', items: {type: 'array', items: File}}],
-    outputSource: gatk_gcnv_case/gcnv_calls_tars, doc: "TAR.GZ files containing the\
-      \ calls for each sample in each shard of GermlineCNVCaller"}
-  gatk_gcnv_tracking_tars: {type: 'File[]?', outputSource: gatk_gcnv_case/gcnv_tracking_tars,
-    doc: "TAR.GZ files containing the tracking directory output by each shard of GermlineCNVCaller"}
   gatk_gcnv_genotyped_intervals_vcfs: {type: 'File[]?', outputSource: gatk_gcnv_case/genotyped_intervals_vcfs,
     doc: "Per sample VCF files provides a detailed listing of the most likely copy-number\
       \ call for each genomic interval included in the call-set, along with call quality,\
@@ -281,9 +269,6 @@ outputs:
   gatk_gcnv_denoised_copy_ratios: {type: 'File[]?', outputSource: gatk_gcnv_case/denoised_copy_ratios,
     doc: "Per sample files concatenates posterior means for denoised copy ratios from\
       \ all the call shards produced by the GermlineCNVCaller."}
-  gatk_gcnv_sample_qc_status_files: {type: 'File[]?', outputSource: gatk_gcnv_case/sample_qc_status_files,
-    doc: "Per sample files containing the sample's QC status. Either PASS or EXCESSIVE_NUMBER_OF_EVENTS\
-      \ as determined by maximum_number_events_per_sample input"}
   gatk_gcnv_sample_qc_status_strings: {type: 'string[]?', outputSource: gatk_gcnv_case/sample_qc_status_strings,
     doc: "String value contained within the sample_qc_status_files outputs"}
   cnvnator_vcf: {type: 'File?', outputSource: cnvnator/vcf, doc: "Called CNVs in VCF\
