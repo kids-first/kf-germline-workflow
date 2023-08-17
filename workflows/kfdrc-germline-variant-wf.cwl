@@ -130,7 +130,6 @@ doc: |
 
   - Copy Number Variant
       - GATK
-          - `gatk_gcnv_read_counts`: Counts file for each normal BAM input. This workflow produces HDF5 format results.
           - `gatk_gcnv_genotyped_intervals_vcfs`: Per sample VCF files provides a detailed listing of the most likely copy-number call for each genomic interval included in the call-set, along with call quality, call genotype, and the phred-scaled posterior probability vector for all integer copy-number states.
           - `gatk_gcnv_genotyped_segments_vcfs`: Per sample VCF files containing coalesced contiguous intervals that share the same copy-number call
           - `gatk_gcnv_denoised_copy_ratios`: Per sample files concatenates posterior means for denoised copy ratios from all the call shards produced by the GermlineCNVCaller.
@@ -217,6 +216,9 @@ inputs:
       {pattern: '^.bai', required: false}, {pattern: '.crai', required: false}, {
         pattern: '^.crai', required: false}], doc: "Aligned Reads file(s) from which\
       \ Germline Variants will be discovered", "sbg:fileTypes": "BAM, CRAM"}
+  input_gvcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}],
+    doc: "gVCF associated with input_reads. Providing this value will skip gVCF creation\
+      \ for the GATK pipeline.", "sbg:fileTypes": "VCF.GZ"}
   output_basename: {type: 'string', doc: "String value to use for the basename of\
       \ all outputs"}
   cnv_intervals_padding: {type: 'int?', doc: "Length (in bp) of the padding regions\
@@ -518,20 +520,8 @@ inputs:
   run_svaba: {type: 'boolean?', default: true, doc: "Run the SVaba module?"}
   run_manta: {type: 'boolean?', default: true, doc: "Run the Manta module?"}
 outputs:
-  gatk_gcnv_preprocessed_intervals: {type: 'File?', outputSource: cnv/gatk_gcnv_preprocessed_intervals,
-    doc: "Preprocessed Picard interval-list file."}
   gatk_gcnv_read_counts_entity_ids: {type: 'string[]?', outputSource: cnv/gatk_gcnv_read_counts_entity_ids,
     doc: "List of file basename that were processed by CollectReadCounts"}
-  gatk_gcnv_read_counts: {type: 'File[]?', outputSource: cnv/gatk_gcnv_read_counts,
-    doc: "Counts file for each normal BAM input. This workflow produces HDF5 format\
-      \ results."}
-  gatk_gcnv_sample_contig_ploidy_calls_tars: {type: 'File[]?', outputSource: cnv/gatk_gcnv_sample_contig_ploidy_calls_tars,
-    doc: "Per sample TAR.GZ files containing the calls directory output by DetermineGermlineContigPloidy"}
-  gatk_gcnv_calls_tars: {type: ['null', {type: 'array', items: {type: 'array', items: File}}],
-    outputSource: cnv/gatk_gcnv_calls_tars, doc: "TAR.GZ files containing the calls\
-      \ for each sample in each shard of GermlineCNVCaller"}
-  gatk_gcnv_tracking_tars: {type: 'File[]?', outputSource: cnv/gatk_gcnv_tracking_tars,
-    doc: "TAR.GZ files containing the tracking directory output by each shard of GermlineCNVCaller"}
   gatk_gcnv_genotyped_intervals_vcfs: {type: 'File[]?', outputSource: cnv/gatk_gcnv_genotyped_intervals_vcfs,
     doc: "Per sample VCF files provides a detailed listing of the most likely copy-number\
       \ call for each genomic interval included in the call-set, along with call quality,\
@@ -543,9 +533,6 @@ outputs:
   gatk_gcnv_denoised_copy_ratios: {type: 'File[]?', outputSource: cnv/gatk_gcnv_denoised_copy_ratios,
     doc: "Per sample files concatenates posterior means for denoised copy ratios from\
       \ all the call shards produced by the GermlineCNVCaller."}
-  gatk_gcnv_sample_qc_status_files: {type: 'File[]?', outputSource: cnv/gatk_gcnv_sample_qc_status_files,
-    doc: "Per sample files containing the sample's QC status. Either PASS or EXCESSIVE_NUMBER_OF_EVENTS\
-      \ as determined by maximum_number_events_per_sample input"}
   gatk_gcnv_sample_qc_status_strings: {type: 'string[]?', outputSource: cnv/gatk_gcnv_sample_qc_status_strings,
     doc: "String value contained within the sample_qc_status_files outputs"}
   cnvnator_vcf: {type: 'File?', outputSource: cnv/cnvnator_vcf, doc: "Called CNVs\
@@ -662,10 +649,8 @@ steps:
       gatk_scatter_ploidy_calls_cores: gatk_scatter_ploidy_calls_cores
       run_gatk_gcnv: run_gatk_gcnv
       run_cnvnator: run_cnvnator
-    out: [gatk_gcnv_preprocessed_intervals, gatk_gcnv_read_counts_entity_ids, gatk_gcnv_read_counts,
-      gatk_gcnv_sample_contig_ploidy_calls_tars, gatk_gcnv_calls_tars, gatk_gcnv_tracking_tars,
-      gatk_gcnv_genotyped_intervals_vcfs, gatk_gcnv_genotyped_segments_vcfs, gatk_gcnv_denoised_copy_ratios,
-      gatk_gcnv_sample_qc_status_files, gatk_gcnv_sample_qc_status_strings, cnvnator_vcf,
+    out: [gatk_gcnv_read_counts_entity_ids, gatk_gcnv_genotyped_intervals_vcfs, gatk_gcnv_genotyped_segments_vcfs,
+      gatk_gcnv_denoised_copy_ratios, gatk_gcnv_sample_qc_status_strings, cnvnator_vcf,
       cnvnator_called_cnvs, cnvnator_average_rd]
   snv:
     run: ../workflows/kfdrc-germline-snv-wf.cwl

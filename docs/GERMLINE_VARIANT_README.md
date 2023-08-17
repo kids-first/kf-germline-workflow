@@ -125,7 +125,6 @@ user must provide the associated gVCF in the `input_gvcf` input.
 
 - Copy Number Variant
     - GATK
-        - `gatk_gcnv_read_counts`: Counts file for each normal BAM input. This workflow produces HDF5 format results.
         - `gatk_gcnv_genotyped_intervals_vcfs`: Per sample VCF files provides a detailed listing of the most likely copy-number call for each genomic interval included in the call-set, along with call quality, call genotype, and the phred-scaled posterior probability vector for all integer copy-number states.
         - `gatk_gcnv_genotyped_segments_vcfs`: Per sample VCF files containing coalesced contiguous intervals that share the same copy-number call
         - `gatk_gcnv_denoised_copy_ratios`: Per sample files concatenates posterior means for denoised copy ratios from all the call shards produced by the GermlineCNVCaller.
