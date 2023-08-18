@@ -63,9 +63,9 @@ arguments:
       --autosomal-ref-copy-number $(inputs.ref_copy_number_autosomal_contigs)
       --contig-ploidy-calls contig-ploidy-calls
       --sample-index $(inputs.sample_index)
-      --output-genotyped-intervals genotyped-intervals-$(inputs.entity_id).vcf.gz
-      --output-genotyped-segments genotyped-segments-$(inputs.entity_id).vcf.gz
-      --output-denoised-copy-ratios denoised_copy_ratios-$(inputs.entity_id).tsv
+      --output-genotyped-intervals $(inputs.entity_id).gatk_gcnv.genotyped_intervals.vcf.gz
+      --output-genotyped-segments $(inputs.entity_id).gatk_gcnv.genotyped_segments.vcf.gz
+      --output-denoised-copy-ratios $(inputs.entity_id).gatk_gcnv.denoised_copy_ratios.tsv
       $(inputs.allosomal_contigs_args ? '--allosomal-contig ' + inputs.allosomal_contigs_args.join(' --allosomal-contig ') : '')
 
       rm -rf CALLS_*
@@ -92,6 +92,6 @@ inputs:
   max_memory: { type: 'int?', default: 8, doc: "GB of RAM to allocate to the task." }
   cores: { type: 'int?', default: 4, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
-  genotyped_intervals_vcf: { type: 'File', outputBinding: { glob: 'genotyped-intervals-*.vcf.gz' }, secondaryFiles: [.tbi] }
-  genotyped_segments_vcf: { type: 'File', outputBinding: { glob: 'genotyped-segments-*.vcf.gz' }, secondaryFiles: [.tbi] }
-  denoised_copy_ratios: { type: 'File', outputBinding: { glob: 'denoised_copy_ratios-*' } }
+  genotyped_intervals_vcf: { type: 'File', outputBinding: { glob: '*.gatk_gcnv.genotyped_segments.vcf.gz' }, secondaryFiles: [.tbi] }
+  genotyped_segments_vcf: { type: 'File', outputBinding: { glob: '*.gatk_gcnv.genotyped_segments.vcf.gz' }, secondaryFiles: [.tbi] }
+  denoised_copy_ratios: { type: 'File', outputBinding: { glob: '*.gatk_gcnv.denoised_copy_ratios.tsv' } }

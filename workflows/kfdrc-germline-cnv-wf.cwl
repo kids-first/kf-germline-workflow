@@ -86,6 +86,8 @@ requirements:
 - class: MultipleInputFeatureRequirement
 - class: ScatterFeatureRequirement
 - class: SubworkflowFeatureRequirement
+- class: StepInputExpressionRequirement
+- class: InlineJavascriptRequirement
 inputs:
   indexed_reference_fasta:
     type: 'File'
@@ -295,6 +297,10 @@ steps:
     in:
       run_gatk_gcnv: run_gatk_gcnv
       normal_reads: file_to_file_array/out_file_array
+      output_basenames:
+        source: output_basename
+        valueFrom: |
+          $(self != null ? [self] : null)
       indexed_reference_fasta: indexed_reference_fasta
       intervals: intervals
       blacklist_intervals: blacklist_intervals
