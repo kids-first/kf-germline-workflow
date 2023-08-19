@@ -181,6 +181,8 @@ requirements:
 - class: ScatterFeatureRequirement
 - class: MultipleInputFeatureRequirement
 - class: SubworkflowFeatureRequirement
+- class: StepInputExpressionRequirement
+- class: InlineJavascriptRequirement
 inputs:
   # Universal
   indexed_reference_fasta:

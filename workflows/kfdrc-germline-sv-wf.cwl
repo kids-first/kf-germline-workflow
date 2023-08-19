@@ -101,6 +101,8 @@ requirements:
 - class: ScatterFeatureRequirement
 - class: MultipleInputFeatureRequirement
 - class: SubworkflowFeatureRequirement
+- class: StepInputExpressionRequirement
+- class: InlineJavascriptRequirement
 inputs:
   indexed_reference_fasta:
     type: 'File'

@@ -145,6 +145,7 @@ requirements:
 - class: MultipleInputFeatureRequirement
 - class: SubworkflowFeatureRequirement
 - class: StepInputExpressionRequirement
+- class: InlineJavascriptRequirement
 inputs:
   # Required
   indexed_reference_fasta:
