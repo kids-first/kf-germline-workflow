@@ -35,7 +35,7 @@ requirements:
                   }
                   return file_content.join("\n");
               } else if (input_files.length == 1) {
-                  return get_file_prefix(input_files[0]) + ".strelka_genome.S1";
+                  return "strelka_genome.S1";
               } else {
                   return "";
               }

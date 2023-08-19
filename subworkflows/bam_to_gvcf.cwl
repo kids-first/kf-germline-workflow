@@ -5,6 +5,7 @@ requirements:
 - class: ScatterFeatureRequirement
 - class: MultipleInputFeatureRequirement
 - class: StepInputExpressionRequirement
+- class: InlineJavascriptRequirement
 
 inputs:
   input_bam: File
@@ -63,8 +64,8 @@ steps:
     in:
       dbsnp_vcf: dbsnp_vcf
       final_gvcf_base_name:
-        source: picard_mergevcfs_python_renamesample/output
-        valueFrom: $(self.basename)
+        source: output_basename
+        valueFrom: $(self).gatk.gvcf
       input_vcf: picard_mergevcfs_python_renamesample/output
       reference_dict:
         source: indexed_reference_fasta
