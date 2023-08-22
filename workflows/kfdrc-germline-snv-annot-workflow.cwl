@@ -171,8 +171,8 @@ doc: |-
         class: File, path: 6324ef5ad01163633daa00d8, name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{
         class: File, path: 6324ef5ad01163633daa00d7, name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
     clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional bgzipped annotation vcf file", "sbg:suggestedValue": {
-        class: File, path: 632c6cbb2a5194517cff1593, name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [{
-        class: File, path: 632c6cbb2a5194517cff1592, name: clinvar_20220507_chr.vcf.gz.tbi}]}}
+        class: File, path: 64e4c9732031aa7ce01f86bf, name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [{
+        class: File, path: 64e4c97c78c25c546eaa2573, name: clinvar_20220507_chr_fixed.vcf.gz.tbi}]}}
     # VEP-specific
     vep_ram: {type: 'int?', default: 48, doc: "In GB, may need to increase this value depending on the size/complexity of input"}
     vep_cores: {type: 'int?', default: 32, doc: "Number of cores to use. May need to increase for really large inputs"}
@@ -232,11 +232,12 @@ inputs:
       \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 6324ef5ad01163633daa00d8,
       name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{class: File, path: 6324ef5ad01163633daa00d7,
           name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
-  clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
-      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 632c6cbb2a5194517cff1593,
-      name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [{class: File, path: 632c6cbb2a5194517cff1592,
-          name: clinvar_20220507_chr.vcf.gz.tbi}]}}
+  clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional bgzipped annotation vcf file", "sbg:suggestedValue": {
+      class: File, path: 64e4c9732031aa7ce01f86bf, name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [{
+      class: File, path: 64e4c97c78c25c546eaa2573, name: clinvar_20220507_chr_fixed.vcf.gz.tbi}]}}
   # VEP-specific
+  disable_vep_annotation: {type: 'boolean?', doc: "Disable VEP Annotation and skip\
+      \ this task.", default: false}
   vep_ram: {type: 'int?', default: 48, doc: "In GB, may need to increase this value\
       \ depending on the size/complexity of input"}
   vep_cores: {type: 'int?', default: 32, doc: "Number of cores to use. May need to\
@@ -307,9 +308,11 @@ steps:
     out: [stripped_vcf]
 
   vep_annotate_vcf:
+    when: $(inputs.disable_annotation == false)
     run: ../tools/variant_effect_predictor_105.cwl
     in:
       reference: indexed_reference_fasta
+      disable_annotation: disable_vep_annotation
       cores: vep_cores
       ram: vep_ram
       buffer_size: vep_buffer_size
@@ -334,7 +337,9 @@ steps:
     when: $(inputs.annotation_vcf != null)
     run: ../tools/bcftools_annotate.cwl
     in:
-      input_vcf: vep_annotate_vcf/output_vcf
+      input_vcf:
+        source: [vep_annotate_vcf/output_vcf, bcftools_strip_info/stripped_vcf]
+        pickValue: first_non_null
       annotation_vcf: gnomad_annotation_vcf
       columns: bcftools_annot_gnomad_columns
       output_basename: output_basename
@@ -346,7 +351,7 @@ steps:
     run: ../tools/bcftools_annotate.cwl
     in:
       input_vcf:
-        source: [bcftools_gnomad_annotate/bcftools_annotated_vcf, vep_annotate_vcf/output_vcf]
+        source: [bcftools_gnomad_annotate/bcftools_annotated_vcf, vep_annotate_vcf/output_vcf, bcftools_strip_info/stripped_vcf]
         pickValue: first_non_null
       annotation_vcf: clinvar_annotation_vcf
       columns: bcftools_annot_clinvar_columns
