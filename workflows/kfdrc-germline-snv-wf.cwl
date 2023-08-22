@@ -264,8 +264,8 @@ inputs:
         {class: File, path: 6324ef5ad01163633daa00d7, name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
   clinvar_annotation_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}],
     doc: "additional bgzipped annotation vcf file", "sbg:suggestedValue": {class: File,
-      path: 632c6cbb2a5194517cff1593, name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [
-        {class: File, path: 632c6cbb2a5194517cff1592, name: clinvar_20220507_chr.vcf.gz.tbi}]}}
+      path: 64e4c9732031aa7ce01f86bf, name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [
+        {class: File, path: 64e4c97c78c25c546eaa2573, name: clinvar_20220507_chr_fixed.vcf.gz.tbi}]}}
   vep_buffer_size: {type: 'int?', default: 100000, doc: "Increase or decrease to balance\
       \ speed and memory usage"}
   vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache",
