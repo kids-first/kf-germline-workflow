@@ -93,9 +93,9 @@ inputs:
       name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{class: File, path: 6324ef5ad01163633daa00d7,
           name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
   clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
-      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 632c6cbb2a5194517cff1593,
-      name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [{class: File, path: 632c6cbb2a5194517cff1592,
-          name: clinvar_20220507_chr.vcf.gz.tbi}]}}
+      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 64e4c9732031aa7ce01f86bf,
+      name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [{class: File, path: 64e4c97c78c25c546eaa2573,
+          name: clinvar_20220507_chr_fixed.vcf.gz.tbi}]}}
   # VEP-specific
   vep_ram: {type: 'int?', default: 32, doc: "In GB, may need to increase this value\
       \ depending on the size/complexity of input"}
@@ -299,5 +299,5 @@ hints:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v0.4.4'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.0.0'
   label: github-release

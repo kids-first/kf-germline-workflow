@@ -162,6 +162,7 @@ doc: |-
 
     bcftools_prefilter_csv: {type: 'string?', doc: "csv of bcftools filter params if\
         \ you want to prefilter before annotation"}
+    disable_normalization: {type: 'boolean?', doc: "Skip normalizing if input is already normed", default: false}
     # bcftools strip, if needed
     bcftools_strip_columns: {type: 'string?', doc: "csv string of columns to strip if needed to avoid conflict, i.e INFO/AF"}
     # bcftools annotate if more to do
@@ -171,8 +172,8 @@ doc: |-
         class: File, path: 6324ef5ad01163633daa00d8, name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{
         class: File, path: 6324ef5ad01163633daa00d7, name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
     clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional bgzipped annotation vcf file", "sbg:suggestedValue": {
-        class: File, path: 632c6cbb2a5194517cff1593, name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [{
-        class: File, path: 632c6cbb2a5194517cff1592, name: clinvar_20220507_chr.vcf.gz.tbi}]}}
+        class: File, path: 64e4c9732031aa7ce01f86bf, name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [{
+        class: File, path: 64e4c97c78c25c546eaa2573, name: clinvar_20220507_chr_fixed.vcf.gz.tbi}]}}
     # VEP-specific
     vep_ram: {type: 'int?', default: 48, doc: "In GB, may need to increase this value depending on the size/complexity of input"}
     vep_cores: {type: 'int?', default: 32, doc: "Number of cores to use. May need to increase for really large inputs"}
@@ -220,6 +221,7 @@ inputs:
 
   bcftools_prefilter_csv: {type: 'string?', doc: "csv of bcftools filter params if\
       \ you want to prefilter before annotation"}
+  disable_normalization: {type: 'boolean?', doc: "Skip normalizing if input is already normed", default: false}
   # bcftools strip, if needed
   bcftools_strip_columns: {type: 'string?', doc: "csv string of columns to strip if\
       \ needed to avoid conflict, i.e INFO/AF"}
@@ -232,11 +234,12 @@ inputs:
       \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 6324ef5ad01163633daa00d8,
       name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{class: File, path: 6324ef5ad01163633daa00d7,
           name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
-  clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
-      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 632c6cbb2a5194517cff1593,
-      name: clinvar_20220507_chr.vcf.gz, secondaryFiles: [{class: File, path: 632c6cbb2a5194517cff1592,
-          name: clinvar_20220507_chr.vcf.gz.tbi}]}}
+  clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional bgzipped annotation vcf file", "sbg:suggestedValue": {
+      class: File, path: 64e4c9732031aa7ce01f86bf, name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [{
+      class: File, path: 64e4c97c78c25c546eaa2573, name: clinvar_20220507_chr_fixed.vcf.gz.tbi}]}}
   # VEP-specific
+  disable_vep_annotation: {type: 'boolean?', doc: "Disable VEP Annotation and skip\
+      \ this task.", default: false}
   vep_ram: {type: 'int?', default: 48, doc: "In GB, may need to increase this value\
       \ depending on the size/complexity of input"}
   vep_cores: {type: 'int?', default: 32, doc: "Number of cores to use. May need to\
@@ -286,8 +289,10 @@ steps:
     out: [filtered_vcf]
 
   normalize_vcf:
+    when: $(inputs.disable_norm == false)
     run: ../tools/normalize_vcf.cwl
     in:
+      disable_norm: disable_normalization
       indexed_reference_fasta: indexed_reference_fasta
       input_vcf:
         source: [prefilter_vcf/filtered_vcf, input_vcf]
@@ -300,21 +305,25 @@ steps:
     when: $(inputs.strip_info != null)
     run: ../tools/bcftools_strip_ann.cwl
     in:
-      input_vcf: normalize_vcf/normalized_vcf
+      input_vcf:
+        source: [normalize_vcf/normalized_vcf, prefilter_vcf/filtered_vcf, input_vcf]
+        pickValue: first_non_null
       output_basename: output_basename
       tool_name: tool_name
       strip_info: bcftools_strip_columns
     out: [stripped_vcf]
 
   vep_annotate_vcf:
+    when: $(inputs.disable_annotation == false)
     run: ../tools/variant_effect_predictor_105.cwl
     in:
       reference: indexed_reference_fasta
+      disable_annotation: disable_vep_annotation
       cores: vep_cores
       ram: vep_ram
       buffer_size: vep_buffer_size
       input_vcf:
-        source: [bcftools_strip_info/stripped_vcf, normalize_vcf/normalized_vcf]
+        source: [bcftools_strip_info/stripped_vcf, normalize_vcf/normalized_vcf, prefilter_vcf/filtered_vcf, input_vcf]
         pickValue: first_non_null
       output_basename: output_basename
       tool_name: tool_name
@@ -334,7 +343,9 @@ steps:
     when: $(inputs.annotation_vcf != null)
     run: ../tools/bcftools_annotate.cwl
     in:
-      input_vcf: vep_annotate_vcf/output_vcf
+      input_vcf:
+        source: [vep_annotate_vcf/output_vcf, bcftools_strip_info/stripped_vcf, normalize_vcf/normalized_vcf, prefilter_vcf/filtered_vcf, input_vcf]
+        pickValue: first_non_null
       annotation_vcf: gnomad_annotation_vcf
       columns: bcftools_annot_gnomad_columns
       output_basename: output_basename
@@ -346,7 +357,7 @@ steps:
     run: ../tools/bcftools_annotate.cwl
     in:
       input_vcf:
-        source: [bcftools_gnomad_annotate/bcftools_annotated_vcf, vep_annotate_vcf/output_vcf]
+        source: [bcftools_gnomad_annotate/bcftools_annotated_vcf, vep_annotate_vcf/output_vcf, bcftools_strip_info/stripped_vcf, normalize_vcf/normalized_vcf, prefilter_vcf/filtered_vcf, input_vcf]
         pickValue: first_non_null
       annotation_vcf: clinvar_annotation_vcf
       columns: bcftools_annot_clinvar_columns
@@ -377,6 +388,6 @@ sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
 
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v0.4.4'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.0.0'
   label: github-release
 
