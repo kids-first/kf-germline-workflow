@@ -299,5 +299,5 @@ hints:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v0.4.5'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.0.0'
   label: github-release
