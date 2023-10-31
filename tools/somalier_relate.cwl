@@ -34,7 +34,7 @@ inputs:
     inputBinding: { position: 1, prefix: "--output-prefix" } }
 
 outputs:
-  groups_csv:
+  groups_tsv:
     type: File
     outputBinding:
       glob: '*.groups.tsv'
