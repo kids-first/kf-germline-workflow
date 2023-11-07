@@ -92,6 +92,6 @@ inputs:
   max_memory: { type: 'int?', default: 8, doc: "GB of RAM to allocate to the task." }
   cores: { type: 'int?', default: 4, doc: "Minimum reserved number of CPU cores for the task." }
 outputs:
-  genotyped_intervals_vcf: { type: 'File', outputBinding: { glob: '*.gatk_gcnv.genotyped_segments.vcf.gz' }, secondaryFiles: [.tbi] }
+  genotyped_intervals_vcf: { type: 'File', outputBinding: { glob: '*.gatk_gcnv.genotyped_intervals.vcf.gz' }, secondaryFiles: [.tbi] }
   genotyped_segments_vcf: { type: 'File', outputBinding: { glob: '*.gatk_gcnv.genotyped_segments.vcf.gz' }, secondaryFiles: [.tbi] }
   denoised_copy_ratios: { type: 'File', outputBinding: { glob: '*.gatk_gcnv.denoised_copy_ratios.tsv' } }
