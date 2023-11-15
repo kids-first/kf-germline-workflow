@@ -24,7 +24,7 @@ arguments:
 
 inputs:
   input_somalier: { type: 'File[]', doc: "Files in somalier format to calculate ancestry on"}
-  labels: { type: File, doc: "tsv file with population labels for somalier sites",
+  labels: { type: File, doc: "TSV file with population labels for somalier sites",
   inputBinding: { position: 1, prefix: '--labels'} }
   somalier_sites: { type: File, doc: "somalier-format population reference tar ball",
   inputBinding: { position: 0 } }

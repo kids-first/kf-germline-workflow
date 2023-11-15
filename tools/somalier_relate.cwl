@@ -15,18 +15,18 @@ baseCommand: [somalier, relate]
 inputs:
   somalier_output: { type: 'File[]', doc: "Somalier-formatted variant files",
     inputBinding: { position: 2} }
-  groups: { type: 'File?', doc: "optional path  to expected groups of samples (e.g. tumor normal pairs).
+  groups: { type: 'File?', doc: "optional path to expected groups of samples (e.g. tumor normal pairs).
                              A group file is specified as comma-separated groups per line e.g.:
                                  normal1,tumor1a,tumor1b
                                  normal2,tumor2a",
     inputBinding: { position: 1, prefix: "--groups"} }
-  ped: { type: 'File?', doc: "optional path to a ped/fam file indicating the expected relationships among samples.",
+  ped: { type: 'File?', doc: "optional path to a PED/fam file indicating the expected relationships among samples.",
     inputBinding: { position: 1, prefix: "--ped"} }
   min_depth: { type: 'int?', doc: "only genotype sites with at least this depth.", default: 7,
     inputBinding: { position: 1, prefix: "--min-depth"} }
   min_ab: { type: 'float?', doc: "hets sites must be between min-ab and 1 - min_ab. set this to 0.2 for RNA-Seq data (default: 0.3)", default: 0.3,
     inputBinding: { position: 1, prefix: "--min-ab"} }
-  unknown: { type: 'boolean?', doc: "set unknown genotypes to hom-ref. it is often preferable to use this with VCF samples that were not jointly called",
+  unknown: { type: 'boolean?', doc: "set unknown genotypes to hom-ref. It is often preferable to use this with VCF samples that were not jointly called",
     inputBinding: { position: 1, prefix: "--unknown"} }
   infer: { type: 'boolean?', doc: "infer relationships",
     inputBinding: { position: 1, prefix: "--infer"} }

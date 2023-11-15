@@ -15,11 +15,11 @@ baseCommand: [somalier, extract]
 inputs:
   input_file: { type: File, secondaryFiles: [ { pattern: ".bai", required: false },
     { pattern: "^.bai", required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false },
-    { pattern: ".tbi", required: false } ], doc: "BAM/CRAM/VCF input. BAM/CRAM recommended when available over vcf",
+    { pattern: ".tbi", required: false } ], doc: "BAM/CRAM/VCF input. BAM/CRAM recommended when available over VCF",
     inputBinding: { position: 2} }
-  reference_fasta: { type: File, inputBinding: { prefix: "--fasta", position: 1 }, secondaryFiles: [ .fai ], doc: "Reference genome used" }
-  sites: { type: File, inputBinding: { prefix: "--sites", position: 1 }, doc: "vcf file with common sites" }
-  sample_prefix: { type: 'string?' , doc: "prefix for the sample name stored inside the digest",
+  reference_fasta: { type: File, inputBinding: { prefix: "--fasta", position: 1 }, secondaryFiles: [ .fai ], doc: "Reference FASTA genome used" }
+  sites: { type: File, inputBinding: { prefix: "--sites", position: 1 }, doc: "VCF file with common sites" }
+  sample_prefix: { type: 'string?' , doc: "Prefix for the sample name stored inside the digest",
     inputBinding: {position: 1, prefix: "--sample-prefix"} }
 
 outputs:
