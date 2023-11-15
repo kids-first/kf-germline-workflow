@@ -46,7 +46,7 @@ calculate relatedness among samples from extracted, genotype-like information
 **REQUIRED**
  - `input_somalier`: Files in somalier format to calculate ancestry on
  - `labels`: tsv file with population labels for somalier sites
-- `untar_sites_prefix`: dir name that is created when somalier_sites in un-tarred
+ - `untar_sites_prefix`: dir name that is created when somalier_sites in un-tarred
  - `output_basename`: String prefix for output results
 
  - `somalier_sites`: vcf file with common sites
