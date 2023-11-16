@@ -9,16 +9,18 @@ requirements:
     ramMin: 1000
     coresMin: 4
   - class: DockerRequirement
-    dockerPull: 'brentp/somalier:v0.2.15'
+    dockerPull: 'brentp/somalier:v0.2.19'
 baseCommand: [somalier, extract]
 
 inputs:
   input_file: { type: File, secondaryFiles: [ { pattern: ".bai", required: false },
     { pattern: "^.bai", required: false }, { pattern: ".crai", required: false }, { pattern: "^.crai", required: false },
-    { pattern: ".tbi", required: false } ], doc: "BAM/CRAM/VCF input. BAM/CRAM recommended when available over vcf",
+    { pattern: ".tbi", required: false } ], doc: "BAM/CRAM/VCF input. BAM/CRAM recommended when available over VCF",
     inputBinding: { position: 2} }
-  reference_fasta: { type: File, inputBinding: { prefix: "--fasta" }, secondaryFiles: [ .fai ], doc: "Reference genome used" }
-  sites: { type: File, inputBinding: { prefix: "--sites" }, doc: "vcf file with common sites" }
+  reference_fasta: { type: File, inputBinding: { prefix: "--fasta", position: 1 }, secondaryFiles: [ .fai ], doc: "Reference FASTA genome used" }
+  sites: { type: File, inputBinding: { prefix: "--sites", position: 1 }, doc: "VCF file with common sites" }
+  sample_prefix: { type: 'string?' , doc: "Prefix for the sample name stored inside the digest",
+    inputBinding: {position: 1, prefix: "--sample-prefix"} }
 
 outputs:
   somalier_output:
