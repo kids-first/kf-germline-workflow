@@ -9,7 +9,7 @@ requirements:
     ramMin: ${ return inputs.memory * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'brentp/somalier:v0.2.15'
+    dockerPull: 'brentp/somalier:v0.2.19'
 baseCommand: [tar, -xzf]
 arguments:
   - position: 1
