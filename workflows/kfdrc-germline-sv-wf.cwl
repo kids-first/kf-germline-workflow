@@ -154,13 +154,17 @@ outputs:
       \ containing INDEL variants called by SvABA"}
   svaba_svs: {type: 'File?', outputSource: svaba/germline_sv_vcf_gz, doc: "VCF containing\
       \ SV called by SvABA"}
-  svaba_annotated_svs: {type: 'File?', outputSource: annotsv_svaba/annotated_calls,
+  svaba_annotated_indels: {type: 'File?', outputSource: annotsv_svaba_indel/annotated_calls,
+    doc: "TSV containing annotated variants from the svaba_indels output"}
+  svaba_annotated_svs: {type: 'File?', outputSource: annotsv_svaba_sv/annotated_calls,
     doc: "TSV containing annotated variants from the svaba_svs output"}
   manta_indels: {type: 'File?', outputSource: manta/small_indels, doc: "VCF containing\
       \ INDEL variants called by Manta"}
   manta_svs: {type: 'File?', outputSource: manta/output_sv, doc: "VCF containing SV\
       \ called by Manta"}
-  manta_annotated_svs: {type: 'File?', outputSource: annotsv_manta/annotated_calls,
+  manta_annotated_indels: {type: 'File?', outputSource: annotsv_manta_indel/annotated_calls,
+    doc: "TSV containing annotated variants from the manta_indels output"}
+  manta_annotated_svs: {type: 'File?', outputSource: annotsv_manta_sv/annotated_calls,
     doc: "TSV containing annotated variants from the manta_svs output"}
 steps:
   svaba:
@@ -198,7 +202,16 @@ steps:
       cores: manta_cpu
       ram: manta_ram
     out: [output_sv, small_indels]
-  annotsv_svaba:
+  annotsv_svaba_indel:
+    run: ../tools/annotsv.cwl
+    when: $(inputs.run_svaba)
+    in:
+      run_svaba: run_svaba
+      annotations_dir_tgz: annotsv_annotations_dir
+      sv_input_file: svaba/germline_indel_vcf_gz
+      genome_build: annotsv_genome_build
+    out: [annotated_calls, unannotated_calls]
+  annotsv_svaba_sv:
     run: ../tools/annotsv.cwl
     when: $(inputs.run_svaba)
     in:
@@ -207,7 +220,16 @@ steps:
       sv_input_file: svaba/germline_sv_vcf_gz
       genome_build: annotsv_genome_build
     out: [annotated_calls, unannotated_calls]
-  annotsv_manta:
+  annotsv_manta_indel:
+    run: ../tools/annotsv.cwl
+    when: $(inputs.run_manta)
+    in:
+      run_manta: run_manta
+      annotations_dir_tgz: annotsv_annotations_dir
+      sv_input_file: manta/small_indels
+      genome_build: annotsv_genome_build
+    out: [annotated_calls, unannotated_calls]
+  annotsv_manta_sv:
     run: ../tools/annotsv.cwl
     when: $(inputs.run_manta)
     in:
