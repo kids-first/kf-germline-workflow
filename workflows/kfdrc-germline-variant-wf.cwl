@@ -563,12 +563,16 @@ outputs:
       \ INDEL variants called by SvABA"}
   svaba_svs: {type: 'File?', outputSource: sv/svaba_svs, doc: "VCF containing SV called\
       \ by SvABA"}
+  svaba_annotated_indels: {type: 'File?', outputSource: sv/svaba_annotated_indels,
+    doc: "TSV containing annotated variants from the svaba_indels output"}
   svaba_annotated_svs: {type: 'File?', outputSource: sv/svaba_annotated_svs, doc: "TSV\
       \ containing annotated variants from the svaba_svs output"}
   manta_indels: {type: 'File?', outputSource: sv/manta_indels, doc: "VCF containing\
       \ INDEL variants called by Manta"}
   manta_svs: {type: 'File?', outputSource: sv/manta_svs, doc: "VCF containing SV called\
       \ by Manta"}
+  manta_annotated_indels: {type: 'File?', outputSource: sv/manta_annotated_indels,
+    doc: "TSV containing annotated variants from the manta_indels output"}
   manta_annotated_svs: {type: 'File?', outputSource: sv/manta_annotated_svs, doc: "TSV\
       \ containing annotated variants from the manta_svs output"}
 steps:
@@ -719,7 +723,7 @@ steps:
       manta_ram: manta_ram
       run_svaba: run_svaba
       run_manta: run_manta
-    out: [svaba_indels, svaba_svs, svaba_annotated_svs, manta_indels, manta_svs, manta_annotated_svs]
+    out: [svaba_indels, svaba_svs, svaba_annotated_indels, svaba_annotated_svs, manta_indels, manta_svs, manta_annotated_indels, manta_annotated_svs]
 hints:
 - class: "sbg:maxNumberOfParallelInstances"
   value: 4
