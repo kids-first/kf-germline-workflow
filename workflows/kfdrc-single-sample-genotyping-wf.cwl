@@ -84,14 +84,9 @@ inputs:
   output_basename: string
   tool_name: { type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files" }
   # Annotation
-  bcftools_annot_gnomad_columns: {type: 'string?', doc: "csv string of columns from\
-      \ annotation to port into the input vcf, i.e", default: "INFO/gnomad_3_1_1_AC:=INFO/AC,INFO/gnomad_3_1_1_AN:=INFO/AN,INFO/gnomad_3_1_1_AF:=INFO/AF,INFO/gnomad_3_1_1_nhomalt:=INFO/nhomalt,INFO/gnomad_3_1_1_AC_popmax:=INFO/AC_popmax,INFO/gnomad_3_1_1_AN_popmax:=INFO/AN_popmax,INFO/gnomad_3_1_1_AF_popmax:=INFO/AF_popmax,INFO/gnomad_3_1_1_nhomalt_popmax:=INFO/nhomalt_popmax,INFO/gnomad_3_1_1_AC_controls_and_biobanks:=INFO/AC_controls_and_biobanks,INFO/gnomad_3_1_1_AN_controls_and_biobanks:=INFO/AN_controls_and_biobanks,INFO/gnomad_3_1_1_AF_controls_and_biobanks:=INFO/AF_controls_and_biobanks,INFO/gnomad_3_1_1_AF_non_cancer:=INFO/AF_non_cancer,INFO/gnomad_3_1_1_primate_ai_score:=INFO/primate_ai_score,INFO/gnomad_3_1_1_splice_ai_consequence:=INFO/splice_ai_consequence"}
   bcftools_annot_clinvar_columns: {type: 'string?', doc: "csv string of columns from\
       \ annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
-  gnomad_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
-      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 6324ef5ad01163633daa00d8,
-      name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [{class: File, path: 6324ef5ad01163633daa00d7,
-          name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
+  echtvar_anno_zips: {type: 'File[]?', doc: "Annotation ZIP files for echtvar anno"}
   clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
       \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 64e4c9732031aa7ce01f86bf,
       name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [{class: File, path: 64e4c97c78c25c546eaa2573,
@@ -261,16 +256,15 @@ steps:
       wgs_evaluation_interval_list: wgs_evaluation_interval_list
     out: [output]
   annotate_vcf:
-    run: ../workflows/kfdrc-germline-snv-annot-workflow.cwl
+    run: ../kf-annotation-tools/workflows/kfdrc-germline-snv-annot-workflow.cwl
     doc: 'annotate variants'
     in:
       indexed_reference_fasta: indexed_reference_fasta
       input_vcf: gatk_hardfiltering/hardfiltered_vcf
       output_basename: output_basename
       tool_name: tool_name
-      bcftools_annot_gnomad_columns: bcftools_annot_gnomad_columns
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
-      gnomad_annotation_vcf: gnomad_annotation_vcf
+      echtvar_anno_zips: echtvar_anno_zips
       clinvar_annotation_vcf: clinvar_annotation_vcf
       vep_ram: vep_ram
       vep_cores: vep_cores
