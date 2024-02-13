@@ -8,7 +8,7 @@ The Kids First Data Resource Center (KFDRC) Single Nucleotide Variant (SNV)
 Workflow is a common workflow language (CWL) implmentation to generate
 SNV calls from an aligned reads BAM or CRAM file. The workflow makes use of
 GATK, Freebayes, and Strelka2 callers then performs annotation using VEP,
-gnomAD, and ClinVar.
+gnomAD.
 
 ## Relevant Softwares and Versions
 
@@ -70,8 +70,8 @@ documentation](https://github.com/Illumina/strelka/blob/v2.9.x/docs/userGuide/RE
 ### Annotation
 
 Variants from all three callers are annotated using the [Kids First DRC
-Germline SNV Annotation Workflow](./docs/GERMLINE_SNV_ANNOT_README.md).
-Generally, this workflow annotates the workflow using VEP, gnomAD, and ClinVar.
+Germline SNV Annotation Workflow](../kf-annotation-tools/docs/GERMLINE_SNV_ANNOT_README.mdd).
+Generally, this workflow annotates the workflow using VEP, gnomAD.
 For more information on the specific annotations, please see the documentation.
 
 ## Input Files
@@ -97,9 +97,13 @@ For more information on the specific annotations, please see the documentation.
  NA128	NA12878	0	0	2	2
 ```
 - Annotation
+
+    Recommended:
     - `gnomad_annotation_vcf`: gnomAD VCF used for annotation
-    - `clinvar_annotation_vcf`: ClinVar VCF used for annotation
     - `vep_cache`: TAR.GZ cache from ensembl/local converted cache
+
+    Optional:
+    - `clinvar_annotation_vcf`: ClinVar VCF used for annotation
     - `dbnsfp`: VEP-formatted plugin file, index, and readme file containing dbNSFP annotations
     - `cadd_indels`: VEP-formatted plugin file and index containing CADD indel annotations
     - `cadd_snvs`: VEP-formatted plugin file and index containing CADD SNV annotations
@@ -132,6 +136,6 @@ For more information on the specific annotations, please see the documentation.
     - [Common Workflow Language reference implementation (cwltool)](https://github.com/common-workflow-language/cwltool/)
 
 ## References
-- KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/
+- KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
 - Cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
 - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/
