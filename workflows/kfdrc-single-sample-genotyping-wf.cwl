@@ -88,9 +88,7 @@ inputs:
       \ annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
   echtvar_anno_zips: {type: 'File[]?', doc: "Annotation ZIP files for echtvar anno"}
   clinvar_annotation_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional\
-      \ bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 64e4c9732031aa7ce01f86bf,
-      name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [{class: File, path: 64e4c97c78c25c546eaa2573,
-          name: clinvar_20220507_chr_fixed.vcf.gz.tbi}]}}
+      \ bgzipped annotation vcf file"}
   # VEP-specific
   vep_ram: {type: 'int?', default: 32, doc: "In GB, may need to increase this value\
       \ depending on the size/complexity of input"}
@@ -101,26 +99,17 @@ inputs:
   vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache",
     "sbg:suggestedValue": {class: File, path: 6332f8e47535110eb79c794f, name: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz}}
   dbnsfp: {type: 'File?', secondaryFiles: [.tbi, ^.readme.txt], doc: "VEP-formatted\
-      \ plugin file, index, and readme file containing dbNSFP annotations", "sbg:suggestedValue": {
-      class: File, path: 63d97e944073196d123db264, name: dbNSFP4.3a_grch38.gz, secondaryFiles: [
-        {class: File, path: 63d97e944073196d123db262, name: dbNSFP4.3a_grch38.gz.tbi},
-        {class: File, path: 63d97e944073196d123db263, name: dbNSFP4.3a_grch38.readme.txt}]}}
+      \ plugin file, index, and readme file containing dbNSFP annotations"}
   dbnsfp_fields: {type: 'string?', doc: "csv string with desired fields to annotate.\
       \ Use ALL to grab all", default: 'SIFT4G_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,VEST4_score,VEST4_rankscore,MetaSVM_pred,MetaLR_pred,MetaRNN_pred,M-CAP_pred,REVEL_score,REVEL_rankscore,PrimateAI_pred,DEOGEN2_pred,BayesDel_noAF_pred,ClinPred_pred,LIST-S2_pred,Aloft_pred,fathmm-MKL_coding_pred,fathmm-XF_coding_pred,Eigen-phred_coding,Eigen-PC-phred_coding,phyloP100way_vertebrate,phyloP100way_vertebrate_rankscore,phastCons100way_vertebrate,phastCons100way_vertebrate_rankscore,TWINSUK_AC,TWINSUK_AF,ALSPAC_AC,ALSPAC_AF,UK10K_AC,UK10K_AF,gnomAD_exomes_controls_AC,gnomAD_exomes_controls_AN,gnomAD_exomes_controls_AF,gnomAD_exomes_controls_nhomalt,gnomAD_exomes_controls_POPMAX_AC,gnomAD_exomes_controls_POPMAX_AN,gnomAD_exomes_controls_POPMAX_AF,gnomAD_exomes_controls_POPMAX_nhomalt,Interpro_domain,GTEx_V8_gene,GTEx_V8_tissue'}
   merged: {type: 'boolean?', doc: "Set to true if merged cache used", default: true}
   cadd_indels: {type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin\
-      \ file and index containing CADD indel annotations", "sbg:suggestedValue": {
-      class: File, path: 632a2b417535110eb78312a6, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz,
-      secondaryFiles: [{class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz.tbi}]}}
+      \ file and index containing CADD indel annotations"}
   cadd_snvs: {type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin file\
-      \ and index containing CADD SNV annotations", "sbg:suggestedValue": {class: File,
-      path: 632a2b417535110eb78312a4, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz,
-      secondaryFiles: [{class: File, path: 632a2b417535110eb78312a3, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz.tbi}]}}
+      \ and index containing CADD SNV annotations"}
   intervar: {type: 'File?', doc: "Intervar vcf-formatted file. Exonic SNVs only -\
       \ for more comprehensive run InterVar. See docs for custom build instructions",
-    secondaryFiles: [.tbi], "sbg:suggestedValue": {class: File, path: 633348619968f3738e4ec4b5,
-      name: Exons.all.hg38.intervar.2021-07-31.vcf.gz, secondaryFiles: [{class: File,
-          path: 633348619968f3738e4ec4b6, name: Exons.all.hg38.intervar.2021-07-31.vcf.gz.tbi}]}}
+    secondaryFiles: [.tbi]}
 
 outputs:
   collectvariantcallingmetrics: {type: 'File[]', doc: 'Variant calling summary and
@@ -293,5 +282,5 @@ hints:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.0.0'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.1.0'
   label: github-release
