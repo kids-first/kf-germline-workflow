@@ -109,7 +109,7 @@ user must provide the associated gVCF in the `input_gvcf` input.
 
         Recommended:
         - `vep_cache`: TAR.GZ cache from ensembl/local converted cache
-        - `gnomad_annotation_vcf`: gnomAD VCF used for annotation
+        - `echtvar_anno_zips`: echtvar-formatted gnomAD v3.1.1 reference. See annotation docs for more info
 
         Optional:
         - `clinvar_annotation_vcf`: ClinVar VCF used for annotation
