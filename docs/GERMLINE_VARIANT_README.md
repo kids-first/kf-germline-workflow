@@ -7,7 +7,7 @@
 The Kids First Data Resource Center (KFDRC) Germline Variant Workflow is
 a common workflow language (CWL) implmentation to generate variant calls from
 an aligned reads BAM or CRAM file. The workflow makes use of copy number,
-single nucleotide, and structural variant calling software to call varaiants.
+single nucleotide, and structural variant calling software to call variants.
 Annotation is performed on the single nucleotide and structural variants.
 
 ## Relevant Softwares and Versions
@@ -24,23 +24,19 @@ Annotation is performed on the single nucleotide and structural variants.
 ### Annotators
 
 - [Ensembl VEP](https://github.com/Ensembl/ensembl-vep): `105`
-- [CADD](https://cadd.gs.washington.edu/): `1.6`
 - [gnomAD](https://gnomad.broadinstitute.org/): `3.1.1`
-- [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/): `20220507`
-- [InterVar](https://github.com/WGLab/InterVar): `2.2.1`
-- [dbNSFP](http://database.liulab.science/dbNSFP#intro): `v4.3a`
 - [AnnotSV](https://github.com/lgmgeo/AnnotSV/): `3.1.1`
 
 
-| Method    | CNV | SNV | SV | Annotation                              |
-|-----------|:---:|:---:|:--:|-----------------------------------------|
-| CNVnator  |  x  |     |    |                                         |
-| GATK gCNV |  x  |     |    |                                         |
-| Freebayes |     |  x  |    | VEP/CADD/gnomAD/ClinVar/InterVar/dbNSFP |
-| GATK gSNV |     |  x  |    | VEP/CADD/gnomAD/ClinVar/InterVar/dbNSFP |
-| Strelka2  |     |  x  |    | VEP/CADD/gnomAD/ClinVar/InterVar/dbNSFP |
-| Manta     |     |     |  x | AnnotSV                                 |
-| SVaba     |     |     |  x | AnnotSV                                 |
+| Method    | CNV | SNV | SV | Annotation |
+|-----------|:---:|:---:|:--:|------------|
+| CNVnator  |  x  |     |    |            |
+| GATK gCNV |  x  |     |    |            |
+| Freebayes |     |  x  |    | VEP/gnomAD |
+| GATK gSNV |     |  x  |    | VEP/gnomAD |
+| Strelka2  |     |  x  |    | VEP/gnomAD |
+| Manta     |     |     |  x | AnnotSV    |
+| SVaba     |     |     |  x | AnnotSV    |
 
 ### CNV
 
@@ -110,9 +106,13 @@ user must provide the associated gVCF in the `input_gvcf` input.
         - `one_thousand_genomes_resource_vcf`: Population resource used for SNP recalibration; available from GATK
         - `ped`: Ped file to establish familial relationship. For single sample, this file is a single line. For example, if you are handing in only a single CRAM from NA12878, the ped file would look like this: `NA128  NA12878 0       0       2       2`
     - Annotation
-        - `gnomad_annotation_vcf`: gnomAD VCF used for annotation
-        - `clinvar_annotation_vcf`: ClinVar VCF used for annotation
+
+        Recommended:
         - `vep_cache`: TAR.GZ cache from ensembl/local converted cache
+        - `echtvar_anno_zips`: echtvar-formatted gnomAD v3.1.1 reference. See annotation docs for more info
+
+        Optional:
+        - `clinvar_annotation_vcf`: ClinVar VCF used for annotation
         - `dbnsfp`: VEP-formatted plugin file, index, and readme file containing dbNSFP annotations
         - `cadd_indels`: VEP-formatted plugin file and index containing CADD indel annotations
         - `cadd_snvs`: VEP-formatted plugin file and index containing CADD SNV annotations
@@ -146,7 +146,7 @@ user must provide the associated gVCF in the `input_gvcf` input.
     - Strelka2
         - `strelka2_prepass_variants`: Raw variants output from Strelka2
         - `strelka2_gvcfs`: gVCF output from Strelka2
-    - Annotation (VEP/CADD/gnomAD/ClinVar/InterVar/dbNSFP)
+    - Annotation (VEP/gnomAD)
         - `vep_annotated_gatk_vcf`: VQSR, Hard-filtered, and VEP annotated known sites VCF
         - `vep_annotated_freebayes_vcf`: Quality filtered and VEP annotated `freebayes_unfiltered_vcf`
         - `vep_annotated_strelka_vcf`: Pass filtered and VEP annotated `strelka2_prepass_variants`
@@ -169,6 +169,6 @@ user must provide the associated gVCF in the `input_gvcf` input.
     - [Common Workflow Language reference implementation (cwltool)](https://github.com/common-workflow-language/cwltool/)
 
 ## References
-- KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/
+- KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
 - Cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
 - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/

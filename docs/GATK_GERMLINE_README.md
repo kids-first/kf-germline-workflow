@@ -1,7 +1,7 @@
 # Kids First DRC Single Sample Genotyping Workflow
-Kids First Data Resource Center Single Sample Genotyping Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc_jointgenotyping_refinement_workflow.cwl).
+Kids First Data Resource Center Single Sample Genotyping Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc-jointgenotyping-refinement-workflow.cwl).
 While the Joint Genotyping Workflow is meant to be used with trios, this workflow is meant for processing single samples.
-The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP bcftools (see [Kids First DRC Germline SNV Annotation Workflow docs](https://github.com/kids-first/kf-germline-workflow/blob/master/docs/GERMLINE_SNV_ANNOT_README.md) ).
+The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP bcftools (see [Kids First DRC Germline SNV Annotation Workflow docs](https://github.com/kids-first/kf-annotation-tools/blob/v1.1.0/docs/GERMLINE_SNV_ANNOT_README.md) ).
 Unlike the Joint Genotyping Workflow, a germline-oriented [GATK hard filtering process](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants) is performed and CalculateGenotypePosteriors has been removed.
 While somatic samples can be run through this workflow, be wary that the filtering process is specifically tuned for germline data.
 
@@ -19,7 +19,7 @@ Single 6 GB gVCF on spot instances: 420 minutes & $4.00
 1. Here we recommend to use GRCh38 as reference genome to do the analysis, positions in gVCF should be GRCh38 too.
 1. Reference locations:
     - https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/
-    - kfdrc bucket: s3://kids-first-seq-data/broad-references/
+    - kfdrc bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
     - cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
 1. Suggested inputs:
     -  Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz
@@ -36,7 +36,8 @@ Single 6 GB gVCF on spot instances: 420 minutes & $4.00
     -  wgs_evaluation_regions.hg38.interval_list
     -  homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz, from ftp://ftp.ensembl.org/pub/release-105/variation/indexed_vep_cache/, then indexed using `convert_cache.pl`
         See germline annotation docs linked above.
-    -  gnomad_3.1.1.vwb_subset.vcf.gz
+    -  gnomad_3.1.1.custom.echtvar.zip
+1. Optional inputs:
     -  clinvar_20220507_chr.vcf.gz
     -  dbNSFP4.3a_grch38.gz
     -  CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz

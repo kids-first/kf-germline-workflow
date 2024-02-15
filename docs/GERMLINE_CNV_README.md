@@ -74,6 +74,6 @@ https://github.com/broadinstitute/gatk/blob/master/docs/CNV/germline-cnv-caller-
     - [Common Workflow Language reference implementation (cwltool)](https://github.com/common-workflow-language/cwltool/)
 
 ## References
-- KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/
+- KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
 - Cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
 - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/

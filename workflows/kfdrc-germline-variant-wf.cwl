@@ -12,7 +12,7 @@ doc: |
   The Kids First Data Resource Center (KFDRC) Germline Variant Workflow is
   a common workflow language (CWL) implmentation to generate variant calls from
   an aligned reads BAM or CRAM file. The workflow makes use of copy number,
-  single nucleotide, and structural variant calling software to call varaiants.
+  single nucleotide, and structural variant calling software to call variants.
   Annotation is performed on the single nucleotide and structural variants.
 
   ## Relevant Softwares and Versions
@@ -29,23 +29,19 @@ doc: |
   ### Annotators
 
   - [Ensembl VEP](https://github.com/Ensembl/ensembl-vep): `105`
-  - [CADD](https://cadd.gs.washington.edu/): `1.6`
   - [gnomAD](https://gnomad.broadinstitute.org/): `3.1.1`
-  - [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/): `20220507`
-  - [InterVar](https://github.com/WGLab/InterVar): `2.2.1`
-  - [dbNSFP](http://database.liulab.science/dbNSFP#intro): `v4.3a`
   - [AnnotSV](https://github.com/lgmgeo/AnnotSV/): `3.1.1`
 
 
-  | Method    | CNV | SNV | SV | Annotation                              |
-  |-----------|:---:|:---:|:--:|-----------------------------------------|
-  | CNVnator  |  x  |     |    |                                         |
-  | GATK gCNV |  x  |     |    |                                         |
-  | Freebayes |     |  x  |    | VEP/CADD/gnomAD/ClinVar/InterVar/dbNSFP |
-  | GATK gSNV |     |  x  |    | VEP/CADD/gnomAD/ClinVar/InterVar/dbNSFP |
-  | Strelka2  |     |  x  |    | VEP/CADD/gnomAD/ClinVar/InterVar/dbNSFP |
-  | Manta     |     |     |  x | AnnotSV                                 |
-  | SVaba     |     |     |  x | AnnotSV                                 |
+  | Method    | CNV | SNV | SV | Annotation |
+  |-----------|:---:|:---:|:--:|------------|
+  | CNVnator  |  x  |     |    |            |
+  | GATK gCNV |  x  |     |    |            |
+  | Freebayes |     |  x  |    | VEP/gnomAD |
+  | GATK gSNV |     |  x  |    | VEP/gnomAD |
+  | Strelka2  |     |  x  |    | VEP/gnomAD |
+  | Manta     |     |     |  x | AnnotSV    |
+  | SVaba     |     |     |  x | AnnotSV    |
 
   ### CNV
 
@@ -115,9 +111,13 @@ doc: |
           - `one_thousand_genomes_resource_vcf`: Population resource used for SNP recalibration; available from GATK
           - `ped`: Ped file to establish familial relationship. For single sample, this file is a single line. For example, if you are handing in only a single CRAM from NA12878, the ped file would look like this: `NA128  NA12878 0       0       2       2`
       - Annotation
-          - `gnomad_annotation_vcf`: gnomAD VCF used for annotation
-          - `clinvar_annotation_vcf`: ClinVar VCF used for annotation
+
+          Recommended:
           - `vep_cache`: TAR.GZ cache from ensembl/local converted cache
+          - `gnomad_annotation_vcf`: gnomAD VCF used for annotation
+
+          Optional:
+          - `clinvar_annotation_vcf`: ClinVar VCF used for annotation
           - `dbnsfp`: VEP-formatted plugin file, index, and readme file containing dbNSFP annotations
           - `cadd_indels`: VEP-formatted plugin file and index containing CADD indel annotations
           - `cadd_snvs`: VEP-formatted plugin file and index containing CADD SNV annotations
@@ -151,7 +151,7 @@ doc: |
       - Strelka2
           - `strelka2_prepass_variants`: Raw variants output from Strelka2
           - `strelka2_gvcfs`: gVCF output from Strelka2
-      - Annotation (VEP/CADD/gnomAD/ClinVar/InterVar/dbNSFP)
+      - Annotation (VEP/gnomAD)
           - `vep_annotated_gatk_vcf`: VQSR, Hard-filtered, and VEP annotated known sites VCF
           - `vep_annotated_freebayes_vcf`: Quality filtered and VEP annotated `freebayes_unfiltered_vcf`
           - `vep_annotated_strelka_vcf`: Pass filtered and VEP annotated `strelka2_prepass_variants`
@@ -174,7 +174,7 @@ doc: |
       - [Common Workflow Language reference implementation (cwltool)](https://github.com/common-workflow-language/cwltool/)
 
   ## References
-  - KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/
+  - KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
   - Cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
   - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/
 requirements:
@@ -205,56 +205,41 @@ inputs:
     doc: |
       The reference genome fasta (and associated indicies) to which the germline BAM was aligned.
     "sbg:fileTypes": "FASTA, FA"
-    "sbg:suggestedValue": {class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta,
-      secondaryFiles: [{class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict},
-        {class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai},
-        {class: File, path: 60639019357c3a53540ca7eb, name: Homo_sapiens_assembly38.fasta.64.alt},
-        {class: File, path: 6063901f357c3a53540ca84d, name: Homo_sapiens_assembly38.fasta.64.amb},
-        {class: File, path: 6063901f357c3a53540ca849, name: Homo_sapiens_assembly38.fasta.64.ann},
-        {class: File, path: 6063901d357c3a53540ca81e, name: Homo_sapiens_assembly38.fasta.64.bwt},
-        {class: File, path: 6063901c357c3a53540ca801, name: Homo_sapiens_assembly38.fasta.64.pac},
-        {class: File, path: 60639015357c3a53540ca7a9, name: Homo_sapiens_assembly38.fasta.64.sa}]}
-  aligned_reads: {type: 'File', secondaryFiles: [{pattern: '.bai', required: false},
-      {pattern: '^.bai', required: false}, {pattern: '.crai', required: false}, {
-        pattern: '^.crai', required: false}], doc: "Aligned Reads file(s) from which\
-      \ Germline Variants will be discovered", "sbg:fileTypes": "BAM, CRAM"}
-  input_gvcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: "gVCF associated with input_reads. Providing this value will skip gVCF creation\
-      \ for the GATK pipeline.", "sbg:fileTypes": "VCF.GZ"}
-  output_basename: {type: 'string', doc: "String value to use for the basename of\
-      \ all outputs"}
-  cnv_intervals_padding: {type: 'int?', doc: "Length (in bp) of the padding regions\
-      \ on each side of the intervals. This must be the same value used for all case\
-      \ samples."}
-  cnv_intervals_bin_length: {type: 'int?', doc: "Length (in bp) of the bins. If zero,\
-      \ no binning will be performed."}
-  cnv_intervals: {type: 'File', doc: "Picard or GATK-style interval list of regions\
-      \ to process. For WGS, this should typically only include the chromosomes of\
-      \ interest.", "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
-  cnv_blacklist_intervals: {type: 'File?', doc: "Picard or GATK-style interval list\
-      \ of regions to ignore.", "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
-  snv_calling_regions: {type: 'File', doc: "File, in BED or INTERVALLIST format, containing\
-      \ a set of genomic regions over which variants will be called.", "sbg:suggestedValue": {
-      class: File, path: 60639018357c3a53540ca7df, name: wgs_calling_regions.hg38.interval_list}}
-  snv_unpadded_intervals_file: {type: File, doc: "Handcurated intervals over which\
-      \ the gVCF will be genotyped to create a VCF.", "sbg:suggestedValue": {class: File,
-      path: 5f500135e4b0370371c051b1, name: hg38.even.handcurated.20k.intervals}}
-  snv_evaluation_interval_list: {type: File, doc: 'wgs_evaluation_regions.hg38.interval_list',
-    "sbg:suggestedValue": {class: File, path: 60639017357c3a53540ca7d3, name: wgs_evaluation_regions.hg38.interval_list}}
-  snv_intervals_break_bands_at_multiples_of: {type: 'int?', default: 1000000, doc: "If\
-      \ set to a positive value will create a new interval list with the original\
-      \ intervals broken up at integer multiples of this value. Set to 0 to NOT break\
-      \ up intervals."}
-  snv_intervals_scatter_count: {type: 'int?', default: 50, doc: "Total number of scatter\
-      \ intervals and beds to make"}
+    "sbg:suggestedValue": {class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta, secondaryFiles: [{class: File,
+          path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}, {class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai},
+        {class: File, path: 60639019357c3a53540ca7eb, name: Homo_sapiens_assembly38.fasta.64.alt}, {class: File, path: 6063901f357c3a53540ca84d,
+          name: Homo_sapiens_assembly38.fasta.64.amb}, {class: File, path: 6063901f357c3a53540ca849, name: Homo_sapiens_assembly38.fasta.64.ann},
+        {class: File, path: 6063901d357c3a53540ca81e, name: Homo_sapiens_assembly38.fasta.64.bwt}, {class: File, path: 6063901c357c3a53540ca801,
+          name: Homo_sapiens_assembly38.fasta.64.pac}, {class: File, path: 60639015357c3a53540ca7a9, name: Homo_sapiens_assembly38.fasta.64.sa}]}
+  aligned_reads: {type: 'File', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai',
+        required: false}, {pattern: '^.crai', required: false}], doc: "Aligned Reads file(s) from which Germline Variants will be
+      discovered", "sbg:fileTypes": "BAM, CRAM"}
+  input_gvcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "gVCF associated with input_reads. Providing
+      this value will skip gVCF creation for the GATK pipeline.", "sbg:fileTypes": "VCF.GZ"}
+  output_basename: {type: 'string', doc: "String value to use for the basename of all outputs"}
+  cnv_intervals_padding: {type: 'int?', doc: "Length (in bp) of the padding regions on each side of the intervals. This must be the
+      same value used for all case samples."}
+  cnv_intervals_bin_length: {type: 'int?', doc: "Length (in bp) of the bins. If zero, no binning will be performed."}
+  cnv_intervals: {type: 'File', doc: "Picard or GATK-style interval list of regions to process. For WGS, this should typically only
+      include the chromosomes of interest.", "sbg:fileTypes": "INTERVALS, INTERVAL_LIST, LIST"}
+  cnv_blacklist_intervals: {type: 'File?', doc: "Picard or GATK-style interval list of regions to ignore.", "sbg:fileTypes": "INTERVALS,
+      INTERVAL_LIST, LIST"}
+  snv_calling_regions: {type: 'File', doc: "File, in BED or INTERVALLIST format, containing a set of genomic regions over which variants
+      will be called.", "sbg:suggestedValue": {class: File, path: 60639018357c3a53540ca7df, name: wgs_calling_regions.hg38.interval_list}}
+  snv_unpadded_intervals_file: {type: File, doc: "Handcurated intervals over which the gVCF will be genotyped to create a VCF.", "sbg:suggestedValue": {
+      class: File, path: 5f500135e4b0370371c051b1, name: hg38.even.handcurated.20k.intervals}}
+  snv_evaluation_interval_list: {type: File, doc: 'wgs_evaluation_regions.hg38.interval_list', "sbg:suggestedValue": {class: File,
+      path: 60639017357c3a53540ca7d3, name: wgs_evaluation_regions.hg38.interval_list}}
+  snv_intervals_break_bands_at_multiples_of: {type: 'int?', default: 1000000, doc: "If set to a positive value will create a new interval
+      list with the original intervals broken up at integer multiples of this value. Set to 0 to NOT break up intervals."}
+  snv_intervals_scatter_count: {type: 'int?', default: 50, doc: "Total number of scatter intervals and beds to make"}
   snv_intervals_subdivision_mode:
     type:
     - 'null'
     - type: enum
       name: subdivision_mode
-      symbols: ["INTERVAL_SUBDIVISION", "BALANCING_WITHOUT_INTERVAL_SUBDIVISION",
-        "BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW", "INTERVAL_COUNT",
-        "INTERVAL_COUNT_WITH_DISTRIBUTED_REMAINDER"]
+      symbols: ["INTERVAL_SUBDIVISION", "BALANCING_WITHOUT_INTERVAL_SUBDIVISION", "BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW",
+        "INTERVAL_COUNT", "INTERVAL_COUNT_WITH_DISTRIBUTED_REMAINDER"]
     default: "BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW"
     doc: |
       The mode used to scatter the interval list:
@@ -274,9 +259,8 @@ inputs:
       - INTERVAL_COUNT_WITH_DISTRIBUTED_REMAINDER (Scatter the interval list into
         similarly sized interval lists (by interval count, not by base count).
         Resulting interval lists will contain similar number of intervals.)
-  annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV\
-      \ annotations", "sbg:fileTypes": "TAR, TAR.GZ, TGZ", "sbg:suggestedValue": {
-      class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
+  annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV annotations", "sbg:fileTypes": "TAR, TAR.GZ,
+      TGZ", "sbg:suggestedValue": {class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
   annotsv_genome_build:
     type:
     - 'null'
@@ -286,178 +270,114 @@ inputs:
     doc: |
       The genome build of the reference fasta. AnnotSV is capable of annotating the following genomes: "GRCh37","GRCh38","mm9","mm10".
   biospecimen_name: {type: 'string', doc: "String name of biospcimen"}
-  cnvnator_bin_sizes: {type: 'int[]?', default: [100, 200, 300, 400, 500], doc: "Candidate\
-      \ bin sizes for analysis. Workflow will evaluate the bin sizes and select the\
-      \ best performing bin. Bin size should be equal to a whole number of 100 bases\
-      \ (e.g., 2500, 3700,\u2026)"}
-  cnvnator_disable_gc_correction: {type: 'boolean?', doc: "Do not to use GC corrected\
-      \ RD signal"}
-  contig_ploidy_model_tar: {type: 'File', doc: "The contig-ploidy model directory\
-      \ generated by the DetermineGermlineContigPloidyCohortMode task in the Cohort\
-      \ workflow.", "sbg:fileTypes": "TAR.GZ"}
-  gcnv_model_tars: {type: 'File[]', doc: "Array of tars of the contig-ploidy model\
-      \ directories generated by the GermlineCNVCallerCohortMode tasks in the Cohort\
-      \ workflow.", "sbg:fileTypes": "TAR.GZ"}
-  disabled_read_filters_for_collect_counts: {type: 'string[]?', doc: "Read filters\
-      \ to be disabled before analysis by GATK CollectReadCounts."}
+  cnvnator_bin_sizes: {type: 'int[]?', default: [100, 200, 300, 400, 500], doc: "Candidate bin sizes for analysis. Workflow will evaluate
+      the bin sizes and select the best performing bin. Bin size should be equal to a whole number of 100 bases (e.g., 2500, 3700,…)"}
+  cnvnator_disable_gc_correction: {type: 'boolean?', doc: "Do not to use GC corrected RD signal"}
+  contig_ploidy_model_tar: {type: 'File', doc: "The contig-ploidy model directory generated by the DetermineGermlineContigPloidyCohortMode
+      task in the Cohort workflow.", "sbg:fileTypes": "TAR.GZ"}
+  gcnv_model_tars: {type: 'File[]', doc: "Array of tars of the contig-ploidy model directories generated by the GermlineCNVCallerCohortMode
+      tasks in the Cohort workflow.", "sbg:fileTypes": "TAR.GZ"}
+  disabled_read_filters_for_collect_counts: {type: 'string[]?', doc: "Read filters to be disabled before analysis by GATK CollectReadCounts."}
   ploidy_mapping_error_rate: {type: 'float?', doc: "Typical mapping error rate."}
-  ploidy_sample_psi_scale: {type: 'float?', doc: "Prior scale of the sample-specific\
-      \ correction to the coverage unexplained variance."}
-  gcnv_p_alt: {type: 'float?', doc: "Total prior probability of alternative copy-number\
-      \ states (the reference copy-number is set to the contig integer ploidy)"}
-  gcnv_cnv_coherence_length: {type: 'float?', doc: "Coherence length of CNV events\
-      \ (in the units of bp)."}
+  ploidy_sample_psi_scale: {type: 'float?', doc: "Prior scale of the sample-specific correction to the coverage unexplained variance."}
+  gcnv_p_alt: {type: 'float?', doc: "Total prior probability of alternative copy-number states (the reference copy-number is set to
+      the contig integer ploidy)"}
+  gcnv_cnv_coherence_length: {type: 'float?', doc: "Coherence length of CNV events (in the units of bp)."}
   gcnv_max_copy_number: {type: 'int?', doc: "Highest allowed copy-number state."}
   gcnv_mapping_error_rate: {type: 'float?', doc: "Typical mapping error rate."}
-  gcnv_sample_psi_scale: {type: 'float?', doc: "Typical scale of sample-specific correction\
-      \ to the unexplained variance."}
-  gcnv_depth_correction_tau: {type: 'float?', doc: "Precision of read depth pinning\
-      \ to its global value."}
-  gcnv_copy_number_posterior_expectation_mode: {type: 'string?', doc: "The strategy\
-      \ for calculating copy number posterior expectations in the coverage denoising\
-      \ model."}
-  gcnv_active_class_padding_hybrid_mode: {type: 'int?', doc: "If copy-number-posterior-expectation-mode\
-      \ is set to HYBRID, CNV-active intervals determined at any time will be padded\
-      \ by this value (in the units of bp) in order to obtain the set of intervals\
-      \ on which copy number posterior expectation is performed exactly."}
+  gcnv_sample_psi_scale: {type: 'float?', doc: "Typical scale of sample-specific correction to the unexplained variance."}
+  gcnv_depth_correction_tau: {type: 'float?', doc: "Precision of read depth pinning to its global value."}
+  gcnv_copy_number_posterior_expectation_mode: {type: 'string?', doc: "The strategy for calculating copy number posterior expectations
+      in the coverage denoising model."}
+  gcnv_active_class_padding_hybrid_mode: {type: 'int?', doc: "If copy-number-posterior-expectation-mode is set to HYBRID, CNV-active
+      intervals determined at any time will be padded by this value (in the units of bp) in order to obtain the set of intervals on
+      which copy number posterior expectation is performed exactly."}
   gcnv_learning_rate: {type: 'float?', doc: "Adamax optimizer learning rate."}
-  gcnv_adamax_beta_1: {type: 'float?', doc: "Adamax optimizer first moment estimation\
-      \ forgetting factor."}
-  gcnv_adamax_beta_2: {type: 'float?', doc: "Adamax optimizer second moment estimation\
-      \ forgetting factor."}
-  gcnv_log_emission_samples_per_round: {type: 'int?', doc: "Log emission samples drawn\
-      \ per round of sampling."}
-  gcnv_log_emission_sampling_median_rel_error: {type: 'float?', doc: "Maximum tolerated\
-      \ median relative error in log emission sampling."}
-  gcnv_log_emission_sampling_rounds: {type: 'int?', doc: "Log emission maximum sampling\
-      \ rounds."}
-  gcnv_max_advi_iter_first_epoch: {type: 'int?', doc: "Maximum ADVI iterations in\
-      \ the first epoch."}
-  gcnv_max_advi_iter_subsequent_epochs: {type: 'int?', doc: "Maximum ADVI iterations\
-      \ in subsequent epochs."}
+  gcnv_adamax_beta_1: {type: 'float?', doc: "Adamax optimizer first moment estimation forgetting factor."}
+  gcnv_adamax_beta_2: {type: 'float?', doc: "Adamax optimizer second moment estimation forgetting factor."}
+  gcnv_log_emission_samples_per_round: {type: 'int?', doc: "Log emission samples drawn per round of sampling."}
+  gcnv_log_emission_sampling_median_rel_error: {type: 'float?', doc: "Maximum tolerated median relative error in log emission sampling."}
+  gcnv_log_emission_sampling_rounds: {type: 'int?', doc: "Log emission maximum sampling rounds."}
+  gcnv_max_advi_iter_first_epoch: {type: 'int?', doc: "Maximum ADVI iterations in the first epoch."}
+  gcnv_max_advi_iter_subsequent_epochs: {type: 'int?', doc: "Maximum ADVI iterations in subsequent epochs."}
   gcnv_min_training_epochs: {type: 'int?', doc: "Minimum number of training epochs."}
   gcnv_max_training_epochs: {type: 'int?', doc: "Maximum number of training epochs."}
   gcnv_initial_temperature: {type: 'float?', doc: "Initial temperature (for DA-ADVI)."}
-  gcnv_num_thermal_advi_iters: {type: 'int?', doc: "Number of thermal ADVI iterations\
-      \ (for DA-ADVI)."}
-  gcnv_convergence_snr_averaging_window: {type: 'int?', doc: "Averaging window for\
-      \ calculating training signal-to-noise ratio (SNR) for convergence checking."}
-  gcnv_convergence_snr_trigger_threshold: {type: 'float?', doc: "The number of ADVI\
-      \ iterations during which the SNR is required to stay below the set threshold\
-      \ for convergence."}
-  gcnv_convergence_snr_countdown_window: {type: 'int?', doc: "The SNR threshold to\
-      \ be reached before triggering the convergence countdown."}
-  gcnv_max_calling_iters: {type: 'int?', doc: "Maximum number of internal self-consistency\
-      \ iterations within each calling step."}
-  gcnv_caller_update_convergence_threshold: {type: 'float?', doc: "Maximum tolerated\
-      \ calling update size for convergence."}
-  gcnv_caller_internal_admixing_rate: {type: 'float?', doc: "Admixing ratio of new\
-      \ and old called posteriors (between 0 and 1; larger values implies using more\
-      \ of the new posterior and less of the old posterior) for internal convergence\
-      \ loops."}
-  gcnv_caller_external_admixing_rate: {type: 'float?', doc: "Admixing ratio of new\
-      \ and old called posteriors (between 0 and 1; larger values implies using more\
-      \ of the new posterior and less of the old posterior) after convergence."}
-  ref_copy_number_autosomal_contigs: {type: 'int?', doc: "Reference copy-number on\
-      \ autosomal intervals."}
-  allosomal_contigs_args: {type: 'string[]?', doc: "Contigs to treat as allosomal\
-      \ (i.e. choose their reference copy-number allele according to the sample karyotype)."}
-  maximum_number_events_per_sample: {type: 'int?', default: 120, doc: "Maximum number\
-      \ of events threshold for doing sample QC (recommended for WES is ~100)"}
-  contamination: {type: 'float?', doc: "Precalculated contamination value. Providing\
-      \ the value here will skip the run of VerifyBAMID and use the provided value\
-      \ as ground truth."}
-  contamination_sites_bed: {type: 'File', doc: ".bed file for markers used in this\
-      \ analysis,format(chr\tpos-1\tpos\trefAllele\taltAllele)", "sbg:suggestedValue": {
-      class: File, path: 6063901e357c3a53540ca833, name: Homo_sapiens_assembly38.contam.bed}}
-  contamination_sites_mu: {type: 'File', doc: ".mu matrix file of genotype matrix",
-    "sbg:suggestedValue": {class: File, path: 60639017357c3a53540ca7cd, name: Homo_sapiens_assembly38.contam.mu}}
-  contamination_sites_ud: {type: 'File', doc: ".UD matrix file from SVD result of\
-      \ genotype matrix", "sbg:suggestedValue": {class: File, path: 6063901f357c3a53540ca84f,
-      name: Homo_sapiens_assembly38.contam.UD}}
-  axiomPoly_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz', "sbg:suggestedValue": {
-      class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz,
+  gcnv_num_thermal_advi_iters: {type: 'int?', doc: "Number of thermal ADVI iterations (for DA-ADVI)."}
+  gcnv_convergence_snr_averaging_window: {type: 'int?', doc: "Averaging window for calculating training signal-to-noise ratio (SNR)
+      for convergence checking."}
+  gcnv_convergence_snr_trigger_threshold: {type: 'float?', doc: "The number of ADVI iterations during which the SNR is required to
+      stay below the set threshold for convergence."}
+  gcnv_convergence_snr_countdown_window: {type: 'int?', doc: "The SNR threshold to be reached before triggering the convergence countdown."}
+  gcnv_max_calling_iters: {type: 'int?', doc: "Maximum number of internal self-consistency iterations within each calling step."}
+  gcnv_caller_update_convergence_threshold: {type: 'float?', doc: "Maximum tolerated calling update size for convergence."}
+  gcnv_caller_internal_admixing_rate: {type: 'float?', doc: "Admixing ratio of new and old called posteriors (between 0 and 1; larger
+      values implies using more of the new posterior and less of the old posterior) for internal convergence loops."}
+  gcnv_caller_external_admixing_rate: {type: 'float?', doc: "Admixing ratio of new and old called posteriors (between 0 and 1; larger
+      values implies using more of the new posterior and less of the old posterior) after convergence."}
+  ref_copy_number_autosomal_contigs: {type: 'int?', doc: "Reference copy-number on autosomal intervals."}
+  allosomal_contigs_args: {type: 'string[]?', doc: "Contigs to treat as allosomal (i.e. choose their reference copy-number allele
+      according to the sample karyotype)."}
+  maximum_number_events_per_sample: {type: 'int?', default: 120, doc: "Maximum number of events threshold for doing sample QC (recommended
+      for WES is ~100)"}
+  contamination: {type: 'float?', doc: "Precalculated contamination value. Providing the value here will skip the run of VerifyBAMID
+      and use the provided value as ground truth."}
+  contamination_sites_bed: {type: 'File', doc: ".bed file for markers used in this analysis,format(chr\tpos-1\tpos\trefAllele\taltAllele)",
+    "sbg:suggestedValue": {class: File, path: 6063901e357c3a53540ca833, name: Homo_sapiens_assembly38.contam.bed}}
+  contamination_sites_mu: {type: 'File', doc: ".mu matrix file of genotype matrix", "sbg:suggestedValue": {class: File, path: 60639017357c3a53540ca7cd,
+      name: Homo_sapiens_assembly38.contam.mu}}
+  contamination_sites_ud: {type: 'File', doc: ".UD matrix file from SVD result of genotype matrix", "sbg:suggestedValue": {class: File,
+      path: 6063901f357c3a53540ca84f, name: Homo_sapiens_assembly38.contam.UD}}
+  axiomPoly_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz',
+    "sbg:suggestedValue": {class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz,
       secondaryFiles: [{class: File, path: 6063901d357c3a53540ca81b, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}]}}
-  dbsnp_vcf: {type: File, doc: 'Homo_sapiens_assembly38.dbsnp138.vcf', secondaryFiles: [
-      {pattern: '.idx', required: true}], "sbg:suggestedValue": {class: File, path: 6063901f357c3a53540ca84b,
-      name: Homo_sapiens_assembly38.dbsnp138.vcf, secondaryFiles: [{class: File, path: 6063901e357c3a53540ca834,
+  dbsnp_vcf: {type: File, doc: 'Homo_sapiens_assembly38.dbsnp138.vcf', secondaryFiles: [{pattern: '.idx', required: true}], "sbg:suggestedValue": {
+      class: File, path: 6063901f357c3a53540ca84b, name: Homo_sapiens_assembly38.dbsnp138.vcf, secondaryFiles: [{class: File, path: 6063901e357c3a53540ca834,
           name: Homo_sapiens_assembly38.dbsnp138.vcf.idx}]}}
-  hapmap_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: 'Hapmap genotype SNP input vcf', "sbg:suggestedValue": {class: File, path: 60639016357c3a53540ca7be,
-      name: hapmap_3.3.hg38.vcf.gz, secondaryFiles: [{class: File, path: 60639016357c3a53540ca7c5,
+  hapmap_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: 'Hapmap genotype SNP input vcf', "sbg:suggestedValue": {
+      class: File, path: 60639016357c3a53540ca7be, name: hapmap_3.3.hg38.vcf.gz, secondaryFiles: [{class: File, path: 60639016357c3a53540ca7c5,
           name: hapmap_3.3.hg38.vcf.gz.tbi}]}}
-  mills_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz', "sbg:suggestedValue": {
-      class: File, path: 6063901a357c3a53540ca7f3, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz,
-      secondaryFiles: [{class: File, path: 6063901c357c3a53540ca806, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi}]}}
-  omni_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: '1000G_omni2.5.hg38.vcf.gz', "sbg:suggestedValue": {class: File, path: 6063901e357c3a53540ca835,
-      name: 1000G_omni2.5.hg38.vcf.gz, secondaryFiles: [{class: File, path: 60639016357c3a53540ca7b1,
+  mills_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz',
+    "sbg:suggestedValue": {class: File, path: 6063901a357c3a53540ca7f3, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz, secondaryFiles: [
+        {class: File, path: 6063901c357c3a53540ca806, name: Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi}]}}
+  omni_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: '1000G_omni2.5.hg38.vcf.gz', "sbg:suggestedValue": {
+      class: File, path: 6063901e357c3a53540ca835, name: 1000G_omni2.5.hg38.vcf.gz, secondaryFiles: [{class: File, path: 60639016357c3a53540ca7b1,
           name: 1000G_omni2.5.hg38.vcf.gz.tbi}]}}
-  one_thousand_genomes_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi',
-        required: true}], doc: '1000G_phase1.snps.high_confidence.hg38.vcf.gz, high
-      confidence snps', "sbg:suggestedValue": {class: File, path: 6063901c357c3a53540ca80f,
-      name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz, secondaryFiles: [{class: File,
-          path: 6063901e357c3a53540ca845, name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi}]}}
+  one_thousand_genomes_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: '1000G_phase1.snps.high_confidence.hg38.vcf.gz,
+      high confidence snps', "sbg:suggestedValue": {class: File, path: 6063901c357c3a53540ca80f, name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz,
+      secondaryFiles: [{class: File, path: 6063901e357c3a53540ca845, name: 1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi}]}}
   ped: {type: File, doc: 'Ped file for the family relationship'}
-  snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP\
-      \ VariantRecalibration. If a dataset gives fewer variants than the expected\
-      \ scale, the number of Gaussians for training should be turned down. Lowering\
-      \ the max-Gaussians forces the program to group variants into a smaller number\
-      \ of clusters, which results in more variants per cluster."}
-  indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL\
-      \ VariantRecalibration. If a dataset gives fewer variants than the expected\
-      \ scale, the number of Gaussians for training should be turned down. Lowering\
-      \ the max-Gaussians forces the program to group variants into a smaller number\
-      \ of clusters, which results in more variants per cluster."}
-  bcftools_annot_gnomad_columns: {type: 'string?', doc: "csv string of columns from\
-      \ annotation to port into the input vcf, i.e", default: "INFO/gnomad_3_1_1_AC:=INFO/AC,INFO/gnomad_3_1_1_AN:=INFO/AN,INFO/gnomad_3_1_1_AF:=INFO/AF,INFO/gnomad_3_1_1_nhomalt:=INFO/nhomalt,INFO/gnomad_3_1_1_AC_popmax:=INFO/AC_popmax,INFO/gnomad_3_1_1_AN_popmax:=INFO/AN_popmax,INFO/gnomad_3_1_1_AF_popmax:=INFO/AF_popmax,INFO/gnomad_3_1_1_nhomalt_popmax:=INFO/nhomalt_popmax,INFO/gnomad_3_1_1_AC_controls_and_biobanks:=INFO/AC_controls_and_biobanks,INFO/gnomad_3_1_1_AN_controls_and_biobanks:=INFO/AN_controls_and_biobanks,INFO/gnomad_3_1_1_AF_controls_and_biobanks:=INFO/AF_controls_and_biobanks,INFO/gnomad_3_1_1_AF_non_cancer:=INFO/AF_non_cancer,INFO/gnomad_3_1_1_primate_ai_score:=INFO/primate_ai_score,INFO/gnomad_3_1_1_splice_ai_consequence:=INFO/splice_ai_consequence"}
-  bcftools_annot_clinvar_columns: {type: 'string?', doc: "csv string of columns from\
-      \ annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
-  gnomad_annotation_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: "additional bgzipped annotation vcf file", "sbg:suggestedValue": {class: File,
-      path: 6324ef5ad01163633daa00d8, name: gnomad_3.1.1.vwb_subset.vcf.gz, secondaryFiles: [
-        {class: File, path: 6324ef5ad01163633daa00d7, name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}]}}
-  clinvar_annotation_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: "additional bgzipped annotation vcf file", "sbg:suggestedValue": {class: File,
-      path: 64e4c9732031aa7ce01f86bf, name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [
+  snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP VariantRecalibration. If a dataset gives fewer variants
+      than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces the program
+      to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL VariantRecalibration. If a dataset gives fewer
+      variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces
+      the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  bcftools_annot_clinvar_columns: {type: 'string?', doc: "csv string of columns from annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
+  clinvar_annotation_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "additional bgzipped annotation
+      vcf file", "sbg:suggestedValue": {class: File, path: 64e4c9732031aa7ce01f86bf, name: clinvar_20220507_chr_fixed.vcf.gz, secondaryFiles: [
         {class: File, path: 64e4c97c78c25c546eaa2573, name: clinvar_20220507_chr_fixed.vcf.gz.tbi}]}}
-  vep_buffer_size: {type: 'int?', default: 100000, doc: "Increase or decrease to balance\
-      \ speed and memory usage"}
-  vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache",
-    "sbg:suggestedValue": {class: File, path: 6332f8e47535110eb79c794f, name: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz}}
-  dbnsfp: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}, {pattern: '^.readme.txt',
-        required: true}], doc: "VEP-formatted plugin file, index, and readme file\
-      \ containing dbNSFP annotations", "sbg:suggestedValue": {class: File, path: 63d97e944073196d123db264,
-      name: dbNSFP4.3a_grch38.gz, secondaryFiles: [{class: File, path: 63d97e944073196d123db262,
-          name: dbNSFP4.3a_grch38.gz.tbi}, {class: File, path: 63d97e944073196d123db263,
-          name: dbNSFP4.3a_grch38.readme.txt}]}}
-  dbnsfp_fields: {type: 'string?', doc: "csv string with desired fields to annotate.\
-      \ Use ALL to grab all", default: 'SIFT4G_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,VEST4_score,VEST4_rankscore,MetaSVM_pred,MetaLR_pred,MetaRNN_pred,M-CAP_pred,REVEL_score,REVEL_rankscore,PrimateAI_pred,DEOGEN2_pred,BayesDel_noAF_pred,ClinPred_pred,LIST-S2_pred,Aloft_pred,fathmm-MKL_coding_pred,fathmm-XF_coding_pred,Eigen-phred_coding,Eigen-PC-phred_coding,phyloP100way_vertebrate,phyloP100way_vertebrate_rankscore,phastCons100way_vertebrate,phastCons100way_vertebrate_rankscore,TWINSUK_AC,TWINSUK_AF,ALSPAC_AC,ALSPAC_AF,UK10K_AC,UK10K_AF,gnomAD_exomes_controls_AC,gnomAD_exomes_controls_AN,gnomAD_exomes_controls_AF,gnomAD_exomes_controls_nhomalt,gnomAD_exomes_controls_POPMAX_AC,gnomAD_exomes_controls_POPMAX_AN,gnomAD_exomes_controls_POPMAX_AF,gnomAD_exomes_controls_POPMAX_nhomalt,Interpro_domain,GTEx_V8_gene,GTEx_V8_tissue'}
+  echtvar_anno_zips: {type: 'File[]?', doc: "Annotation ZIP files for echtvar anno", "sbg:suggestedValue": [{class: File, path: 65c64d847dab7758206248c6,
+        name: gnomad.v3.1.1.custom.echtvar.zip}]}
+  vep_buffer_size: {type: 'int?', default: 100000, doc: "Increase or decrease to balance speed and memory usage"}
+  vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache", "sbg:suggestedValue": {class: File, path: 6332f8e47535110eb79c794f,
+      name: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz}}
+  dbnsfp: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}, {pattern: '^.readme.txt', required: true}], doc: "VEP-formatted
+      plugin file, index, and readme file containing dbNSFP annotations"}
+  dbnsfp_fields: {type: 'string?', doc: "csv string with desired fields to annotate. Use ALL to grab all", default: 'SIFT4G_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,VEST4_score,VEST4_rankscore,MetaSVM_pred,MetaLR_pred,MetaRNN_pred,M-CAP_pred,REVEL_score,REVEL_rankscore,PrimateAI_pred,DEOGEN2_pred,BayesDel_noAF_pred,ClinPred_pred,LIST-S2_pred,Aloft_pred,fathmm-MKL_coding_pred,fathmm-XF_coding_pred,Eigen-phred_coding,Eigen-PC-phred_coding,phyloP100way_vertebrate,phyloP100way_vertebrate_rankscore,phastCons100way_vertebrate,phastCons100way_vertebrate_rankscore,TWINSUK_AC,TWINSUK_AF,ALSPAC_AC,ALSPAC_AF,UK10K_AC,UK10K_AF,gnomAD_exomes_controls_AC,gnomAD_exomes_controls_AN,gnomAD_exomes_controls_AF,gnomAD_exomes_controls_nhomalt,gnomAD_exomes_controls_POPMAX_AC,gnomAD_exomes_controls_POPMAX_AN,gnomAD_exomes_controls_POPMAX_AF,gnomAD_exomes_controls_POPMAX_nhomalt,Interpro_domain,GTEx_V8_gene,GTEx_V8_tissue'}
   merged: {type: 'boolean?', doc: "Set to true if merged cache used", default: true}
-  cadd_indels: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: "VEP-formatted plugin file and index containing CADD indel annotations",
-    "sbg:suggestedValue": {class: File, path: 632a2b417535110eb78312a6, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz,
-      secondaryFiles: [{class: File, path: 632a2b417535110eb78312a5, name: CADDv1.6-38-gnomad.genomes.r3.0.indel.tsv.gz.tbi}]}}
-  cadd_snvs: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}],
-    doc: "VEP-formatted plugin file and index containing CADD SNV annotations", "sbg:suggestedValue": {
-      class: File, path: 632a2b417535110eb78312a4, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz,
-      secondaryFiles: [{class: File, path: 632a2b417535110eb78312a3, name: CADDv1.6-38-whole_genome_SNVs.tsv.gz.tbi}]}}
-  intervar: {type: 'File?', doc: "Intervar vcf-formatted file. Exonic SNVs only -\
-      \ for more comprehensive run InterVar. See docs for custom build instructions",
-    secondaryFiles: [{pattern: '.tbi', required: true}], "sbg:suggestedValue": {class: File,
-      path: 633348619968f3738e4ec4b5, name: Exons.all.hg38.intervar.2021-07-31.vcf.gz,
-      secondaryFiles: [{class: File, path: 633348619968f3738e4ec4b6, name: Exons.all.hg38.intervar.2021-07-31.vcf.gz.tbi}]}}
+  cadd_indels: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "VEP-formatted plugin file and index containing
+      CADD indel annotations"}
+  cadd_snvs: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "VEP-formatted plugin file and index containing
+      CADD SNV annotations"}
+  intervar: {type: 'File?', doc: "Intervar vcf-formatted file. Exonic SNVs only - for more comprehensive run InterVar. See docs for
+      custom build instructions", secondaryFiles: [{pattern: '.tbi', required: true}]}
   cnvnator_extract_cores: {type: 'int?', doc: "Cores to allocate to extract reads"}
-  cnvnator_extract_max_memory: {type: 'int?', doc: "Max memory to allocate to extract\
-      \ reads"}
+  cnvnator_extract_max_memory: {type: 'int?', doc: "Max memory to allocate to extract reads"}
   cnvnator_his_cores: {type: 'int?', doc: "Cores to allocate to rd histogram generation"}
-  cnvnator_his_max_memory: {type: 'int?', doc: "Max memory to allocate to rd histogram\
-      \ generation"}
+  cnvnator_his_max_memory: {type: 'int?', doc: "Max memory to allocate to rd histogram generation"}
   cnvnator_stat_cores: {type: 'int?', doc: "Cores to allocate to calculate statistics"}
-  cnvnator_stat_max_memory: {type: 'int?', doc: "Max memory to allocate to calculate\
-      \ statistics"}
+  cnvnator_stat_max_memory: {type: 'int?', doc: "Max memory to allocate to calculate statistics"}
   cnvnator_eval_cores: {type: 'int?', doc: "Cores to allocate to evaluation"}
   cnvnator_eval_max_memory: {type: 'int?', doc: "Max memory to allocate to evaluation"}
   cnvnator_partition_cores: {type: 'int?', doc: "Cores to allocate to partition"}
@@ -466,90 +386,58 @@ inputs:
   cnvnator_call_max_memory: {type: 'int?', doc: "Max memory to allocate to call"}
   cnvnator_vcf_cores: {type: 'int?', doc: "Cores to allocate to vcf creation"}
   cnvnator_vcf_max_memory: {type: 'int?', doc: "Max memory to allocate to vcf creation"}
-  gatk_preprocess_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate\
-      \ to preprocess intervals"}
-  gatk_preprocess_intervals_cores: {type: 'int?', doc: "Minimum reserved number of\
-      \ CPU cores for preprocess intervals"}
-  gatk_collect_read_counts_max_memory: {type: 'int?', doc: "GB of RAM to allocate\
-      \ to collect read counts"}
-  gatk_collect_read_counts_cores: {type: 'int?', doc: "Minimum reserved number of\
-      \ CPU cores for collect read counts"}
-  gatk_dgcp_max_memory: {type: 'int?', doc: "GB of RAM to allocate to determine germline\
-      \ contig ploidy"}
-  gatk_dgcp_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for determine\
-      \ germline contig ploidy"}
-  gatk_scatter_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate to\
-      \ scatter intervals"}
-  gatk_scatter_intervals_cores: {type: 'int?', doc: "Minimum reserved number of CPU\
-      \ cores for scatter intervals"}
-  gatk_germline_cnv_caller_max_memory: {type: 'int?', doc: "GB of RAM to allocate\
-      \ to gCNV caller"}
-  gatk_germline_cnv_caller_cores: {type: 'int?', doc: "Minimum reserved number of\
-      \ CPU cores for gCNV caller"}
-  gatk_postprocess_max_memory: {type: 'int?', doc: "GB of RAM to allocate to postprocess\
-      \ gCNV"}
-  gatk_postprocess_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores\
-      \ for postprocess gCNV"}
-  gatk_collect_sample_metrics_ram: {type: 'int?', doc: "GB of RAM to allocate to collect\
-      \ sample metrics"}
-  gatk_collect_sample_metrics_cores: {type: 'int?', doc: "Minimum reserved number\
-      \ of CPU cores for collect sample metrics"}
-  gatk_scatter_ploidy_calls_ram: {type: 'int?', doc: "GB of RAM to allocate to scatter\
-      \ ploidy calls"}
-  gatk_scatter_ploidy_calls_cores: {type: 'int?', doc: "Minimum reserved number of\
-      \ CPU cores for scatter ploidy calls"}
-  vep_ram: {type: 'int?', default: 32, doc: "In GB, may need to increase this value\
-      \ depending on the size/complexity of input"}
-  vep_cpu: {type: 'int?', default: 16, doc: "Number of cores to use. May need to increase\
-      \ for really large inputs"}
+  gatk_preprocess_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate to preprocess intervals"}
+  gatk_preprocess_intervals_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for preprocess intervals"}
+  gatk_collect_read_counts_max_memory: {type: 'int?', doc: "GB of RAM to allocate to collect read counts"}
+  gatk_collect_read_counts_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for collect read counts"}
+  gatk_dgcp_max_memory: {type: 'int?', doc: "GB of RAM to allocate to determine germline contig ploidy"}
+  gatk_dgcp_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for determine germline contig ploidy"}
+  gatk_scatter_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate to scatter intervals"}
+  gatk_scatter_intervals_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for scatter intervals"}
+  gatk_germline_cnv_caller_max_memory: {type: 'int?', doc: "GB of RAM to allocate to gCNV caller"}
+  gatk_germline_cnv_caller_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for gCNV caller"}
+  gatk_postprocess_max_memory: {type: 'int?', doc: "GB of RAM to allocate to postprocess gCNV"}
+  gatk_postprocess_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for postprocess gCNV"}
+  gatk_collect_sample_metrics_ram: {type: 'int?', doc: "GB of RAM to allocate to collect sample metrics"}
+  gatk_collect_sample_metrics_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for collect sample metrics"}
+  gatk_scatter_ploidy_calls_ram: {type: 'int?', doc: "GB of RAM to allocate to scatter ploidy calls"}
+  gatk_scatter_ploidy_calls_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for scatter ploidy calls"}
+  vep_ram: {type: 'int?', default: 32, doc: "In GB, may need to increase this value depending on the size/complexity of input"}
+  vep_cpu: {type: 'int?', default: 16, doc: "Number of cores to use. May need to increase for really large inputs"}
   freebayes_cpu: {type: 'int?', doc: "CPUs to allocate to freebayes"}
   freebayes_ram: {type: 'int?', doc: "RAM in GB to allocate to freebayes"}
-  strelka2_cpu: {type: 'int?', default: 32, doc: "Number of cores to allocate to this\
-      \ task."}
-  strelka2_ram: {type: 'int?', default: 64, doc: "GB of memory to allocate to this\
-      \ task."}
+  strelka2_cpu: {type: 'int?', default: 32, doc: "Number of cores to allocate to this task."}
+  strelka2_ram: {type: 'int?', default: 64, doc: "GB of memory to allocate to this task."}
   svaba_cpu: {type: 'int?', doc: "CPUs to allocate to SVaba"}
   svaba_ram: {type: 'int?', doc: "GB of RAM to allocate to SVava"}
   manta_cpu: {type: 'int?', doc: "CPUs to allocate to Manta"}
   manta_ram: {type: 'int?', doc: "GB of RAM to allocate to Manta"}
-  run_gatk_gcnv: {type: 'boolean?', default: true, doc: "Run the GATK Germline CNV\
-      \ module?"}
+  run_gatk_gcnv: {type: 'boolean?', default: true, doc: "Run the GATK Germline CNV module?"}
   run_cnvnator: {type: 'boolean?', default: true, doc: "Run the CNVnator module?"}
-  run_gatk_gsnv: {type: 'boolean?', default: true, doc: "Run the GATK Germline SNV\
-      \ module?"}
+  run_gatk_gsnv: {type: 'boolean?', default: true, doc: "Run the GATK Germline SNV module?"}
   run_freebayes: {type: 'boolean?', default: true, doc: "Run the Freebayes module?"}
   run_strelka: {type: 'boolean?', default: true, doc: "Run the Strelka module?"}
   run_svaba: {type: 'boolean?', default: true, doc: "Run the SVaba module?"}
   run_manta: {type: 'boolean?', default: true, doc: "Run the Manta module?"}
 outputs:
-  gatk_gcnv_read_counts_entity_ids: {type: 'string[]?', outputSource: cnv/gatk_gcnv_read_counts_entity_ids,
-    doc: "List of file basename that were processed by CollectReadCounts"}
-  gatk_gcnv_genotyped_intervals_vcfs: {type: 'File[]?', outputSource: cnv/gatk_gcnv_genotyped_intervals_vcfs,
-    doc: "Per sample VCF files provides a detailed listing of the most likely copy-number\
-      \ call for each genomic interval included in the call-set, along with call quality,\
-      \ call genotype, and the phred-scaled posterior probability vector for all integer\
-      \ copy-number states."}
-  gatk_gcnv_genotyped_segments_vcfs: {type: 'File[]?', outputSource: cnv/gatk_gcnv_genotyped_segments_vcfs,
-    doc: "Per sample VCF files containing coalesced contiguous intervals that share\
-      \ the same copy-number call"}
-  gatk_gcnv_denoised_copy_ratios: {type: 'File[]?', outputSource: cnv/gatk_gcnv_denoised_copy_ratios,
-    doc: "Per sample files concatenates posterior means for denoised copy ratios from\
-      \ all the call shards produced by the GermlineCNVCaller."}
-  gatk_gcnv_sample_qc_status_strings: {type: 'string[]?', outputSource: cnv/gatk_gcnv_sample_qc_status_strings,
-    doc: "String value contained within the sample_qc_status_files outputs"}
-  cnvnator_vcf: {type: 'File?', outputSource: cnv/cnvnator_vcf, doc: "Called CNVs\
-      \ in VCF format"}
-  cnvnator_called_cnvs: {type: 'File?', outputSource: cnv/cnvnator_called_cnvs, doc: "Called\
-      \ CNVs from aligned_reads"}
-  cnvnator_average_rd: {type: 'File?', outputSource: cnv/cnvnator_average_rd, doc: "Average\
-      \ RD stats"}
+  gatk_gcnv_read_counts_entity_ids: {type: 'string[]?', outputSource: cnv/gatk_gcnv_read_counts_entity_ids, doc: "List of file basename
+      that were processed by CollectReadCounts"}
+  gatk_gcnv_genotyped_intervals_vcfs: {type: 'File[]?', outputSource: cnv/gatk_gcnv_genotyped_intervals_vcfs, doc: "Per sample VCF
+      files provides a detailed listing of the most likely copy-number call for each genomic interval included in the call-set, along
+      with call quality, call genotype, and the phred-scaled posterior probability vector for all integer copy-number states."}
+  gatk_gcnv_genotyped_segments_vcfs: {type: 'File[]?', outputSource: cnv/gatk_gcnv_genotyped_segments_vcfs, doc: "Per sample VCF files
+      containing coalesced contiguous intervals that share the same copy-number call"}
+  gatk_gcnv_denoised_copy_ratios: {type: 'File[]?', outputSource: cnv/gatk_gcnv_denoised_copy_ratios, doc: "Per sample files concatenates
+      posterior means for denoised copy ratios from all the call shards produced by the GermlineCNVCaller."}
+  gatk_gcnv_sample_qc_status_strings: {type: 'string[]?', outputSource: cnv/gatk_gcnv_sample_qc_status_strings, doc: "String value
+      contained within the sample_qc_status_files outputs"}
+  cnvnator_vcf: {type: 'File?', outputSource: cnv/cnvnator_vcf, doc: "Called CNVs in VCF format"}
+  cnvnator_called_cnvs: {type: 'File?', outputSource: cnv/cnvnator_called_cnvs, doc: "Called CNVs from aligned_reads"}
+  cnvnator_average_rd: {type: 'File?', outputSource: cnv/cnvnator_average_rd, doc: "Average RD stats"}
   gatk_gvcf: {type: 'File?', doc: "gVCF created by GATK HaplotypeCaller", outputSource: snv/gatk_gvcf}
-  gatk_gvcf_metrics: {type: 'File[]?', doc: "Metrics for GATK HaplotypeCaller gVCF",
-    outputSource: snv/gatk_gvcf_metrics}
-  gatk_vcf_metrics: {type: 'File[]?', doc: 'Variant calling summary and detailed metrics
-      files', outputSource: snv/gatk_vcf_metrics}
-  verifybamid_output: {type: 'File?', doc: "VerifyBAMID output, including contamination\
-      \ score", outputSource: snv/verifybamid_output}
+  gatk_gvcf_metrics: {type: 'File[]?', doc: "Metrics for GATK HaplotypeCaller gVCF", outputSource: snv/gatk_gvcf_metrics}
+  gatk_vcf_metrics: {type: 'File[]?', doc: 'Variant calling summary and detailed metrics files', outputSource: snv/gatk_vcf_metrics}
+  verifybamid_output: {type: 'File?', doc: "VerifyBAMID output, including contamination score", outputSource: snv/verifybamid_output}
   peddy_html: {type: 'File[]?', doc: 'html summary of peddy results', outputSource: snv/peddy_html}
   peddy_csv: {type: 'File[]?', doc: 'csv details of peddy results', outputSource: snv/peddy_csv}
   peddy_ped: {type: 'File[]?', doc: 'ped format summary of peddy results', outputSource: snv/peddy_ped}
@@ -559,6 +447,7 @@ outputs:
   freebayes_unfiltered_vcf: {type: 'File?', outputSource: snv/freebayes_unfiltered_vcf}
   strelka2_prepass_variants: {type: 'File', outputSource: snv/strelka2_prepass_variants}
   strelka2_gvcfs: {type: 'File[]', outputSource: snv/strelka2_gvcfs}
+
   svaba_indels: {type: 'File?', outputSource: sv/svaba_indels, doc: "VCF containing\
       \ INDEL variants called by SvABA"}
   svaba_svs: {type: 'File?', outputSource: sv/svaba_svs, doc: "VCF containing SV called\
@@ -655,9 +544,8 @@ steps:
       gatk_scatter_ploidy_calls_cores: gatk_scatter_ploidy_calls_cores
       run_gatk_gcnv: run_gatk_gcnv
       run_cnvnator: run_cnvnator
-    out: [gatk_gcnv_read_counts_entity_ids, gatk_gcnv_genotyped_intervals_vcfs, gatk_gcnv_genotyped_segments_vcfs,
-      gatk_gcnv_denoised_copy_ratios, gatk_gcnv_sample_qc_status_strings, cnvnator_vcf,
-      cnvnator_called_cnvs, cnvnator_average_rd]
+    out: [gatk_gcnv_read_counts_entity_ids, gatk_gcnv_genotyped_intervals_vcfs, gatk_gcnv_genotyped_segments_vcfs, gatk_gcnv_denoised_copy_ratios,
+      gatk_gcnv_sample_qc_status_strings, cnvnator_vcf, cnvnator_called_cnvs, cnvnator_average_rd]
   snv:
     run: ../workflows/kfdrc-germline-snv-wf.cwl
     in:
@@ -685,10 +573,9 @@ steps:
       ped: ped
       snp_max_gaussians: snp_max_gaussians
       indel_max_gaussians: indel_max_gaussians
-      bcftools_annot_gnomad_columns: bcftools_annot_gnomad_columns
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
-      gnomad_annotation_vcf: gnomad_annotation_vcf
       clinvar_annotation_vcf: clinvar_annotation_vcf
+      echtvar_anno_zips: echtvar_anno_zips
       vep_buffer_size: vep_buffer_size
       vep_cache: vep_cache
       dbnsfp: dbnsfp
@@ -706,9 +593,8 @@ steps:
       run_gatk: run_gatk_gsnv
       run_freebayes: run_freebayes
       run_strelka: run_strelka
-    out: [gatk_gvcf, gatk_gvcf_metrics, verifybamid_output, gatk_vcf_metrics, peddy_html,
-      peddy_csv, peddy_ped, vep_annotated_gatk_vcf, freebayes_unfiltered_vcf, vep_annotated_freebayes_vcf,
-      vep_annotated_strelka_vcf, strelka2_prepass_variants, strelka2_gvcfs]
+    out: [gatk_gvcf, gatk_gvcf_metrics, verifybamid_output, gatk_vcf_metrics, peddy_html, peddy_csv, peddy_ped, vep_annotated_gatk_vcf,
+      freebayes_unfiltered_vcf, vep_annotated_freebayes_vcf, vep_annotated_strelka_vcf, strelka2_prepass_variants, strelka2_gvcfs]
   sv:
     run: ../workflows/kfdrc-germline-sv-wf.cwl
     in:
