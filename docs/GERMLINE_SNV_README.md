@@ -44,7 +44,7 @@ variation across the samples under analysis.
 ### GATK Single Sample Germline Variant Discovery
 
 For GATK we use our [Kids First DRC Single Sample Genotyping
-Workflow](./docs/GATK_GERMLINE_README.md). This workflow calls variants using a
+Workflow](./GATK_GERMLINE_README.md). This workflow calls variants using a
 gVCF that is made unless the user provides one themselves.
 
 ### Strelka2
@@ -70,7 +70,7 @@ documentation](https://github.com/Illumina/strelka/blob/v2.9.x/docs/userGuide/RE
 ### Annotation
 
 Variants from all three callers are annotated using the [Kids First DRC
-Germline SNV Annotation Workflow](../kf-annotation-tools/docs/GERMLINE_SNV_ANNOT_README.mdd).
+Germline SNV Annotation Workflow](../kf-annotation-tools/docs/GERMLINE_SNV_ANNOT_README.md).
 Generally, this workflow annotates the workflow using VEP, gnomAD.
 For more information on the specific annotations, please see the documentation.
 
