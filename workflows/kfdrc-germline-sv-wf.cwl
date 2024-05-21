@@ -255,5 +255,5 @@ $namespaces:
 - SVABA
 - VCF
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.0.0'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.1.0'
   label: github-release
