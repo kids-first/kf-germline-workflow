@@ -85,10 +85,10 @@ potential pathogenicity and ii) filter out SV potential false positives.
 ## Basic Info
 - [D3b dockerfiles](https://github.com/d3b-center/bixtools)
 - Testing Tools:
-    - [Seven Bridges Cavatica Platform](https://cavatica.sbgenomics.com/)
+    - [Seven Bridges CAVATICA Platform](https://cavatica.sbgenomics.com/)
     - [Common Workflow Language reference implementation (cwltool)](https://github.com/common-workflow-language/cwltool/)
 
 ## References
-- KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
-- Cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
-- Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/
+- KFDRC AWS S3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
+- CAVATICA: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
+- Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0

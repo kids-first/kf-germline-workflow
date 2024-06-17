@@ -90,13 +90,13 @@ doc: |
   ## Basic Info
   - [D3b dockerfiles](https://github.com/d3b-center/bixtools)
   - Testing Tools:
-      - [Seven Bridges Cavatica Platform](https://cavatica.sbgenomics.com/)
+      - [Seven Bridges CAVATICA Platform](https://cavatica.sbgenomics.com/)
       - [Common Workflow Language reference implementation (cwltool)](https://github.com/common-workflow-language/cwltool/)
 
   ## References
-  - KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/
-  - Cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
-  - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/
+  - KFDRC AWS S3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
+  - CAVATICA: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
+  - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0
 requirements:
 - class: ScatterFeatureRequirement
 - class: MultipleInputFeatureRequirement
@@ -118,22 +118,16 @@ inputs:
     doc: |
       The reference genome fasta (and associated indicies) to which the germline BAM was aligned.
     "sbg:fileTypes": "FASTA, FA"
-    "sbg:suggestedValue": {class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta,
-      secondaryFiles: [{class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict},
-        {class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai},
-        {class: File, path: 60639019357c3a53540ca7eb, name: Homo_sapiens_assembly38.fasta.64.alt},
-        {class: File, path: 6063901f357c3a53540ca84d, name: Homo_sapiens_assembly38.fasta.64.amb},
-        {class: File, path: 6063901f357c3a53540ca849, name: Homo_sapiens_assembly38.fasta.64.ann},
-        {class: File, path: 6063901d357c3a53540ca81e, name: Homo_sapiens_assembly38.fasta.64.bwt},
-        {class: File, path: 6063901c357c3a53540ca801, name: Homo_sapiens_assembly38.fasta.64.pac},
-        {class: File, path: 60639015357c3a53540ca7a9, name: Homo_sapiens_assembly38.fasta.64.sa}]}
-  germline_reads: {type: 'File', secondaryFiles: [{pattern: '^.bai', required: false},
-      {pattern: '.bai', required: false}, {pattern: '^.crai', required: false}, {
-        pattern: '.crai', required: false}], doc: "Input BAM file", "sbg:fileTypes": "BAM,\
-      \ CRAM"}
-  annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV\
-      \ annotations", "sbg:fileTypes": "TAR, TAR.GZ, TGZ", "sbg:suggestedValue": {
-      class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
+    "sbg:suggestedValue": {class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta, secondaryFiles: [{class: File,
+          path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}, {class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai},
+        {class: File, path: 60639019357c3a53540ca7eb, name: Homo_sapiens_assembly38.fasta.64.alt}, {class: File, path: 6063901f357c3a53540ca84d,
+          name: Homo_sapiens_assembly38.fasta.64.amb}, {class: File, path: 6063901f357c3a53540ca849, name: Homo_sapiens_assembly38.fasta.64.ann},
+        {class: File, path: 6063901d357c3a53540ca81e, name: Homo_sapiens_assembly38.fasta.64.bwt}, {class: File, path: 6063901c357c3a53540ca801,
+          name: Homo_sapiens_assembly38.fasta.64.pac}, {class: File, path: 60639015357c3a53540ca7a9, name: Homo_sapiens_assembly38.fasta.64.sa}]}
+  germline_reads: {type: 'File', secondaryFiles: [{pattern: '^.bai', required: false}, {pattern: '.bai', required: false}, {pattern: '^.crai',
+        required: false}, {pattern: '.crai', required: false}], doc: "Input BAM file", "sbg:fileTypes": "BAM, CRAM"}
+  annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV annotations", "sbg:fileTypes": "TAR, TAR.GZ,
+      TGZ", "sbg:suggestedValue": {class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
   annotsv_genome_build:
     type:
     - 'null'
@@ -150,22 +144,18 @@ inputs:
   manta_cpu: {type: 'int?', doc: "CPUs to allocate to Manta"}
   manta_ram: {type: 'int?', doc: "GB of RAM to allocate to Manta"}
 outputs:
-  svaba_indels: {type: 'File?', outputSource: svaba/germline_indel_vcf_gz, doc: "VCF\
-      \ containing INDEL variants called by SvABA"}
-  svaba_svs: {type: 'File?', outputSource: svaba/germline_sv_vcf_gz, doc: "VCF containing\
-      \ SV called by SvABA"}
-  svaba_annotated_indels: {type: 'File?', outputSource: annotsv_svaba_indel/annotated_calls,
-    doc: "TSV containing annotated variants from the svaba_indels output"}
-  svaba_annotated_svs: {type: 'File?', outputSource: annotsv_svaba_sv/annotated_calls,
-    doc: "TSV containing annotated variants from the svaba_svs output"}
-  manta_indels: {type: 'File?', outputSource: manta/small_indels, doc: "VCF containing\
-      \ INDEL variants called by Manta"}
-  manta_svs: {type: 'File?', outputSource: manta/output_sv, doc: "VCF containing SV\
-      \ called by Manta"}
-  manta_annotated_indels: {type: 'File?', outputSource: annotsv_manta_indel/annotated_calls,
-    doc: "TSV containing annotated variants from the manta_indels output"}
-  manta_annotated_svs: {type: 'File?', outputSource: annotsv_manta_sv/annotated_calls,
-    doc: "TSV containing annotated variants from the manta_svs output"}
+  svaba_indels: {type: 'File?', outputSource: svaba/germline_indel_vcf_gz, doc: "VCF containing INDEL variants called by SvABA"}
+  svaba_svs: {type: 'File?', outputSource: svaba/germline_sv_vcf_gz, doc: "VCF containing SV called by SvABA"}
+  svaba_annotated_indels: {type: 'File?', outputSource: annotsv_svaba_indel/annotated_calls, doc: "TSV containing annotated variants
+      from the svaba_indels output"}
+  svaba_annotated_svs: {type: 'File?', outputSource: annotsv_svaba_sv/annotated_calls, doc: "TSV containing annotated variants from
+      the svaba_svs output"}
+  manta_indels: {type: 'File?', outputSource: manta/small_indels, doc: "VCF containing INDEL variants called by Manta"}
+  manta_svs: {type: 'File?', outputSource: manta/output_sv, doc: "VCF containing SV called by Manta"}
+  manta_annotated_indels: {type: 'File?', outputSource: annotsv_manta_indel/annotated_calls, doc: "TSV containing annotated variants
+      from the manta_indels output"}
+  manta_annotated_svs: {type: 'File?', outputSource: annotsv_manta_sv/annotated_calls, doc: "TSV containing annotated variants from
+      the manta_svs output"}
 steps:
   svaba:
     run: ../tools/svaba.cwl
@@ -184,8 +174,7 @@ steps:
           $(self != null ? self : inputs.tumor_bams[0].basename.split('.')[0])
       cores: svaba_cpu
       ram: svaba_ram
-    out: [alignments, bps, contigs, log, germline_indel_vcf_gz, germline_indel_unfiltered_vcf_gz,
-      germline_sv_vcf_gz, germline_sv_unfiltered_vcf_gz]
+    out: [alignments, bps, contigs, log, germline_indel_vcf_gz, germline_indel_unfiltered_vcf_gz, germline_sv_vcf_gz, germline_sv_unfiltered_vcf_gz]
   manta:
     run: ../tools/manta.cwl
     when: $(inputs.run_manta)
