@@ -2,7 +2,7 @@ cwlVersion: v1.2
 class: Workflow
 id: kfdrc-germline-variant-wf
 label: Kids First DRC Germline Variant Workflow
-doc: |
+doc: |+
   # Kids First Data Resource Center Germline Variant Workflow
 
   <p align="center">
@@ -114,7 +114,7 @@ doc: |
 
           Recommended:
           - `vep_cache`: TAR.GZ cache from ensembl/local converted cache
-          - `gnomad_annotation_vcf`: gnomAD VCF used for annotation
+          - `echtvar_anno_zips`: echtvar-formatted gnomAD v3.1.1 reference. See annotation docs for more info
 
           Optional:
           - `clinvar_annotation_vcf`: ClinVar VCF used for annotation
@@ -170,13 +170,14 @@ doc: |
   ## Basic Info
   - [D3b dockerfiles](https://github.com/d3b-center/bixtools)
   - Testing Tools:
-      - [Seven Bridges Cavatica Platform](https://cavatica.sbgenomics.com/)
+      - [Seven Bridges CAVATICA Platform](https://cavatica.sbgenomics.com/)
       - [Common Workflow Language reference implementation (cwltool)](https://github.com/common-workflow-language/cwltool/)
 
   ## References
-  - KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
-  - Cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
-  - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/
+  - KFDRC AWS S3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
+  - CAVATICA: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
+  - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0
+
 requirements:
 - class: ScatterFeatureRequirement
 - class: MultipleInputFeatureRequirement
@@ -447,22 +448,18 @@ outputs:
   strelka2_prepass_variants: {type: 'File', outputSource: snv/strelka2_prepass_variants}
   strelka2_gvcfs: {type: 'File[]', outputSource: snv/strelka2_gvcfs}
 
-  svaba_indels: {type: 'File?', outputSource: sv/svaba_indels, doc: "VCF containing\
-      \ INDEL variants called by SvABA"}
-  svaba_svs: {type: 'File?', outputSource: sv/svaba_svs, doc: "VCF containing SV called\
-      \ by SvABA"}
-  svaba_annotated_indels: {type: 'File?', outputSource: sv/svaba_annotated_indels,
-    doc: "TSV containing annotated variants from the svaba_indels output"}
-  svaba_annotated_svs: {type: 'File?', outputSource: sv/svaba_annotated_svs, doc: "TSV\
-      \ containing annotated variants from the svaba_svs output"}
-  manta_indels: {type: 'File?', outputSource: sv/manta_indels, doc: "VCF containing\
-      \ INDEL variants called by Manta"}
-  manta_svs: {type: 'File?', outputSource: sv/manta_svs, doc: "VCF containing SV called\
-      \ by Manta"}
-  manta_annotated_indels: {type: 'File?', outputSource: sv/manta_annotated_indels,
-    doc: "TSV containing annotated variants from the manta_indels output"}
-  manta_annotated_svs: {type: 'File?', outputSource: sv/manta_annotated_svs, doc: "TSV\
-      \ containing annotated variants from the manta_svs output"}
+  svaba_indels: {type: 'File?', outputSource: sv/svaba_indels, doc: "VCF containing INDEL variants called by SvABA"}
+  svaba_svs: {type: 'File?', outputSource: sv/svaba_svs, doc: "VCF containing SV called by SvABA"}
+  svaba_annotated_indels: {type: 'File?', outputSource: sv/svaba_annotated_indels, doc: "TSV containing annotated variants from the
+      svaba_indels output"}
+  svaba_annotated_svs: {type: 'File?', outputSource: sv/svaba_annotated_svs, doc: "TSV containing annotated variants from the svaba_svs
+      output"}
+  manta_indels: {type: 'File?', outputSource: sv/manta_indels, doc: "VCF containing INDEL variants called by Manta"}
+  manta_svs: {type: 'File?', outputSource: sv/manta_svs, doc: "VCF containing SV called by Manta"}
+  manta_annotated_indels: {type: 'File?', outputSource: sv/manta_annotated_indels, doc: "TSV containing annotated variants from the
+      manta_indels output"}
+  manta_annotated_svs: {type: 'File?', outputSource: sv/manta_annotated_svs, doc: "TSV containing annotated variants from the manta_svs
+      output"}
 steps:
   cnv:
     run: ../workflows/kfdrc-germline-cnv-wf.cwl

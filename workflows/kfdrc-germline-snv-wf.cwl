@@ -49,7 +49,7 @@ doc: |
   ### GATK Single Sample Germline Variant Discovery
 
   For GATK we use our [Kids First DRC Single Sample Genotyping
-  Workflow](./docs/GATK_GERMLINE_README.md). This workflow calls variants using a
+  Workflow](./GATK_GERMLINE_README.md). This workflow calls variants using a
   gVCF that is made unless the user provides one themselves.
 
   ### Strelka2
@@ -75,7 +75,7 @@ doc: |
   ### Annotation
 
   Variants from all three callers are annotated using the [Kids First DRC
-  Germline SNV Annotation Workflow](../kf-annotation-tools/docs/GERMLINE_SNV_ANNOT_README.mdd).
+  Germline SNV Annotation Workflow](../kf-annotation-tools/docs/GERMLINE_SNV_ANNOT_README.md).
   Generally, this workflow annotates the workflow using VEP, gnomAD.
   For more information on the specific annotations, please see the documentation.
 
@@ -137,13 +137,13 @@ doc: |
   ## Basic Info
   - [D3b dockerfiles](https://github.com/d3b-center/bixtools)
   - Testing Tools:
-      - [Seven Bridges Cavatica Platform](https://cavatica.sbgenomics.com/)
+      - [Seven Bridges CAVATICA Platform](https://cavatica.sbgenomics.com/)
       - [Common Workflow Language reference implementation (cwltool)](https://github.com/common-workflow-language/cwltool/)
 
   ## References
-  - KFDRC AWS s3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
-  - Cavatica: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
-  - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/genomics-public-data/resources/broad/hg38/v0/
+  - KFDRC AWS S3 bucket: s3://kids-first-seq-data/broad-references/, s3://kids-first-seq-data/pipeline-references/
+  - CAVATICA: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
+  - Broad Institute Goolge Cloud: https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0
 requirements:
 - class: ScatterFeatureRequirement
 - class: MultipleInputFeatureRequirement
