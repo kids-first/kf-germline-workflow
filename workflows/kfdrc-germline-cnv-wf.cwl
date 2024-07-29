@@ -184,6 +184,17 @@ inputs:
   cnvnator_call_max_memory: {type: 'int?', doc: "Max memory to allocate to call"}
   cnvnator_vcf_cores: {type: 'int?', doc: "Cores to allocate to vcf creation"}
   cnvnator_vcf_max_memory: {type: 'int?', doc: "Max memory to allocate to vcf creation"}
+  annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV\
+      \ annotations", "sbg:fileTypes": "TAR, TAR.GZ, TGZ", "sbg:suggestedValue": {
+      class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
+  annotsv_genome_build:
+    type:
+    - 'null'
+    - type: enum
+      name: annotsv_genome_build
+      symbols: ["GRCh37", "GRCh38", "mm9", "mm10"]
+    doc: |
+      The genome build of the reference fasta. AnnotSV is capable of annotating the following genomes: "GRCh37","GRCh38","mm9","mm10".
   gatk_preprocess_intervals_max_memory: {type: 'int?', doc: "GB of RAM to allocate to preprocess intervals"}
   gatk_preprocess_intervals_cores: {type: 'int?', doc: "Minimum reserved number of CPU cores for preprocess intervals"}
   gatk_collect_read_counts_max_memory: {type: 'int?', doc: "GB of RAM to allocate to collect read counts"}
@@ -330,6 +341,15 @@ steps:
       vcf_cores: cnvnator_vcf_cores
       vcf_max_memory: cnvnator_vcf_max_memory
     out: [vcf, called_cnvs, average_rd]
+  annotsv_cnvnator:
+    run: ../tools/annotsv.cwl
+    when: $(inputs.run_cnvnator)
+    in:
+      run_cnvnator: run_cnvnator
+      annotations_dir_tgz: annotsv_annotations_dir
+      sv_input_file: cnvnator/vcf
+      genome_build: annotsv_genome_build
+    out: [annotated_calls, unannotated_calls]
 hints:
 - class: "sbg:maxNumberOfParallelInstances"
   value: 2

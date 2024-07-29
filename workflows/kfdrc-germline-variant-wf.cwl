@@ -434,6 +434,7 @@ outputs:
   cnvnator_vcf: {type: 'File?', outputSource: cnv/cnvnator_vcf, doc: "Called CNVs in VCF format"}
   cnvnator_called_cnvs: {type: 'File?', outputSource: cnv/cnvnator_called_cnvs, doc: "Called CNVs from aligned_reads"}
   cnvnator_average_rd: {type: 'File?', outputSource: cnv/cnvnator_average_rd, doc: "Average RD stats"}
+  cnvnator_annotated_cnvs: {type: 'File?', outputSource: cnv/cnvnator_annotated_cnvs, doc: "TSV containing annotated variants from the cnvnator_vcf output"}
   gatk_gvcf: {type: 'File?', doc: "gVCF created by GATK HaplotypeCaller", outputSource: snv/gatk_gvcf}
   gatk_gvcf_metrics: {type: 'File[]?', doc: "Metrics for GATK HaplotypeCaller gVCF", outputSource: snv/gatk_gvcf_metrics}
   gatk_vcf_metrics: {type: 'File[]?', doc: 'Variant calling summary and detailed metrics files', outputSource: snv/gatk_vcf_metrics}
@@ -522,6 +523,8 @@ steps:
       cnvnator_call_max_memory: cnvnator_call_max_memory
       cnvnator_vcf_cores: cnvnator_vcf_cores
       cnvnator_vcf_max_memory: cnvnator_vcf_max_memory
+      annotsv_annotations_dir: annotsv_annotations_dir
+      annotsv_genome_build: annotsv_genome_build
       gatk_preprocess_intervals_max_memory: gatk_preprocess_intervals_max_memory
       gatk_preprocess_intervals_cores: gatk_preprocess_intervals_cores
       gatk_collect_read_counts_max_memory: gatk_collect_read_counts_max_memory
@@ -541,7 +544,7 @@ steps:
       run_gatk_gcnv: run_gatk_gcnv
       run_cnvnator: run_cnvnator
     out: [gatk_gcnv_read_counts_entity_ids, gatk_gcnv_genotyped_intervals_vcfs, gatk_gcnv_genotyped_segments_vcfs, gatk_gcnv_denoised_copy_ratios,
-      gatk_gcnv_sample_qc_status_strings, cnvnator_vcf, cnvnator_called_cnvs, cnvnator_average_rd]
+      gatk_gcnv_sample_qc_status_strings, cnvnator_vcf, cnvnator_called_cnvs, cnvnator_average_rd, cnvnator_annotated_cnvs]
   snv:
     run: ../workflows/kfdrc-germline-snv-wf.cwl
     in:

@@ -132,6 +132,8 @@ user must provide the associated gVCF in the `input_gvcf` input.
         - `cnvnator_vcf`: Called CNVs in VCF format by CNVnator
         - `cnvnator_called_cnvs`: Called CNVs from aligned_reads by CNVnator
         - `cnvnator_average_rd`: Average RD stats by CNVnator
+    - Annotation (AnnotSV)
+        - `cnvnator_annotated_cnvs`: This file contains all records from the `cnvnator_vcf` that AnnotSV could annotate.
 - Single Nucleotide Variant
     - Freebayes
         - `freebayes_unfiltered_vcf`: Raw variants output from freebayes
