@@ -226,6 +226,8 @@ outputs:
   gatk_gcnv_sample_qc_status_strings: {type: 'string[]?', outputSource: gatk_gcnv_case/sample_qc_status_strings, doc: "String value
       contained within the sample_qc_status_files outputs"}
   cnvnator_vcf: {type: 'File?', outputSource: cnvnator/vcf, doc: "Called CNVs in VCF format"}
+  cnvnator_annotated_cnvs: {type: 'File?', outputSource: annotsv_cnvnator/annotated_calls, doc: "TSV containing annotated variants
+      from the cnvnator_vcf output" }
   cnvnator_called_cnvs: {type: 'File?', outputSource: cnvnator/called_cnvs, doc: "Called CNVs from aligned_reads"}
   cnvnator_average_rd: {type: 'File?', outputSource: cnvnator/average_rd, doc: "Average RD stats"}
 steps:
