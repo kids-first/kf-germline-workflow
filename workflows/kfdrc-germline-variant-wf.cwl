@@ -635,5 +635,5 @@ $namespaces:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.1.1'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.2.0'
   label: github-release
