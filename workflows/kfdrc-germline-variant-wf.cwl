@@ -137,6 +137,9 @@ doc: |+
           - `cnvnator_vcf`: Called CNVs in VCF format by CNVnator
           - `cnvnator_called_cnvs`: Called CNVs from aligned_reads by CNVnator
           - `cnvnator_average_rd`: Average RD stats by CNVnator
+      - Annotation (AnnotSV)
+          - `cnvnator_annotated_cnvs`: This file contains all records from the `cnvnator_vcf` that AnnotSV could annotate.
+          - `gatk_gcnv_annotated_genotyped_segments`: Per sample TSV files containing AnnotSV-annotated CNVs from `gatk_gcnv_genotyped_segments_vcfs`
   - Single Nucleotide Variant
       - Freebayes
           - `freebayes_unfiltered_vcf`: Raw variants output from freebayes
@@ -427,6 +430,8 @@ outputs:
       with call quality, call genotype, and the phred-scaled posterior probability vector for all integer copy-number states."}
   gatk_gcnv_genotyped_segments_vcfs: {type: 'File[]?', outputSource: cnv/gatk_gcnv_genotyped_segments_vcfs, doc: "Per sample VCF files
       containing coalesced contiguous intervals that share the same copy-number call"}
+  gatk_gcnv_annotated_genotyped_segments: {type: 'File[]?', outputSource: cnv/gatk_gcnv_annotated_genotyped_segments, doc: "Per sample
+      TSV files containing AnnotSV-annotated CNVs from gatk_gcnv_genotyped_segments_vcfs"}
   gatk_gcnv_denoised_copy_ratios: {type: 'File[]?', outputSource: cnv/gatk_gcnv_denoised_copy_ratios, doc: "Per sample files concatenates
       posterior means for denoised copy ratios from all the call shards produced by the GermlineCNVCaller."}
   gatk_gcnv_sample_qc_status_strings: {type: 'string[]?', outputSource: cnv/gatk_gcnv_sample_qc_status_strings, doc: "String value
@@ -434,7 +439,8 @@ outputs:
   cnvnator_vcf: {type: 'File?', outputSource: cnv/cnvnator_vcf, doc: "Called CNVs in VCF format"}
   cnvnator_called_cnvs: {type: 'File?', outputSource: cnv/cnvnator_called_cnvs, doc: "Called CNVs from aligned_reads"}
   cnvnator_average_rd: {type: 'File?', outputSource: cnv/cnvnator_average_rd, doc: "Average RD stats"}
-  cnvnator_annotated_cnvs: {type: 'File?', outputSource: cnv/cnvnator_annotated_cnvs, doc: "TSV containing annotated variants from the cnvnator_vcf output"}
+  cnvnator_annotated_cnvs: {type: 'File?', outputSource: cnv/cnvnator_annotated_cnvs, doc: "TSV containing annotated variants from
+      the cnvnator_vcf output"}
   gatk_gvcf: {type: 'File?', doc: "gVCF created by GATK HaplotypeCaller", outputSource: snv/gatk_gvcf}
   gatk_gvcf_metrics: {type: 'File[]?', doc: "Metrics for GATK HaplotypeCaller gVCF", outputSource: snv/gatk_gvcf_metrics}
   gatk_vcf_metrics: {type: 'File[]?', doc: 'Variant calling summary and detailed metrics files', outputSource: snv/gatk_vcf_metrics}
@@ -543,8 +549,9 @@ steps:
       gatk_scatter_ploidy_calls_cores: gatk_scatter_ploidy_calls_cores
       run_gatk_gcnv: run_gatk_gcnv
       run_cnvnator: run_cnvnator
-    out: [gatk_gcnv_read_counts_entity_ids, gatk_gcnv_genotyped_intervals_vcfs, gatk_gcnv_genotyped_segments_vcfs, gatk_gcnv_denoised_copy_ratios,
-      gatk_gcnv_sample_qc_status_strings, cnvnator_vcf, cnvnator_called_cnvs, cnvnator_average_rd, cnvnator_annotated_cnvs]
+    out: [gatk_gcnv_read_counts_entity_ids, gatk_gcnv_genotyped_intervals_vcfs, gatk_gcnv_genotyped_segments_vcfs, gatk_gcnv_annotated_genotyped_segments,
+      gatk_gcnv_denoised_copy_ratios, gatk_gcnv_sample_qc_status_strings, cnvnator_vcf, cnvnator_called_cnvs, cnvnator_average_rd,
+      cnvnator_annotated_cnvs]
   snv:
     run: ../workflows/kfdrc-germline-snv-wf.cwl
     in:

@@ -7,13 +7,13 @@
 The Kids First Data Resource Center (KFDRC) Germline Copy Number Variant (CNV)
 Workflow is a common workflow language (CWL) implmentation to generate CNV
 calls from an aligned reads BAM or CRAM file. The workflow makes use of
-CNVnator and GATK to call variants. CNVnator variants are annotated using AnnotSV.
+CNVnator and GATK to call variants. These variants are annotated using AnnotSV.
 
 ## Relevant Softwares and Versions
 
 - [CNVnator](https://github.com/abyzovlab/CNVnator): `0.4.1`
-- [AnnotSV](https://github.com/lgmgeo/AnnotSV/): `3.1.1`
 - [GATK](https://github.com/broadinstitute/gatk): `4.2.0.0`
+- [AnnotSV](https://github.com/lgmgeo/AnnotSV/): `3.1.1`
 
 ### CNVnator
 
@@ -72,12 +72,13 @@ potential pathogenicity and ii) filter out SV potential false positives.
     - `cnvnator_vcf`: Called CNVs in VCF format
     - `cnvnator_called_cnvs`: Called CNVs from `aligned_reads`
     - `cnvnator_average_rd`: Average RD stats
-- AnnotSV
-    - `cnvnator_annotated_cnvs`: This file contains all records from the `cnvnator_vcf` that AnnotSV could annotate.
 - GATK
     - `gatk_gcnv_genotyped_intervals_vcfs`: Per sample VCF files provides a detailed listing of the most likely copy-number call for each genomic interval included in the call-set, along with call quality, call genotype, and the phred-scaled posterior probability vector for all integer copy-number states.
     - `gatk_gcnv_genotyped_segments_vcfs`: Per sample VCF files containing coalesced contiguous intervals that share the same copy-number call
     - `gatk_gcnv_denoised_copy_ratios`: Per sample files concatenates posterior means for denoised copy ratios from all the call shards produced by the GermlineCNVCaller
+- AnnotSV
+    - `cnvnator_annotated_cnvs`: This file contains all records from the `cnvnator_vcf` that AnnotSV could annotate.
+    - `gatk_gcnv_annotated_genotyped_segments`: Per sample TSV files containing AnnotSV-annotated CNVs from `gatk_gcnv_genotyped_segments_vcfs`
 
 ## Basic Info
 - [D3b dockerfiles](https://github.com/d3b-center/bixtools)
