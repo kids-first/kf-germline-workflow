@@ -127,7 +127,7 @@ inputs:
   germline_reads: {type: 'File', secondaryFiles: [{pattern: '^.bai', required: false}, {pattern: '.bai', required: false}, {pattern: '^.crai',
         required: false}, {pattern: '.crai', required: false}], doc: "Input BAM file", "sbg:fileTypes": "BAM, CRAM"}
   annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV annotations", "sbg:fileTypes": "TAR, TAR.GZ,
-      TGZ", "sbg:suggestedValue": {class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
+      TGZ", "sbg:suggestedValue": {class: File, path: 6328ab26d01163633dabcc2e, name: annotsv_311_plus_ens105_annotations_dir.tgz}}
   annotsv_genome_build:
     type:
     - 'null'

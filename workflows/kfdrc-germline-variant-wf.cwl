@@ -264,7 +264,7 @@ inputs:
         similarly sized interval lists (by interval count, not by base count).
         Resulting interval lists will contain similar number of intervals.)
   annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV annotations", "sbg:fileTypes": "TAR, TAR.GZ,
-      TGZ", "sbg:suggestedValue": {class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
+      TGZ", "sbg:suggestedValue": {class: File, path: 6328ab26d01163633dabcc2e, name: annotsv_311_plus_ens105_annotations_dir.tgz}}
   annotsv_genome_build:
     type:
     - 'null'
