@@ -198,7 +198,7 @@ inputs:
   cnvnator_vcf_cores: {type: 'int?', doc: "Cores to allocate to vcf creation"}
   cnvnator_vcf_max_memory: {type: 'int?', doc: "Max memory to allocate to vcf creation"}
   annotsv_annotations_dir: {type: 'File', doc: "TAR.GZ'd Directory containing AnnotSV annotations", "sbg:fileTypes": "TAR, TAR.GZ,
-      TGZ", "sbg:suggestedValue": {class: File, path: 6245fde8274f85577d646da0, name: annotsv_311_annotations_dir.tgz}}
+      TGZ", "sbg:suggestedValue": {class: File, path: 6328ab26d01163633dabcc2e, name: annotsv_311_plus_ens105_annotations_dir.tgz}}
   annotsv_genome_build:
     type:
     - 'null'
