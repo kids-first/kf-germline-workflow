@@ -19,20 +19,18 @@ arguments:
       -XX:GCHeapFreeLimit=10"
       VariantFiltration
       -V $(inputs.input_vcf.path)
+      -filter "QUAL < 30.0" --filter-name "QUAL30"
+      -filter "QD < 2.0" --filter-name "QD2"
       ${
         if (inputs.selection == "SNP") {
-          return '-filter "QD < 2.0" --filter-name "QD2" ' +
-                 '-filter "QUAL < 30.0" --filter-name "QUAL30" ' +
-                 '-filter "SOR > 3.0" --filter-name "SOR3_SNP" ' +
+          return '-filter "SOR > 3.0" --filter-name "SOR3_SNP" ' +
                  '-filter "FS > 60.0" --filter-name "FS60_SNP" ' +
                  '-filter "MQ < 40.0" --filter-name "MQ40_SNP" ' +
                  '-filter "MQRankSum < -12.5" --filter-name "MQRankSum-12.5_SNP" ' +
                  '-filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8_SNP" ' +
                  '-O ' + inputs.output_basename + '.snps.filtered.vcf.gz'
         } else if (inputs.selection == "INDEL") {
-          return '-filter "QD < 2.0" --filter-name "QD2" ' +
-                 '-filter "QUAL < 30.0" --filter-name "QUAL30" ' +
-                 '-filter "FS > 200.0" --filter-name "FS200_INDEL" ' +
+          return '-filter "FS > 200.0" --filter-name "FS200_INDEL" ' +
                  '-filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20_INDEL" ' +
                  '-O ' + inputs.output_basename + '.indels.filtered.vcf.gz'
         }

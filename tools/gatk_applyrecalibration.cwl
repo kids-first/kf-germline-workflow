@@ -20,7 +20,7 @@ arguments:
       -V $(inputs.input_vcf.path)
       --recal-file $(inputs.indels_recalibration.path)
       --tranches-file $(inputs.indels_tranches.path)
-      -ts-filter-level 99.7
+      -ts-filter-level $(inputs.ts_filter_level_indels)
       --create-output-bam-index true
       -mode INDEL
 
@@ -30,7 +30,7 @@ arguments:
       -V tmp.indel.recalibrated.vcf
       --recal-file $(inputs.snps_recalibration.path)
       --tranches-file $(inputs.snps_tranches.path)
-      -ts-filter-level 99.7
+      -ts-filter-level $(inputs.ts_filter_level_snps)
       --create-output-bam-index true
       -mode SNP
 inputs:
@@ -41,6 +41,8 @@ inputs:
     type: File
     secondaryFiles: [.idx]
   indels_tranches: File
+  ts_filter_level_indels:  { type: 'float?', default: 99.7 }
+  ts_filter_level_snps: { type: 'float?', default: 99.7 }
   snps_recalibration:
     type: File
     secondaryFiles: [.idx]
