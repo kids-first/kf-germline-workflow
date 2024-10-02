@@ -57,9 +57,16 @@ requirements:
 - class: ScatterFeatureRequirement
 - class: SubworkflowFeatureRequirement
 - class: MultipleInputFeatureRequirement
+- class: InlineJavascriptRequirement
+- class: StepInputExpressionRequirement
 
 inputs:
   input_vcfs: {type: 'File[]', doc: 'Input array of individual sample gVCF files'}
+  sequencing_type:
+    type:
+      - type: enum
+        name: sequencing_type
+        symbols: ["WGS","WXS","TARGETED"]
   axiomPoly_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz',
     "sbg:suggestedValue": {class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz,
       secondaryFiles: [{class: File, path: 6063901d357c3a53540ca81b, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}]}}
@@ -93,6 +100,8 @@ inputs:
   indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL VariantRecalibration. If a dataset gives fewer
       variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces
       the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  ts_filter_level_indels:  { type: 'float?', default: 99.7 }
+  ts_filter_level_snps: { type: 'float?', default: 99.7 }
   output_basename: string
   tool_name: {type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files"}
   # Annotation
@@ -134,7 +143,7 @@ steps:
     run: ../tools/gatk_import_genotype_filtergvcf_merge.cwl
     hints:
     - class: 'sbg:AWSInstanceType'
-      value: r4.4xlarge;ebs-gp2;500
+      value: r5.4xlarge
     doc: 'Use GATK GenomicsDBImport, VariantFiltration GenotypeGVCFs, and picard MakeSitesOnlyVcf to genotype, filter and merge gVCF
       based on known sites'
     in:
@@ -144,82 +153,37 @@ steps:
       reference_fasta: indexed_reference_fasta
     scatter: [interval]
     out: [variant_filtered_vcf, sites_only_vcf]
+  gatk_vqsr:
+    run: ../subworkflows/gatk_vqsr.cwl
+    when: $(inputs.sequencing_type == "WGS")
+    in:
+      sequencing_type: sequencing_type
+      sites_only_vcfs: gatk_import_genotype_filtergvcf_merge/sites_only_vcf
+      variant_filtered_vcfs: gatk_import_genotype_filtergvcf_merge/variant_filtered_vcf
+      axiomPoly_resource_vcf: axiomPoly_resource_vcf
+      dbsnp_vcf: dbsnp_vcf
+      hapmap_resource_vcf: hapmap_resource_vcf
+      mills_resource_vcf: mills_resource_vcf
+      omni_resource_vcf: omni_resource_vcf
+      one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
+      snp_max_gaussians: snp_max_gaussians
+      indel_max_gaussians: indel_max_gaussians
+      ts_filter_level_indels: ts_filter_level_indels
+      ts_filter_level_snps: ts_filter_level_snps
+      output_basename: output_basename
+    out: [recalibrated_vcf]
   gatk_gathervcfs:
     run: ../tools/gatk_gathervcfs.cwl
-    doc: 'Merge VCFs scattered from previous step'
+    when: $(inputs.sequencing_type != "WGS")
     in:
-      input_vcfs: gatk_import_genotype_filtergvcf_merge/sites_only_vcf
-    out: [output]
-  gatk_snpsvariantrecalibratorcreatemodel:
-    run: ../tools/gatk_snpsvariantrecalibratorcreatemodel.cwl
-    doc: 'Create recalibration model for snps using GATK VariantRecalibrator, tranch values, and known site VCFs'
-    in:
-      dbsnp_resource_vcf: dbsnp_vcf
-      hapmap_resource_vcf: hapmap_resource_vcf
-      omni_resource_vcf: omni_resource_vcf
-      one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
-      sites_only_variant_filtered_vcf: gatk_gathervcfs/output
-      max_gaussians: snp_max_gaussians
-    out: [model_report]
-  gatk_indelsvariantrecalibrator:
-    run: ../tools/gatk_indelsvariantrecalibrator.cwl
-    doc: 'Create recalibration model for indels using GATK VariantRecalibrator, tranch values, and known site VCFs'
-    in:
-      axiomPoly_resource_vcf: axiomPoly_resource_vcf
-      dbsnp_resource_vcf: dbsnp_vcf
-      mills_resource_vcf: mills_resource_vcf
-      sites_only_variant_filtered_vcf: gatk_gathervcfs/output
-      max_gaussians: indel_max_gaussians
-    out: [recalibration, tranches]
-  gatk_snpsvariantrecalibratorscattered:
-    run: ../tools/gatk_snpsvariantrecalibratorscattered.cwl
-    hints:
-    - class: 'sbg:AWSInstanceType'
-      value: r4.4xlarge;ebs-gp2;500
-    doc: 'Create recalibration model for known sites from input data using GATK VariantRecalibrator, tranch values, and known site
-      VCFs'
-    in:
-      sites_only_variant_filtered_vcf: gatk_import_genotype_filtergvcf_merge/sites_only_vcf
-      model_report: gatk_snpsvariantrecalibratorcreatemodel/model_report
-      hapmap_resource_vcf: hapmap_resource_vcf
-      omni_resource_vcf: omni_resource_vcf
-      one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
-      dbsnp_resource_vcf: dbsnp_vcf
-      max_gaussians: snp_max_gaussians
-    scatter: [sites_only_variant_filtered_vcf]
-    out: [recalibration, tranches]
-  gatk_gathertranches:
-    run: ../tools/gatk_gathertranches.cwl
-    doc: 'Gather tranches from SNP variant recalibrate scatter'
-    in:
-      tranches: gatk_snpsvariantrecalibratorscattered/tranches
-    out: [output]
-  gatk_applyrecalibration:
-    run: ../tools/gatk_applyrecalibration.cwl
-    hints:
-    - class: 'sbg:AWSInstanceType'
-      value: r4.4xlarge;ebs-gp2;500
-    doc: 'Apply recalibration to snps and indels'
-    in:
-      indels_recalibration: gatk_indelsvariantrecalibrator/recalibration
-      indels_tranches: gatk_indelsvariantrecalibrator/tranches
-      input_vcf: gatk_import_genotype_filtergvcf_merge/variant_filtered_vcf
-      snps_recalibration: gatk_snpsvariantrecalibratorscattered/recalibration
-      snps_tranches: gatk_gathertranches/output
-    scatter: [input_vcf, snps_recalibration]
-    scatterMethod: dotproduct
-    out: [recalibrated_vcf]
-  gatk_gatherfinalvcf:
-    run: ../tools/gatk_gatherfinalvcf.cwl
-    doc: 'Combine resultant VQSR VCFs'
-    in:
-      input_vcfs: gatk_applyrecalibration/recalibrated_vcf
-      output_basename: output_basename
+      input_vcfs: gatk_import_genotype_filtergvcf_merge/variant_filtered_vcf
     out: [output]
   gatk_hardfiltering:
     run: ../subworkflows/kfdrc-gatk-hardfiltering.cwl
     in:
-      input_vcf: gatk_gatherfinalvcf/output
+      input_vcf:
+        source: [gatk_vqsr/recalibrated_vcf, gatk_gathervcfs/output]
+        pickValue: first_non_null
       output_basename: output_basename
     out: [hardfiltered_vcf]
   peddy:
@@ -227,7 +191,9 @@ steps:
     doc: 'QC family relationships and sex assignment'
     in:
       ped: ped
-      vqsr_vcf: gatk_gatherfinalvcf/output
+      vqsr_vcf:
+        source: [gatk_vqsr/recalibrated_vcf, gatk_gathervcfs/output]
+        pickValue: first_non_null
       output_basename: output_basename
     out: [output_html, output_csv, output_peddy]
   picard_collectvariantcallingmetrics:
