@@ -21,7 +21,6 @@ arguments:
       -L $(inputs.interval.path)
       --reader-threads 16
       -ip 5
-      $(inputs.genomicsdbimport_extra_args != null ? inputs.genomicsdbimport_extra_args : '')
   - position: 2
     shellQuote: false
     valueFrom: >-
@@ -73,7 +72,11 @@ inputs:
     secondaryFiles: [.tbi]
     inputBinding:
       position: 1
-  genomicsdbimport_extra_args: string?
+  genomicsdbimport_extra_args:
+    type: string?
+    inputBinding:
+      position: 1
+      shellQuote: false
 outputs:
   variant_filtered_vcf:
     type: File
