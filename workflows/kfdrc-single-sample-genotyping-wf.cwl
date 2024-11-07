@@ -93,6 +93,7 @@ inputs:
   indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL VariantRecalibration. If a dataset gives fewer
       variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces
       the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  genomicsdbimport_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenomicsDBImport" }
   output_basename: string
   tool_name: {type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files"}
   # Annotation
@@ -142,6 +143,7 @@ steps:
       interval: dynamicallycombineintervals/out_intervals
       dbsnp_vcf: dbsnp_vcf
       reference_fasta: indexed_reference_fasta
+      genomicsdbimport_extra_args: genomicsdbimport_extra_args
     scatter: [interval]
     out: [variant_filtered_vcf, sites_only_vcf]
   gatk_gathervcfs:
