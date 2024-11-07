@@ -357,6 +357,7 @@ inputs:
   indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL VariantRecalibration. If a dataset gives fewer
       variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces
       the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  genomicsdbimport_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenomicsDBImport" }
   bcftools_annot_clinvar_columns: {type: 'string?', doc: "csv string of columns from annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
   clinvar_annotation_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "additional bgzipped annotation
       vcf file"}
@@ -579,6 +580,7 @@ steps:
       ped: ped
       snp_max_gaussians: snp_max_gaussians
       indel_max_gaussians: indel_max_gaussians
+      genomicsdbimport_extra_args: genomicsdbimport_extra_args
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
       clinvar_annotation_vcf: clinvar_annotation_vcf
       echtvar_anno_zips: echtvar_anno_zips
