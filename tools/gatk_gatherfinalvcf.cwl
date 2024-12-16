@@ -7,8 +7,8 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 7000
-    coresMin: 2
+    ramMin: $(inputs.ram * 1000)
+    coresMin: $(inputs.cpu)
 baseCommand: []
 arguments:
   - position: 0
@@ -33,6 +33,8 @@ inputs:
     inputBinding:
       position: 1
   output_basename: string
+  cpu: { type: 'int?', default: 2, doc: "CPUs to allocate to this task." }
+  ram: { type: 'int?', default: 7, doc: "GB of RAM to allocate to this task." }
 outputs:
   output:
     type: File

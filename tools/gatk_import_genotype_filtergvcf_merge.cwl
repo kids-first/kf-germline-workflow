@@ -25,6 +25,7 @@ arguments:
     shellQuote: false
     valueFrom: >-
       && tar -cf genomicsdb.tar genomicsdb
+      ### THIS MIGHT BE USELESS
   - position: 3
     shellQuote: false
     valueFrom: >-

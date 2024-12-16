@@ -6,8 +6,8 @@ requirements:
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0'
   - class: ShellCommandRequirement
   - class: ResourceRequirement
-    ramMin: 7000
-    coresMin: 2
+    ramMin: $(inputs.ram * 1000)
+    coresMin: $(inputs.cpu)
 baseCommand: []
 arguments:
   - position: 0
@@ -25,6 +25,8 @@ inputs:
         prefix: --input
     inputBinding:
       position: 1
+  cpu: { type: 'int?', default: 2, doc: "CPUs to allocate to this task." }
+  ram: { type: 'int?', default: 7, doc: "GB of RAM to allocate to this task." }
 outputs:
   output:
     type: File
