@@ -113,6 +113,10 @@ inputs:
   snp_ts_filter_level: { type: 'float?', doc: "The truth sensitivity level at which to start filtering SNP data" }
   indel_ts_filter_level: { type: 'float?', doc: "The truth sensitivity level at which to start filtering INDEL data" }
 
+  # HardFiltering Options
+  snp_hardfilters: {type: 'string', doc: "String value of hardfilters to set for SNPs" }
+  indel_hardfilters: {type: 'string', doc: "String value of hardfilters to set for INDELs" }
+
   # Annotation
   bcftools_annot_clinvar_columns: {type: 'string?', doc: "csv string of columns from annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
   echtvar_anno_zips: {type: 'File[]?', doc: "Annotation ZIP files for echtvar anno", "sbg:suggestedValue": [{class: File, path: 65c64d847dab7758206248c6,
@@ -138,38 +142,44 @@ outputs:
   peddy_html: {type: 'File[]', doc: 'html summary of peddy results', outputSource: peddy/output_html}
   peddy_csv: {type: 'File[]', doc: 'csv details of peddy results', outputSource: peddy/output_csv}
   peddy_ped: {type: 'File[]', doc: 'ped format summary of peddy results', outputSource: peddy/output_peddy}
+  hardfiltered_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], outputSource: gatk_hardfiltering/hardfiltered_vcf}
   vep_annotated_vcf: {type: 'File[]', outputSource: annotate_vcf/annotated_vcf}
 
 steps:
+  filtering_defaults:
+    run: ../tools/filtering_defaults.cwl
+    in:
+      num_vcfs:
+        source: input_vcfs
+        valueFrom: $(self.length)
+      experiment_type: experiment_type
+    out: [low_data, snp_tranches, indel_tranches, snp_annotations, indel_annotations, snp_ts_filter_level, indel_ts_filter_level, snp_hardfilter, indel_hardfilter]
   dynamicallycombineintervals:
     run: ../tools/script_dynamicallycombineintervals.cwl
-    doc: 'Merge interval lists based on number of gVCF inputs'
     in:
       input_vcfs: input_vcfs
       interval: unpadded_intervals_file
     out: [out_intervals]
-  # NEED TO REMAKE THIS TOOL TO ONLY IMPORT AND GENOTYPE; import is actually not necessary for single sample
-  gatk_import_genotype_filtergvcf_merge:
-    run: ../tools/gatk_import_genotype_filtergvcf_merge.cwl
+  gatk_genomicsdbimport_genotypegvcfs:
+    run: ../tools/gatk_genomicsdbimport_genotypegvcfs.cwl
     hints:
     - class: 'sbg:AWSInstanceType'
       value: r5.4xlarge
-    doc: 'Use GATK GenomicsDBImport, VariantFiltration GenotypeGVCFs, and picard MakeSitesOnlyVcf to genotype, filter and merge gVCF
-      based on known sites'
+    scatter: [interval]
     in:
       input_vcfs: input_vcfs
       interval: dynamicallycombineintervals/out_intervals
       dbsnp_vcf: dbsnp_vcf
       reference_fasta: indexed_reference_fasta
       genomicsdbimport_extra_args: genomicsdbimport_extra_args
-    scatter: [interval]
-    out: [variant_filtered_vcf, sites_only_vcf]
+      genotypegvcfs_extra_args: genotypegvcfs_extra_args
+    out: [genotyped_vcf]
   gatk_vqsr:
     run: ../subworkflows/kfdrc-gatk-vqsr.cwl
-    when: $(inputs.experiment_type == "WGS" || inputs.experiment_type == "WXS")
+    when: $(!inputs.low_data)
     in:
-      experiment_type: experiment_type
-      genotyped_vcfs:
+      low_data: filtering_defaults/low_data
+      genotyped_vcfs: gatk_genomicsdbimport_genotypegvcfs/genotyped_vcf
       output_basename: output_basename
       axiomPoly_resource_vcf: axiomPoly_resource_vcf
       dbsnp_vcf: dbsnp_vcf
@@ -180,79 +190,44 @@ steps:
       snp_max_gaussians: snp_max_gaussians
       indel_max_gaussians: indel_max_gaussians
       snp_tranches:
-        source: snp_tranches
-        valueFrom: |
-          ${
-            if (self != null) { return self };
-            var TRANCHE_MAP = {
-              'WGS': ["100.0", "99.95", "99.9", "99.8", "99.6", "99.5", "99.4", "99.3", "99.0", "98.0", "97.0", "90.0" ],
-              'WXS': ["100.0", "99.95", "99.9", "99.8", "99.7", "99.6", "99.5", "99.4", "99.3", "99.0", "98.0", "97.0", "90.0" ]
-            };
-            return TRANCHE_MAP[inputs.experiment_type];
-          }
+        source: [snp_tranches, filtering_defaults/snp_tranches]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
       indel_tranches:
-        source: indel_tranches
-        valueFrom: |
-          ${
-            if (self != null) { return self };
-            var TRANCHE_MAP = {
-              'WGS': ["100.0", "99.95", "99.9", "99.5", "99.0", "97.0", "96.0", "95.0", "94.0", "93.5", "93.0", "92.0", "91.0", "90.0"],
-              'WXS': ["100.0", "99.95", "99.9", "99.5", "99.0", "97.0", "96.0", "95.0", "94.0", "93.5", "93.0", "92.0", "91.0", "90.0"]
-            };
-            return TRANCHE_MAP[inputs.experiment_type];
-          }
+        source: [indel_tranches, filtering_defaults/indel_tranches]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
       snp_annotations:
-        source: snp_annotations
-        valueFrom: |
-          ${
-            if (self != null) { return self };
-            var ANNOT_MAP = {
-              'WGS': ["QD", "MQRankSum", "ReadPosRankSum", "FS", "MQ", "SOR", "DP"],
-              'WXS': ["AS_QD", "AS_MQRankSum", "AS_ReadPosRankSum", "AS_FS", "AS_MQ", "AS_SOR"]
-            };
-            return ANNOT_MAP[inputs.experiment_type];
-          }
+        source: [snp_annotations, filtering_defaults/snp_annotations]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
       indel_annotations:
-        source: indel_annotations
-        valueFrom: |
-          ${
-            if (self != null) { return self };
-            var ANNOT_MAP = {
-              'WGS': ["FS", "ReadPosRankSum", "MQRankSum", "QD", "SOR", "DP"],
-              'WXS': ["AS_FS", "AS_ReadPosRankSum", "AS_MQRankSum", "AS_QD", "AS_SOR"]
-            };
-            return ANNOT_MAP[inputs.experiment_type];
-          }
+        source: [indel_annotations, filtering_defaults/indel_annotations]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
       snp_ts_filter_level:
-        source: snp_ts_filter_level
-        valueFrom: |
-          ${
-            if (self != null) { return self };
-            var FILTER_MAP = {
-              'WGS': 99.7,
-              'WXS': 99.7
-            };
-            return FILTER_MAP[inputs.experiment_type];
-          }
+        source: [snp_ts_filter_level, filtering_defaults/snp_ts_filter_level]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
       indel_ts_filter_level:
-        source: indel_ts_filter_level
-        valueFrom: |
-          ${
-            if (self != null) { return self };
-            var FILTER_MAP = {
-              'WGS': 99.0,
-              'WXS': 95.0
-            };
-            return FILTER_MAP[inputs.experiment_type];
-          }
+        source: [indel_ts_filter_level, filtering_defaults/indel_ts_filter_level]
+	valueFrom: "$(self[0] != null ? self[0] : self[1])"
     out: [recalibrated_vcf]
+  gatk_gathervcfs:
+    run: ../tools/gatk_gathervcfs.cwl
+    when: $(inputs.low_data)
+    in:
+      low_data: filtering_defaults/low_data
+      input_vcfs: gatk_genomicsdbimport_genotypegvcfs/genotyped_vcf
+    out: [output]
   gatk_hardfiltering:
     run: ../subworkflows/kfdrc-gatk-hardfiltering.cwl
-    when: $(inputs.experiment_type == "Targeted Sequencing")
+    when: $(inputs.low_data)
     in:
-      experiment_type: experiment_type
+      low_data: filtering_defaults/low_data
       input_vcf: gatk_gathervcfs/output
       output_basename: output_basename
+      snp_hardfilters:
+        source: [snp_hardfilters, filtering_defaults/snp_hardfilters]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      indel_hardfilters: indel_hardfilters
+        source: [indel_hardfilters, filtering_defaults/indel_hardfilters]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
     out: [hardfiltered_vcf]
   peddy:
     run: ../tools/kfdrc_peddy_tool.cwl
@@ -283,7 +258,6 @@ steps:
     out: [output]
   annotate_vcf:
     run: ../kf-annotation-tools/workflows/kfdrc-germline-snv-annot-workflow.cwl
-    doc: 'annotate variants'
     in:
       indexed_reference_fasta: indexed_reference_fasta
       input_vcf:

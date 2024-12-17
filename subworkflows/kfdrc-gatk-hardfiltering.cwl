@@ -1,6 +1,9 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: Workflow
 id: kfdrc-gatk-hardfiltering
+requirements:
+- class: StepInputExpressionRequirement
+- class: InlineJavascriptRequirement
 doc: |-
   This workflow performs manual site-level variant filtration on an input VCF using the generic hard-filtering thresholds and example commands in the
   [documentation from Broad](https://gatk.broadinstitute.org/hc/en-us/articles/360035531112--How-to-Filter-variants-either-with-VQSR-or-by-hard-filtering#2).
@@ -11,6 +14,8 @@ doc: |-
 inputs:
   input_vcf: {type: 'File', secondaryFiles: [.tbi], doc: "Input VCF containing INDEL and SNP variants"}
   output_basename: {type: 'string', doc: "String value to use as the base for the filename of the output"}
+  snp_hardfilters: {type: 'string', doc: "String value of hardfilters to set for SNPs in input_vcf" }
+  indel_hardfilters: {type: 'string', doc: "String value of hardfilters to set for INDELs in input_vcf" }
 
 outputs:
   hardfiltered_vcf: {type: 'File', outputSource: bcftools_concat_snps_indels/output}

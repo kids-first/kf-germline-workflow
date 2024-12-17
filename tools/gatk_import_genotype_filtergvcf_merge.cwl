@@ -15,11 +15,13 @@ arguments:
     shellQuote: false
     valueFrom: >-
       /gatk --java-options "-Xms4g"
+      ### Max mem needs to be ~5 GB under the ramMin
       GenomicsDBImport
       --genomicsdb-workspace-path genomicsdb
       --batch-size 50
       -L $(inputs.interval.path)
       --reader-threads 16
+      ### Threads maxes out at 5 so lower it, also change coresMin to 5
       -ip 5
   - position: 2
     shellQuote: false
