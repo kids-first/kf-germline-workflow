@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_gathertranches
 requirements:
@@ -13,7 +13,7 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx6g -Xms6g"
+      /gatk --java-options "-Xmx$(Math.floor(inputs.ram*1000/1.074-1))m -Xms$(Math.floor((inputs.ram - 1)*1000/1.074-1))m"
       GatherTranches
       --output snps.gathered.tranches
 inputs:

@@ -16,7 +16,12 @@ requirements:
 - class: InlineJavascriptRequirement
 inputs:
   num_vcfs: int
-  experiment_type: string
+  experiment_type:
+    type:
+      - type: enum
+        name: experiment_type
+        symbols: ["WGS", "WXS", "Targeted Sequencing"]
+    doc: "Experimental strategy used to sequence the data in the input_vcfs"
 outputs:
   low_data: boolean
   snp_tranches: string[]?

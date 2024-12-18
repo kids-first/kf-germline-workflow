@@ -14,7 +14,7 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xms$(((inputs.max_memory - 5) * 500)m -Xmx$((inputs.max_memory - 5) * 1000)m"
+      /gatk --java-options "-Xms$((inputs.ram - 5) * 500)m -Xmx$((inputs.ram - 5) * 1000)m"
       GenomicsDBImport
       -L $(inputs.interval.path)
       --interval-padding 5
@@ -24,7 +24,7 @@ arguments:
   - position: 10
     shellQuote: false
     valueFrom: >-
-      && /gatk --java-options "-Xms$(Math.floor(inputs.max_memory*500/1.074-1))m -Xmx$(Math.floor(inputs.max_memory*1000/1.074-1))m"
+      && /gatk --java-options "-Xms$(Math.floor(inputs.ram*500/1.074-1))m -Xmx$(Math.floor(inputs.ram*1000/1.074-1))m"
       GenotypeGVCFs
       -R $(inputs.reference_fasta.path)
       -D $(inputs.dbsnp_vcf.path)
@@ -40,9 +40,9 @@ inputs:
   interval: File
   reference_fasta: { type: 'File', secondaryFiles: [{pattern: '^.dict', required: true}, {pattern: '.fai', required: true}]}
   dbsnp_vcf: { type: 'File', secondaryFiles: [{pattern: '.idx', required: true}]}
-  input_vcfs: { type: { type: array, items: 'File', inputBinding: { prefix: -V } }, inputBinding: { position: 1 }, secondaryFiles: [{pattern: '.tbi', requred: true}] }
+  input_vcfs: { type: { type: array, items: 'File', inputBinding: { prefix: '-V' } }, inputBinding: { position: 1 }, secondaryFiles: [{pattern: '.tbi', required: true}] }
   genomicsdbimport_extra_args: { type: 'string?', inputBinding: { position: 1, shellQuote: false } }
-  genotypegvcfs_extra_args: { type: 'string?' inputBinding: { position: 11, shellQuote: false } }
+  genotypegvcfs_extra_args: { type: 'string?', inputBinding: { position: 11, shellQuote: false } }
   cpu: { type: 'int?', default: 5, doc: "CPUs to allocate to this task" }
   ram: { type: 'int?', default: 10, doc: "GB of RAM to allocate to this task" }
 outputs:

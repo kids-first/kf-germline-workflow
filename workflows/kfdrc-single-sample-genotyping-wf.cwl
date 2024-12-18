@@ -95,27 +95,44 @@ inputs:
       class: File, path: 5f500135e4b0370371c051b1, name: hg38.even.handcurated.20k.intervals}}
   wgs_evaluation_interval_list: {type: File, doc: 'wgs_evaluation_regions.hg38.interval_list', "sbg:suggestedValue": {class: File,
       path: 60639017357c3a53540ca7d3, name: wgs_evaluation_regions.hg38.interval_list}}
-  snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP VariantRecalibration. If a dataset gives fewer variants
-      than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces the program
-      to group variants into a smaller number of clusters, which results in more variants per cluster."}
-  indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL VariantRecalibration. If a dataset gives fewer
-      variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces
-      the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
   genomicsdbimport_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenomicsDBImport" }
+  genotypegvcfs_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenotypeGVCFs" }
   output_basename: string
   tool_name: {type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files"}
 
   # VQSR Options
-  snp_tranches: { type: 'string[]?', doc: "The levels of truth sensitivity at which to slice the SNP recalibration data, in percent." }
-  snp_annotations: { type: 'string[]?', doc: "The names of the annotations which should used for SNP recalibration calculations." }
-  indel_tranches: { type: 'string[]?', doc: "The levels of truth sensitivity at which to slice the INDEL recalibration data, in percent." }
-  indel_annotations: { type: 'string[]?', doc: "The names of the annotations which should used for INDEL recalibration calculations." }
-  snp_ts_filter_level: { type: 'float?', doc: "The truth sensitivity level at which to start filtering SNP data" }
-  indel_ts_filter_level: { type: 'float?', doc: "The truth sensitivity level at which to start filtering INDEL data" }
+  vqsr_snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP VariantRecalibration. If a dataset gives fewer variants
+      than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces the program
+      to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  vqsr_indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL VariantRecalibration. If a dataset gives fewer
+      variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces
+      the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  vqsr_snp_tranches: { type: 'string[]?', doc: "The levels of truth sensitivity at which to slice the SNP recalibration data, in percent." }
+  vqsr_snp_annotations: { type: 'string[]?', doc: "The names of the annotations which should used for SNP recalibration calculations." }
+  vqsr_indel_tranches: { type: 'string[]?', doc: "The levels of truth sensitivity at which to slice the INDEL recalibration data, in percent." }
+  vqsr_indel_annotations: { type: 'string[]?', doc: "The names of the annotations which should used for INDEL recalibration calculations." }
+  vqsr_snp_ts_filter_level: { type: 'float?', doc: "The truth sensitivity level at which to start filtering SNP data" }
+  vqsr_indel_ts_filter_level: { type: 'float?', doc: "The truth sensitivity level at which to start filtering INDEL data" }
+  vqsr_snp_model_cpu: { type: 'int?', doc: "CPUs to allocate to VariantRecalibrator for SNP model creation." }
+  vqsr_snp_model_ram: { type: 'int?', doc: "GB of RAM to allocate to VariantRecalibrator for SNP model creation." }
+  vqsr_indel_recal_cpu: { type: 'int?', doc: "CPUs to allocate to VariantRecalibrator for INDEL recalibration." }
+  vqsr_indel_recal_ram: { type: 'int?', doc: "GB of RAM to allocate to VariantRecalibrator for INDEL recalibration." }
+  vqsr_snp_recal_cpu: { type: 'int?', doc: "CPUs to allocate to VariantRecalibrator for scattered SNP recalibration." }
+  vqsr_snp_recal_ram: { type: 'int?', doc: "GB of RAM to allocate to VariantRecalibrator for scattered SNP recalibration." }
+  vqsr_gathertranche_cpu: { type: 'int?', doc: "CPUs to allocate to GatherTranches." }
+  vqsr_gathertranche_ram: { type: 'int?', doc: "GB of RAM to allocate to GatherTranches." }
+  vqsr_apply_cpu: { type: 'int?', doc: "CPUs to allocate to ApplyVQSR for INDELs and SNPs." }
+  vqsr_apply_ram: { type: 'int?', doc: "GB of RAM to allocate to ApplyVQSR for INDELs and SNPs." }
+  vqsr_gathervcf_cpu: { type: 'int?', doc: "CPUs to allocate to GatherVcfsCloud." }
+  vqsr_gathervcf_ram: { type: 'int?', doc: "GB of RAM to allocate to GatherVcfsCloud." }
 
   # HardFiltering Options
-  snp_hardfilters: {type: 'string', doc: "String value of hardfilters to set for SNPs" }
-  indel_hardfilters: {type: 'string', doc: "String value of hardfilters to set for INDELs" }
+  hardfilter_snp_filters: {type: 'string?', doc: "String value of hardfilters to set for SNPs" }
+  hardfilter_indel_filters: {type: 'string?', doc: "String value of hardfilters to set for INDELs" }
+  hardfilter_snp_filter_extra_args: {type: 'string?', doc: "Any extra arguments for SNP VariantFiltration during HardFiltering"}
+  hardfilter_indel_filter_extra_args: {type: 'string?', doc: "Any extra arguments for INDEL VariantFiltration during HardFiltering"}
+  hardfilter_filtertration_cpu: { type: 'int?', doc: "CPUs to allocate to GATK VariantFiltration during HardFiltering"}
+  hardfilter_filtertration_ram: { type: 'int?', doc: "GB of RAM to allocate to GATK VariantFiltration during HardFiltering"}
 
   # Annotation
   bcftools_annot_clinvar_columns: {type: 'string?', doc: "csv string of columns from annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
@@ -156,6 +173,9 @@ steps:
     out: [low_data, snp_tranches, indel_tranches, snp_annotations, indel_annotations, snp_ts_filter_level, indel_ts_filter_level, snp_hardfilter, indel_hardfilter]
   dynamicallycombineintervals:
     run: ../tools/script_dynamicallycombineintervals.cwl
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: c5.9xlarge
     in:
       input_vcfs: input_vcfs
       interval: unpadded_intervals_file
@@ -164,7 +184,7 @@ steps:
     run: ../tools/gatk_genomicsdbimport_genotypegvcfs.cwl
     hints:
     - class: 'sbg:AWSInstanceType'
-      value: r5.4xlarge
+      value: c5.9xlarge
     scatter: [interval]
     in:
       input_vcfs: input_vcfs
@@ -187,26 +207,38 @@ steps:
       mills_resource_vcf: mills_resource_vcf
       omni_resource_vcf: omni_resource_vcf
       one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
-      snp_max_gaussians: snp_max_gaussians
-      indel_max_gaussians: indel_max_gaussians
+      snp_max_gaussians: vqsr_snp_max_gaussians
+      indel_max_gaussians: vqsr_indel_max_gaussians
       snp_tranches:
-        source: [snp_tranches, filtering_defaults/snp_tranches]
+        source: [vqsr_snp_tranches, filtering_defaults/snp_tranches]
         valueFrom: "$(self[0] != null ? self[0] : self[1])"
       indel_tranches:
-        source: [indel_tranches, filtering_defaults/indel_tranches]
+        source: [vqsr_indel_tranches, filtering_defaults/indel_tranches]
         valueFrom: "$(self[0] != null ? self[0] : self[1])"
       snp_annotations:
-        source: [snp_annotations, filtering_defaults/snp_annotations]
+        source: [vqsr_snp_annotations, filtering_defaults/snp_annotations]
         valueFrom: "$(self[0] != null ? self[0] : self[1])"
       indel_annotations:
-        source: [indel_annotations, filtering_defaults/indel_annotations]
+        source: [vqsr_indel_annotations, filtering_defaults/indel_annotations]
         valueFrom: "$(self[0] != null ? self[0] : self[1])"
       snp_ts_filter_level:
-        source: [snp_ts_filter_level, filtering_defaults/snp_ts_filter_level]
+        source: [vqsr_snp_ts_filter_level, filtering_defaults/snp_ts_filter_level]
         valueFrom: "$(self[0] != null ? self[0] : self[1])"
       indel_ts_filter_level:
-        source: [indel_ts_filter_level, filtering_defaults/indel_ts_filter_level]
-	valueFrom: "$(self[0] != null ? self[0] : self[1])"
+        source: [vqsr_indel_ts_filter_level, filtering_defaults/indel_ts_filter_level]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      snp_model_cpu: vqsr_snp_model_cpu
+      snp_model_ram: vqsr_snp_model_ram
+      indel_recal_cpu: vqsr_indel_recal_cpu
+      indel_recal_ram: vqsr_indel_recal_ram
+      snp_recal_cpu: vqsr_snp_recal_cpu
+      snp_recal_ram: vqsr_snp_recal_ram
+      gathertranche_cpu: vqsr_gathertranche_cpu
+      gathertranche_ram: vqsr_gathertranche_ram
+      apply_cpu: vqsr_apply_cpu
+      apply_ram: vqsr_apply_ram
+      gathervcf_cpu: vqsr_gathervcf_cpu
+      gathervcf_ram: vqsr_gathervcf_ram
     out: [recalibrated_vcf]
   gatk_gathervcfs:
     run: ../tools/gatk_gathervcfs.cwl
@@ -223,11 +255,15 @@ steps:
       input_vcf: gatk_gathervcfs/output
       output_basename: output_basename
       snp_hardfilters:
-        source: [snp_hardfilters, filtering_defaults/snp_hardfilters]
+        source: [hardfilter_snp_filters, filtering_defaults/snp_hardfilter]
         valueFrom: "$(self[0] != null ? self[0] : self[1])"
-      indel_hardfilters: indel_hardfilters
-        source: [indel_hardfilters, filtering_defaults/indel_hardfilters]
+      indel_hardfilters:
+        source: [hardfilter_indel_filters, filtering_defaults/indel_hardfilter]
         valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      snp_filtration_extra_args: hardfilter_snp_filter_extra_args
+      indel_filtration_extra_args: hardfilter_indel_filter_extra_args
+      filtration_cpu: hardfilter_filtertration_cpu
+      filtration_ram: hardfilter_filtertration_ram
     out: [hardfiltered_vcf]
   peddy:
     run: ../tools/kfdrc_peddy_tool.cwl
@@ -252,7 +288,7 @@ steps:
           $(self.secondaryFiles.filter(function(e) {return e.nameext == '.dict'})[0])
       output_basename:
         source: output_basename
-        valueFrom: $(self).gatk.germline
+        valueFrom: $(self).gatk.germline.hardfiltered
       dbsnp_vcf: dbsnp_vcf
       wgs_evaluation_interval_list: wgs_evaluation_interval_list
     out: [output]

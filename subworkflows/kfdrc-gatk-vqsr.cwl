@@ -6,6 +6,7 @@ doc: |-
 requirements:
 - class: ScatterFeatureRequirement
 - class: InlineJavascriptRequirement
+- class: StepInputExpressionRequirement
 
 inputs:
   genotyped_vcfs: {type: 'File[]', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "Input VCF that has been jointly genotyped"}
@@ -61,20 +62,26 @@ outputs:
 
 steps:
   gatk_filter_excesshet:
-    run: ../tools/tools/gatk_variantfiltration2.cwl
+    run: ../tools/gatk_variantfiltration.cwl
     scatter: [input_vcf]
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: m5.4xlarge
     in:
       input_vcf: genotyped_vcfs
-      output_filename:
-        valueFrom: 'variant_filtered.vcf.gz'
+      output_basename:
+        valueFrom: 'excesshet_filtered'
       variant_filters:
         valueFrom: '--filter-expression "ExcessHet > 54.69" --filter-name ExcessHet'
-    out: [filtered_vcf]
+    out: [output]
   gatk_makesitesonlyvcf:
     run: ../tools/gatk_makesitesonlyvcf.cwl
     scatter: [input_vcf]
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: m5.4xlarge
     in:
-      input_vcf: gatk_filter_excesshet/filtered_vcf
+      input_vcf: gatk_filter_excesshet/output
       output_filename:
         valueFrom: 'sites_only.variant_filtered.vcf.gz'
     out: [sites_vcf]
@@ -92,7 +99,7 @@ steps:
       one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
       sites_only_variant_filtered_vcf: gatk_gathervcfs/output
       max_gaussians: snp_max_gaussians
-      tranches: snp_tranches
+      tranche: snp_tranches
       annotations: snp_annotations
       cpu: snp_model_cpu
       ram: snp_model_ram
@@ -105,7 +112,7 @@ steps:
       mills_resource_vcf: mills_resource_vcf
       sites_only_variant_filtered_vcf: gatk_gathervcfs/output
       max_gaussians: indel_max_gaussians
-      tranches: indel_tranches
+      tranche: indel_tranches
       annotations: indel_annotations
       cpu: indel_recal_cpu
       ram: indel_recal_ram
@@ -115,22 +122,25 @@ steps:
     scatter: [sites_only_variant_filtered_vcf]
     hints:
     - class: 'sbg:AWSInstanceType'
-      value: r5.4xlarge
+      value: r5.2xlarge
     in:
-      sites_only_variant_filtered_vcf: gatk_filter_execesshet/filtered_vcf
+      sites_only_variant_filtered_vcf: gatk_filter_excesshet/output
       model_report: gatk_snpsvariantrecalibratorcreatemodel/model_report
       hapmap_resource_vcf: hapmap_resource_vcf
       omni_resource_vcf: omni_resource_vcf
       one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
       dbsnp_resource_vcf: dbsnp_vcf
       max_gaussians: snp_max_gaussians
-      tranches: snp_tranches
+      tranche: snp_tranches
       annotations: snp_annotations
       cpu: snp_recal_cpu
       ram: snp_recal_ram
     out: [recalibration, tranches]
   gatk_gathertranches:
     run: ../tools/gatk_gathertranches.cwl
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: r5.2xlarge
     in:
       tranches: gatk_snpsvariantrecalibratorscattered/tranches
       cpu: gathertranche_cpu
@@ -142,11 +152,11 @@ steps:
     scatterMethod: dotproduct
     hints:
     - class: 'sbg:AWSInstanceType'
-      value: r5.4xlarge
+      value: r5.2xlarge
     in:
       indels_recalibration: gatk_indelsvariantrecalibrator/recalibration
       indels_tranches: gatk_indelsvariantrecalibrator/tranches
-      input_vcf: variants_vcfs
+      input_vcf: gatk_filter_excesshet/output
       snps_recalibration: gatk_snpsvariantrecalibratorscattered/recalibration
       snps_tranches: gatk_gathertranches/output
       snp_ts_filter_level: snp_ts_filter_level
