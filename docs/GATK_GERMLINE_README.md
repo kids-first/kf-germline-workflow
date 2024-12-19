@@ -1,9 +1,48 @@
 # Kids First DRC Single Sample Genotyping Workflow
 Kids First Data Resource Center Single Sample Genotyping Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc-jointgenotyping-refinement-workflow.cwl).
-While the Joint Genotyping Workflow is meant to be used with trios, this workflow is meant for processing single samples.
-The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP bcftools (see [Kids First DRC Germline SNV Annotation Workflow docs](https://github.com/kids-first/kf-annotation-tools/blob/v1.1.0/docs/GERMLINE_SNV_ANNOT_README.md) ).
-Unlike the Joint Genotyping Workflow, a germline-oriented [GATK hard filtering process](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants) is performed and CalculateGenotypePosteriors has been removed.
-While somatic samples can be run through this workflow, be wary that the filtering process is specifically tuned for germline data.
+
+While the Joint Genotyping Workflow is meant to be used with whole genome
+sequenced trios, this workflow is meant for processing single samples from any
+sequencing experiment. The key difference between the different approaches is
+the filtering process.
+
+While somatic samples can be run through this workflow, be wary that the
+filtering process is specifically tuned for germline data.
+
+## GATK Genotype Site-Level Filtering
+
+Coming out of the GATK Genotyping process, site-level filtering must be done to
+remove variants that might adversely affect downstream analysis.
+
+GATK provides many different approaches to filtering:
+- Variant Quality Score Recalibration (VQSR)
+- CNNScoreVariants/NVScoreVariants
+- Variant Extract-Train-Score (VETS)
+- Hard Filtering
+
+The first three are all complex model-based approaches that attempt to infer
+cutoff points based on the data provided. Hard Filtering is manually setting
+thresholds and removing variants that fail to meet those thresholds. For this
+workflow, we only make use of VQSR and Hard Filtering at this time.
+
+VQSR, being a model based approach, needs sufficient data to construct that
+model. Normally in the joint filtering context, this means having hundreds of
+samples. According to the documentation: "it is not suitable for some
+small-scale experiments, such as targeted gene panels or exome studies with
+fewer than 30 exomes." Therefore, VQSR is only activated in this workflow when
+the input gVCFs for this workflow come from whole genome sequencing experiments
+or when the user provides 30 or more exome gVCFs.
+
+Hard Filtering is really only constrained by having sufficient depth. In the
+case of exome and targeted sequencing, the depths are more than sufficient. Our
+current approach for hard filtering mirrors the default approach outlined in
+the GATK documentation. However as they point out, "You absolutely SHOULD
+expect to have to evaluate your results critically and TRY AGAIN with some
+parameter adjustments until you find the settings that are right for your
+data." As such, the workflow also allows you to provide your own hard filters
+to replace the defaults in this workflow.
+
+## Running the Workflow
 
 If you would like to run this workflow using the CAVATICA public app, a basic primer on running public apps can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-Cavatica-af5ebb78c38a4f3190e32e67b4ce12bb).
 Alternatively, if you'd like to run it locally using `cwltool`, a basic primer on that can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-CWLtool-b8dbbde2dc7742e4aff290b0a878344d) and combined with app-specific info from the readme below.
