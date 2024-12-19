@@ -24,6 +24,7 @@ echtvar_anno.cwl|pgc-images.sbgenomics.com/d3b-bixu/echtvar:0.2.0
 expression_create_index_array.cwl|None
 expression_transpose_two_dimension_array.cwl|None
 file_to_file_array.cwl|None
+filtering_defaults.cwl|None
 freebayes.cwl|staphb/freebayes:1.3.6
 gatk_applyrecalibration.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_bedtointervallist.cwl|broadinstitute/gatk:4.4.0.0
@@ -32,12 +33,13 @@ gatk_determinegermlinecontigploidy_case.cwl|broadinstitute/gatk:4.2.0.0
 gatk_gatherfinalvcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_gathertranches.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_gathervcfs.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
+gatk_genomicsdbimport_genotypegvcfs.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_germlinecnvcaller_case.cwl|broadinstitute/gatk:4.2.0.0
 gatk_haplotypecaller.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.beta.1-3.5
-gatk_import_genotype_filtergvcf_merge.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_indelsvariantrecalibrator.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_intervallisttobed.cwl|broadinstitute/gatk:4.4.0.0
 gatk_intervallisttools.cwl|broadinstitute/gatk:4.4.0.0
+gatk_makesitesonlyvcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_mergevcfs.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0
 gatk_postprocessgermlinecnvcalls.cwl|broadinstitute/gatk:4.2.0.0
 gatk_preprocessintervals.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R
