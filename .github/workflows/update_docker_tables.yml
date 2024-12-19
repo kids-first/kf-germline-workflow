@@ -16,6 +16,7 @@ jobs:
         name: Checkout Repo
         with:
           ref: ${{ github.head_ref }}
+          submodules: true
       - id: make-single-sample-genotyping-table
         name: Make Docker Table for GATK Genotyping Workflow
         run: |
