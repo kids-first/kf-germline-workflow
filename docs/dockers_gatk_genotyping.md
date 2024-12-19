@@ -7,12 +7,14 @@ bcftools_concat.cwl|pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest
 bcftools_filter_vcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/bcftools:1.20
 bcftools_strip_ann.cwl|pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest
 echtvar_anno.cwl|pgc-images.sbgenomics.com/d3b-bixu/echtvar:0.2.0
+filtering_defaults.cwl|None
 gatk_applyrecalibration.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_gatherfinalvcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_gathertranches.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_gathervcfs.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
-gatk_import_genotype_filtergvcf_merge.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
+gatk_genomicsdbimport_genotypegvcfs.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_indelsvariantrecalibrator.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
+gatk_makesitesonlyvcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_selectvariants.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R
 gatk_snpsvariantrecalibratorcreatemodel.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_snpsvariantrecalibratorscattered.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0

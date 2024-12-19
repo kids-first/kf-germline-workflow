@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_selectvariants
 requirements:
@@ -24,7 +24,7 @@ arguments:
       -V $(inputs.input_vcf.path)
 
 inputs:
-  input_vcf: {type: 'File', secondaryFiles: [.tbi], doc: "A VCF file containing variants"}
+  input_vcf: {type: 'File', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "A VCF file containing variants"}
   selection: {type: {type: enum, name: selection, symbols: ["SNP", "INDEL"]}, doc: "Select only a certain type of variants from the input file"}
   output_basename: {type: 'string', doc: "String value to serve as the base for the output filename."}
   max_memory: {type: 'int?', default: 8, doc: "GB of memory to allocate to this task. default: 8"}
@@ -34,4 +34,4 @@ outputs:
     type: File
     outputBinding:
       glob: '*.vcf.gz'
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]

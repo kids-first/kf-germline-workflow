@@ -168,6 +168,13 @@ inputs:
         required: false}, {pattern: '^.crai', required: false}], doc: "Aligned reads files to be analyzed", "sbg:fileTypes": "BAM,CRAM"}
   input_gvcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "gVCF associated with input_reads. Providing
       this value will skip gVCF creation for the GATK pipeline.", "sbg:fileTypes": "VCF.GZ"}
+  experiment_type:
+    type:
+      - 'null'
+      - type: enum
+        name: experiment_type
+        symbols: ["WGS", "WXS", "Targeted Sequencing"]
+    doc: "Experimental strategy used to sequence the data of the input_gvcf"
   calling_regions: {type: 'File', doc: "File, in BED or INTERVALLIST format, containing a set of genomic regions over which variants
       will be called.", "sbg:suggestedValue": {class: File, path: 60639018357c3a53540ca7df, name: wgs_calling_regions.hg38.interval_list}}
   unpadded_intervals_file: {type: File, doc: "Handcurated intervals over which the gVCF will be genotyped to create a VCF.", "sbg:suggestedValue": {
@@ -442,6 +449,7 @@ steps:
     in:
       run_gatk: run_gatk
       input_vcfs: file_to_file_array_gvcf/out_file_array
+      experiment_type: experiment_type
       axiomPoly_resource_vcf: axiomPoly_resource_vcf
       dbsnp_vcf: dbsnp_vcf
       hapmap_resource_vcf: hapmap_resource_vcf
@@ -452,8 +460,8 @@ steps:
       indexed_reference_fasta: indexed_reference_fasta
       unpadded_intervals_file: unpadded_intervals_file
       wgs_evaluation_interval_list: wgs_evaluation_interval_list
-      snp_max_gaussians: snp_max_gaussians
-      indel_max_gaussians: indel_max_gaussians
+      vqsr_snp_max_gaussians: snp_max_gaussians
+      vqsr_indel_max_gaussians: indel_max_gaussians
       genomicsdbimport_extra_args: genomicsdbimport_extra_args
       output_basename: output_basename
       tool_name:
