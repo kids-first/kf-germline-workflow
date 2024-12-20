@@ -6,8 +6,10 @@ sequenced trios, this workflow is meant for processing single samples from any
 sequencing experiment. The key difference between the different approaches is
 the filtering process.
 
-While somatic samples can be run through this workflow, be wary that the
-filtering process is specifically tuned for germline data.
+While non-germline samples can be run through this workflow, be wary that the
+filtering process (VQSR/Hard Filtering) is specifically tuned for germline
+data. We strongly recommend manually adjusting this process to fit your data.
+See the available `vqsr_` and `hardfilter_` options.
 
 ## GATK Genotype Site-Level Filtering
 
@@ -20,8 +22,8 @@ GATK provides many different approaches to filtering:
 - Variant Extract-Train-Score (VETS)
 - Hard Filtering
 
-The first three are all complex model-based approaches that attempt to infer
-cutoff points based on the data provided. Hard Filtering is manually setting
+The first three are all complex, model-based approaches that attempt to infer
+cutoff points based on the data provided. Hard Filtering involves manually setting
 thresholds and removing variants that fail to meet those thresholds. For this
 workflow, we only make use of VQSR and Hard Filtering at this time.
 
@@ -31,7 +33,8 @@ samples. According to the documentation: "it is not suitable for some
 small-scale experiments, such as targeted gene panels or exome studies with
 fewer than 30 exomes." Therefore, VQSR is only activated in this workflow when
 the input gVCFs for this workflow come from whole genome sequencing experiments
-or when the user provides 30 or more exome gVCFs.
+or when the user provides 30 or more exome gVCFs. The 30+ samples will be jointly
+genotpyed and that genotyped VCF will be provided to VQSR.
 
 Hard Filtering is really only constrained by having sufficient depth. In the
 case of exome and targeted sequencing, the depths are more than sufficient. Our
