@@ -32,6 +32,8 @@ outputs:
   indel_ts_filter_level: float?
   snp_hardfilter: string?
   indel_hardfilter: string?
+  snp_plot_annots: string[]?
+  indel_plot_annots: string[]?
 expression: |
   ${
     var OUTPUTS = {
@@ -44,6 +46,8 @@ expression: |
         "indel_ts_filter_level": null,
         "snp_hardfilter": null,
         "indel_hardfilter": null,
+        "snp_plot_annots": null,
+        "indel_plot_annots": null,
     };
     var IS_LOW_DATA = {
       "WGS": false,
@@ -79,10 +83,12 @@ expression: |
                         '-filter "MQ < 40.0" --filter-name "MQ40_SNP" ' +
                         '-filter "MQRankSum < -12.5" --filter-name "MQRankSum-12.5_SNP" ' +
                         '-filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8_SNP"',
+      "snp_plot_annots": ["QD", "QUAL", "SOR", "FS", "MQ", "MQRankSum", "ReadPosRankSum"],
       "indel_hardfilter": '-filter "QD < 2.0" --filter-name "QD2" ' +
                           '-filter "QUAL < 30.0" --filter-name "QUAL30" ' +
                           '-filter "FS > 200.0" --filter-name "FS200_INDEL" ' +
                           '-filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20_INDEL"',
+      "indel_plot_annots": ["QD", "QUAL", "FS", "ReadPosRankSum"],
     };
     var PICKED = IS_LOW_DATA[inputs.experiment_type] ? LOW_DATA_FILTERS : HIGH_DATA_FILTERS[inputs.experiment_type];
     return Object.assign({}, OUTPUTS, PICKED);
