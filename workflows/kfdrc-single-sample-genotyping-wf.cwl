@@ -5,10 +5,52 @@ label: Kids First DRC Single Sample Genotyping Workflow
 doc: |
   # Kids First DRC Single Sample Genotyping Workflow
   Kids First Data Resource Center Single Sample Genotyping Workflow. This workflow closely mirrors the [Kids First DRC Joint Genotyping Workflow](https://github.com/kids-first/kf-jointgenotyping-workflow/blob/master/workflow/kfdrc-jointgenotyping-refinement-workflow.cwl).
-  While the Joint Genotyping Workflow is meant to be used with trios, this workflow is meant for processing single samples.
-  The key difference in this pipeline is a change in filtering between when the final VCF is gathered by GATK GatherVcfCloud and when it is annotated by VEP bcftools (see [Kids First DRC Germline SNV Annotation Workflow docs](https://github.com/kids-first/kf-annotation-tools/blob/v1.1.0/docs/GERMLINE_SNV_ANNOT_README.md) ).
-  Unlike the Joint Genotyping Workflow, a germline-oriented [GATK hard filtering process](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants) is performed and CalculateGenotypePosteriors has been removed.
-  While somatic samples can be run through this workflow, be wary that the filtering process is specifically tuned for germline data.
+
+  While the Joint Genotyping Workflow is meant to be used with whole genome
+  sequenced trios, this workflow is meant for processing single samples from any
+  sequencing experiment. The key difference between the different approaches is
+  the filtering process.
+
+  While non-germline samples can be run through this workflow, be wary that the
+  filtering process (VQSR/Hard Filtering) is specifically tuned for germline
+  data. We strongly recommend manually adjusting this process to fit your data.
+  See the available `vqsr_` and `hardfilter_` options.
+
+  ## GATK Genotype Site-Level Filtering
+
+  Coming out of the GATK Genotyping process, site-level filtering must be done to
+  remove variants that might adversely affect downstream analysis.
+
+  GATK provides many different approaches to filtering:
+  - Variant Quality Score Recalibration (VQSR)
+  - CNNScoreVariants/NVScoreVariants
+  - Variant Extract-Train-Score (VETS)
+  - Hard Filtering
+
+  The first three are all complex, model-based approaches that attempt to infer
+  cutoff points based on the data provided. Hard Filtering involves manually setting
+  thresholds and removing variants that fail to meet those thresholds. For this
+  workflow, we only make use of VQSR and Hard Filtering at this time.
+
+  VQSR, being a model based approach, needs sufficient data to construct that
+  model. Normally in the joint filtering context, this means having hundreds of
+  samples. According to the documentation: "it is not suitable for some
+  small-scale experiments, such as targeted gene panels or exome studies with
+  fewer than 30 exomes." Therefore, VQSR is only activated in this workflow when
+  the input gVCFs for this workflow come from whole genome sequencing experiments
+  or when the user provides 30 or more exome gVCFs. The 30+ samples will be jointly
+  genotpyed and that genotyped VCF will be provided to VQSR.
+
+  Hard Filtering is really only constrained by having sufficient depth. In the
+  case of exome and targeted sequencing, the depths are more than sufficient. Our
+  current approach for hard filtering mirrors the default approach outlined in
+  the GATK documentation. However as they point out, "You absolutely SHOULD
+  expect to have to evaluate your results critically and TRY AGAIN with some
+  parameter adjustments until you find the settings that are right for your
+  data." As such, the workflow also allows you to provide your own hard filters
+  to replace the defaults in this workflow.
+
+  ## Running the Workflow
 
   If you would like to run this workflow using the CAVATICA public app, a basic primer on running public apps can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-Cavatica-af5ebb78c38a4f3190e32e67b4ce12bb).
   Alternatively, if you'd like to run it locally using `cwltool`, a basic primer on that can be found [here](https://www.notion.so/d3b/Starting-From-Scratch-Running-CWLtool-b8dbbde2dc7742e4aff290b0a878344d) and combined with app-specific info from the readme below.
@@ -57,9 +99,17 @@ requirements:
 - class: ScatterFeatureRequirement
 - class: SubworkflowFeatureRequirement
 - class: MultipleInputFeatureRequirement
+- class: StepInputExpressionRequirement
+- class: InlineJavascriptRequirement
 
 inputs:
   input_vcfs: {type: 'File[]', doc: 'Input array of individual sample gVCF files'}
+  experiment_type:
+    type:
+    - type: enum
+      name: experiment_type
+      symbols: ["WGS", "WXS", "Targeted Sequencing"]
+    doc: "Experimental strategy used to sequence the data in the input_vcfs"
   axiomPoly_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz',
     "sbg:suggestedValue": {class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz,
       secondaryFiles: [{class: File, path: 6063901d357c3a53540ca81b, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}]}}
@@ -87,15 +137,46 @@ inputs:
       class: File, path: 5f500135e4b0370371c051b1, name: hg38.even.handcurated.20k.intervals}}
   wgs_evaluation_interval_list: {type: File, doc: 'wgs_evaluation_regions.hg38.interval_list', "sbg:suggestedValue": {class: File,
       path: 60639017357c3a53540ca7d3, name: wgs_evaluation_regions.hg38.interval_list}}
-  snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP VariantRecalibration. If a dataset gives fewer variants
-      than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces the program
-      to group variants into a smaller number of clusters, which results in more variants per cluster."}
-  indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL VariantRecalibration. If a dataset gives fewer
-      variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces
-      the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
-  genomicsdbimport_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenomicsDBImport" }
+  genomicsdbimport_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenomicsDBImport"}
+  genotypegvcfs_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenotypeGVCFs"}
   output_basename: string
   tool_name: {type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files"}
+
+  # VQSR Options
+  vqsr_snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP VariantRecalibration. If a dataset gives fewer
+      variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians forces
+      the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  vqsr_indel_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in INDEL VariantRecalibration. If a dataset gives
+      fewer variants than the expected scale, the number of Gaussians for training should be turned down. Lowering the max-Gaussians
+      forces the program to group variants into a smaller number of clusters, which results in more variants per cluster."}
+  vqsr_snp_tranches: {type: 'string[]?', doc: "The levels of truth sensitivity at which to slice the SNP recalibration data, in percent."}
+  vqsr_snp_annotations: {type: 'string[]?', doc: "The names of the annotations which should used for SNP recalibration calculations."}
+  vqsr_indel_tranches: {type: 'string[]?', doc: "The levels of truth sensitivity at which to slice the INDEL recalibration data, in
+      percent."}
+  vqsr_indel_annotations: {type: 'string[]?', doc: "The names of the annotations which should used for INDEL recalibration calculations."}
+  vqsr_snp_ts_filter_level: {type: 'float?', doc: "The truth sensitivity level at which to start filtering SNP data"}
+  vqsr_indel_ts_filter_level: {type: 'float?', doc: "The truth sensitivity level at which to start filtering INDEL data"}
+  vqsr_snp_model_cpu: {type: 'int?', doc: "CPUs to allocate to VariantRecalibrator for SNP model creation."}
+  vqsr_snp_model_ram: {type: 'int?', doc: "GB of RAM to allocate to VariantRecalibrator for SNP model creation."}
+  vqsr_indel_recal_cpu: {type: 'int?', doc: "CPUs to allocate to VariantRecalibrator for INDEL recalibration."}
+  vqsr_indel_recal_ram: {type: 'int?', doc: "GB of RAM to allocate to VariantRecalibrator for INDEL recalibration."}
+  vqsr_snp_recal_cpu: {type: 'int?', doc: "CPUs to allocate to VariantRecalibrator for scattered SNP recalibration."}
+  vqsr_snp_recal_ram: {type: 'int?', doc: "GB of RAM to allocate to VariantRecalibrator for scattered SNP recalibration."}
+  vqsr_gathertranche_cpu: {type: 'int?', doc: "CPUs to allocate to GatherTranches."}
+  vqsr_gathertranche_ram: {type: 'int?', doc: "GB of RAM to allocate to GatherTranches."}
+  vqsr_apply_cpu: {type: 'int?', doc: "CPUs to allocate to ApplyVQSR for INDELs and SNPs."}
+  vqsr_apply_ram: {type: 'int?', doc: "GB of RAM to allocate to ApplyVQSR for INDELs and SNPs."}
+  vqsr_gathervcf_cpu: {type: 'int?', doc: "CPUs to allocate to GatherVcfsCloud."}
+  vqsr_gathervcf_ram: {type: 'int?', doc: "GB of RAM to allocate to GatherVcfsCloud."}
+
+  # HardFiltering Options
+  hardfilter_snp_filters: {type: 'string?', doc: "String value of hardfilters to set for SNPs"}
+  hardfilter_indel_filters: {type: 'string?', doc: "String value of hardfilters to set for INDELs"}
+  hardfilter_snp_filter_extra_args: {type: 'string?', doc: "Any extra arguments for SNP VariantFiltration during HardFiltering"}
+  hardfilter_indel_filter_extra_args: {type: 'string?', doc: "Any extra arguments for INDEL VariantFiltration during HardFiltering"}
+  hardfilter_filtertration_cpu: {type: 'int?', doc: "CPUs to allocate to GATK VariantFiltration during HardFiltering"}
+  hardfilter_filtertration_ram: {type: 'int?', doc: "GB of RAM to allocate to GATK VariantFiltration during HardFiltering"}
+
   # Annotation
   bcftools_annot_clinvar_columns: {type: 'string?', doc: "csv string of columns from annotation to port into the input vcf", default: "INFO/ALLELEID,INFO/CLNDN,INFO/CLNDNINCL,INFO/CLNDISDB,INFO/CLNDISDBINCL,INFO/CLNHGVS,INFO/CLNREVSTAT,INFO/CLNSIG,INFO/CLNSIGCONF,INFO/CLNSIGINCL,INFO/CLNVC,INFO/CLNVCSO,INFO/CLNVI"}
   echtvar_anno_zips: {type: 'File[]?', doc: "Annotation ZIP files for echtvar anno", "sbg:suggestedValue": [{class: File, path: 65c64d847dab7758206248c6,
@@ -121,122 +202,130 @@ outputs:
   peddy_html: {type: 'File[]', doc: 'html summary of peddy results', outputSource: peddy/output_html}
   peddy_csv: {type: 'File[]', doc: 'csv details of peddy results', outputSource: peddy/output_csv}
   peddy_ped: {type: 'File[]', doc: 'ped format summary of peddy results', outputSource: peddy/output_peddy}
+  hardfiltered_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], outputSource: gatk_hardfiltering/hardfiltered_vcf}
   vep_annotated_vcf: {type: 'File[]', outputSource: annotate_vcf/annotated_vcf}
 
 steps:
+  filtering_defaults:
+    run: ../tools/filtering_defaults.cwl
+    in:
+      num_vcfs:
+        source: input_vcfs
+        valueFrom: $(self.length)
+      experiment_type: experiment_type
+    out: [low_data, snp_tranches, indel_tranches, snp_annotations, indel_annotations, snp_ts_filter_level, indel_ts_filter_level,
+      snp_hardfilter, indel_hardfilter]
   dynamicallycombineintervals:
     run: ../tools/script_dynamicallycombineintervals.cwl
-    doc: 'Merge interval lists based on number of gVCF inputs'
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: c5.9xlarge
     in:
       input_vcfs: input_vcfs
       interval: unpadded_intervals_file
     out: [out_intervals]
-  gatk_import_genotype_filtergvcf_merge:
-    run: ../tools/gatk_import_genotype_filtergvcf_merge.cwl
+  gatk_genomicsdbimport_genotypegvcfs:
+    run: ../tools/gatk_genomicsdbimport_genotypegvcfs.cwl
     hints:
     - class: 'sbg:AWSInstanceType'
-      value: r4.4xlarge;ebs-gp2;500
-    doc: 'Use GATK GenomicsDBImport, VariantFiltration GenotypeGVCFs, and picard MakeSitesOnlyVcf to genotype, filter and merge gVCF
-      based on known sites'
+      value: c5.9xlarge
+    scatter: [interval]
     in:
       input_vcfs: input_vcfs
       interval: dynamicallycombineintervals/out_intervals
       dbsnp_vcf: dbsnp_vcf
       reference_fasta: indexed_reference_fasta
       genomicsdbimport_extra_args: genomicsdbimport_extra_args
-    scatter: [interval]
-    out: [variant_filtered_vcf, sites_only_vcf]
+      genotypegvcfs_extra_args: genotypegvcfs_extra_args
+    out: [genotyped_vcf]
+  gatk_vqsr:
+    run: ../subworkflows/kfdrc-gatk-vqsr.cwl
+    when: $(!inputs.low_data)
+    in:
+      low_data: filtering_defaults/low_data
+      genotyped_vcfs: gatk_genomicsdbimport_genotypegvcfs/genotyped_vcf
+      output_basename: output_basename
+      axiomPoly_resource_vcf: axiomPoly_resource_vcf
+      dbsnp_vcf: dbsnp_vcf
+      hapmap_resource_vcf: hapmap_resource_vcf
+      mills_resource_vcf: mills_resource_vcf
+      omni_resource_vcf: omni_resource_vcf
+      one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
+      snp_max_gaussians: vqsr_snp_max_gaussians
+      indel_max_gaussians: vqsr_indel_max_gaussians
+      snp_tranches:
+        source: [vqsr_snp_tranches, filtering_defaults/snp_tranches]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      indel_tranches:
+        source: [vqsr_indel_tranches, filtering_defaults/indel_tranches]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      snp_annotations:
+        source: [vqsr_snp_annotations, filtering_defaults/snp_annotations]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      indel_annotations:
+        source: [vqsr_indel_annotations, filtering_defaults/indel_annotations]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      snp_ts_filter_level:
+        source: [vqsr_snp_ts_filter_level, filtering_defaults/snp_ts_filter_level]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      indel_ts_filter_level:
+        source: [vqsr_indel_ts_filter_level, filtering_defaults/indel_ts_filter_level]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      snp_model_cpu: vqsr_snp_model_cpu
+      snp_model_ram: vqsr_snp_model_ram
+      indel_recal_cpu: vqsr_indel_recal_cpu
+      indel_recal_ram: vqsr_indel_recal_ram
+      snp_recal_cpu: vqsr_snp_recal_cpu
+      snp_recal_ram: vqsr_snp_recal_ram
+      gathertranche_cpu: vqsr_gathertranche_cpu
+      gathertranche_ram: vqsr_gathertranche_ram
+      apply_cpu: vqsr_apply_cpu
+      apply_ram: vqsr_apply_ram
+      gathervcf_cpu: vqsr_gathervcf_cpu
+      gathervcf_ram: vqsr_gathervcf_ram
+    out: [recalibrated_vcf]
   gatk_gathervcfs:
     run: ../tools/gatk_gathervcfs.cwl
-    doc: 'Merge VCFs scattered from previous step'
+    when: $(inputs.low_data)
     in:
-      input_vcfs: gatk_import_genotype_filtergvcf_merge/sites_only_vcf
-    out: [output]
-  gatk_snpsvariantrecalibratorcreatemodel:
-    run: ../tools/gatk_snpsvariantrecalibratorcreatemodel.cwl
-    doc: 'Create recalibration model for snps using GATK VariantRecalibrator, tranch values, and known site VCFs'
-    in:
-      dbsnp_resource_vcf: dbsnp_vcf
-      hapmap_resource_vcf: hapmap_resource_vcf
-      omni_resource_vcf: omni_resource_vcf
-      one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
-      sites_only_variant_filtered_vcf: gatk_gathervcfs/output
-      max_gaussians: snp_max_gaussians
-    out: [model_report]
-  gatk_indelsvariantrecalibrator:
-    run: ../tools/gatk_indelsvariantrecalibrator.cwl
-    doc: 'Create recalibration model for indels using GATK VariantRecalibrator, tranch values, and known site VCFs'
-    in:
-      axiomPoly_resource_vcf: axiomPoly_resource_vcf
-      dbsnp_resource_vcf: dbsnp_vcf
-      mills_resource_vcf: mills_resource_vcf
-      sites_only_variant_filtered_vcf: gatk_gathervcfs/output
-      max_gaussians: indel_max_gaussians
-    out: [recalibration, tranches]
-  gatk_snpsvariantrecalibratorscattered:
-    run: ../tools/gatk_snpsvariantrecalibratorscattered.cwl
-    hints:
-    - class: 'sbg:AWSInstanceType'
-      value: r4.4xlarge;ebs-gp2;500
-    doc: 'Create recalibration model for known sites from input data using GATK VariantRecalibrator, tranch values, and known site
-      VCFs'
-    in:
-      sites_only_variant_filtered_vcf: gatk_import_genotype_filtergvcf_merge/sites_only_vcf
-      model_report: gatk_snpsvariantrecalibratorcreatemodel/model_report
-      hapmap_resource_vcf: hapmap_resource_vcf
-      omni_resource_vcf: omni_resource_vcf
-      one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
-      dbsnp_resource_vcf: dbsnp_vcf
-      max_gaussians: snp_max_gaussians
-    scatter: [sites_only_variant_filtered_vcf]
-    out: [recalibration, tranches]
-  gatk_gathertranches:
-    run: ../tools/gatk_gathertranches.cwl
-    doc: 'Gather tranches from SNP variant recalibrate scatter'
-    in:
-      tranches: gatk_snpsvariantrecalibratorscattered/tranches
-    out: [output]
-  gatk_applyrecalibration:
-    run: ../tools/gatk_applyrecalibration.cwl
-    hints:
-    - class: 'sbg:AWSInstanceType'
-      value: r4.4xlarge;ebs-gp2;500
-    doc: 'Apply recalibration to snps and indels'
-    in:
-      indels_recalibration: gatk_indelsvariantrecalibrator/recalibration
-      indels_tranches: gatk_indelsvariantrecalibrator/tranches
-      input_vcf: gatk_import_genotype_filtergvcf_merge/variant_filtered_vcf
-      snps_recalibration: gatk_snpsvariantrecalibratorscattered/recalibration
-      snps_tranches: gatk_gathertranches/output
-    scatter: [input_vcf, snps_recalibration]
-    scatterMethod: dotproduct
-    out: [recalibrated_vcf]
-  gatk_gatherfinalvcf:
-    run: ../tools/gatk_gatherfinalvcf.cwl
-    doc: 'Combine resultant VQSR VCFs'
-    in:
-      input_vcfs: gatk_applyrecalibration/recalibrated_vcf
-      output_basename: output_basename
+      low_data: filtering_defaults/low_data
+      input_vcfs: gatk_genomicsdbimport_genotypegvcfs/genotyped_vcf
     out: [output]
   gatk_hardfiltering:
     run: ../subworkflows/kfdrc-gatk-hardfiltering.cwl
+    when: $(inputs.low_data)
     in:
-      input_vcf: gatk_gatherfinalvcf/output
+      low_data: filtering_defaults/low_data
+      input_vcf: gatk_gathervcfs/output
       output_basename: output_basename
+      snp_hardfilters:
+        source: [hardfilter_snp_filters, filtering_defaults/snp_hardfilter]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      indel_hardfilters:
+        source: [hardfilter_indel_filters, filtering_defaults/indel_hardfilter]
+        valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      snp_filtration_extra_args: hardfilter_snp_filter_extra_args
+      indel_filtration_extra_args: hardfilter_indel_filter_extra_args
+      filtration_cpu: hardfilter_filtertration_cpu
+      filtration_ram: hardfilter_filtertration_ram
     out: [hardfiltered_vcf]
   peddy:
     run: ../tools/kfdrc_peddy_tool.cwl
     doc: 'QC family relationships and sex assignment'
     in:
       ped: ped
-      vqsr_vcf: gatk_gatherfinalvcf/output
+      vqsr_vcf:
+        source: [gatk_vqsr/recalibrated_vcf, gatk_hardfiltering/hardfiltered_vcf]
+        pickValue: first_non_null
       output_basename: output_basename
     out: [output_html, output_csv, output_peddy]
   picard_collectvariantcallingmetrics:
     run: ../tools/picard_collectvariantcallingmetrics.cwl
     doc: 'picard calculate variant calling metrics'
     in:
-      input_vcf: gatk_hardfiltering/hardfiltered_vcf
+      input_vcf:
+        source: [gatk_vqsr/recalibrated_vcf, gatk_hardfiltering/hardfiltered_vcf]
+        pickValue: first_non_null
       reference_dict:
         source: indexed_reference_fasta
         valueFrom: |
@@ -249,10 +338,11 @@ steps:
     out: [output]
   annotate_vcf:
     run: ../kf-annotation-tools/workflows/kfdrc-germline-snv-annot-workflow.cwl
-    doc: 'annotate variants'
     in:
       indexed_reference_fasta: indexed_reference_fasta
-      input_vcf: gatk_hardfiltering/hardfiltered_vcf
+      input_vcf:
+        source: [gatk_vqsr/recalibrated_vcf, gatk_hardfiltering/hardfiltered_vcf]
+        pickValue: first_non_null
       output_basename: output_basename
       tool_name: tool_name
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns

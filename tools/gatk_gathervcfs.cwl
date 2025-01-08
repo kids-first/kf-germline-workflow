@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_gathervcfs
 requirements:
@@ -37,4 +37,4 @@ outputs:
     type: File
     outputBinding:
       glob: sites_only.vcf.gz
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]

@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_indelsvariantrecalibrator
 requirements:
@@ -7,8 +7,8 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 25000
-    coresMin: 1
+    ramMin: $(inputs.ram * 1000)
+    coresMin: $(inputs.cpu)
 baseCommand: []
 arguments:
   - position: 0
@@ -25,46 +25,32 @@ arguments:
       -resource mills,known=false,training=true,truth=true,prior=12:$(inputs.mills_resource_vcf.path)
       -resource axiomPoly,known=false,training=true,truth=false,prior=10:$(inputs.axiomPoly_resource_vcf.path)
       -resource dbsnp,known=true,training=false,truth=false,prior=2:$(inputs.dbsnp_resource_vcf.path)
-      -tranche 100.0
-      -tranche 99.95
-      -tranche 99.9
-      -tranche 99.5
-      -tranche 99.0
-      -tranche 97.0
-      -tranche 96.0
-      -tranche 95.0
-      -tranche 94.0
-      -tranche 93.5
-      -tranche 93.0
-      -tranche 92.0
-      -tranche 91.0
-      -tranche 90.0
-      -an FS
-      -an ReadPosRankSum
-      -an MQRankSum
-      -an QD
-      -an SOR
-      -an DP
+      -tranche $(inputs.tranche.join(' -tranche '))
+      -an $(inputs.annotations.join(' -an '))
 inputs:
   sites_only_variant_filtered_vcf:
     type: File
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]
   mills_resource_vcf:
     type: File
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]
   axiomPoly_resource_vcf:
     type: File
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]
   dbsnp_resource_vcf:
     type: File
-    secondaryFiles: [.idx]
+    secondaryFiles: [{pattern: '.idx', required: true}]
   max_gaussians: { type: 'int?', default: 4 }
+  tranche: { type: 'string[]', doc: "The levels of truth sensitivity at which to slice the data, in percent." }
+  annotations: { type: 'string[]', doc: "The names of the annotations which should used for calculations." }
+  cpu: { type: 'int?', default: 2, doc: "CPUs to allocate to this task." }
+  ram: { type: 'int?', default: 25, doc: "GB of RAM to allocate to this task." }
 outputs:
   recalibration:
     type: File
     outputBinding:
       glob: indels.recal
-    secondaryFiles: [.idx]
+    secondaryFiles: [{pattern: '.idx', required: true}]
   tranches:
     type: File
     outputBinding:

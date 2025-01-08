@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: gatk_snpsvariantrecalibratorcreatemodel
 requirements:
@@ -29,25 +29,8 @@ arguments:
       -resource omni,known=false,training=true,truth=true,prior=12:$(inputs.omni_resource_vcf.path)
       -resource 1000G,known=false,training=true,truth=false,prior=10:$(inputs.one_thousand_genomes_resource_vcf.path)
       -resource dbsnp,known=true,training=false,truth=false,prior=7:$(inputs.dbsnp_resource_vcf.path)
-      -tranche 100.0
-      -tranche 99.95
-      -tranche 99.9
-      -tranche 99.8
-      -tranche 99.6
-      -tranche 99.5
-      -tranche 99.4
-      -tranche 99.3
-      -tranche 99.0
-      -tranche 98.0
-      -tranche 97.0
-      -tranche 90.0
-      -an QD
-      -an MQRankSum
-      -an ReadPosRankSum
-      -an FS
-      -an MQ
-      -an SOR
-      -an DP
+      -tranche $(inputs.tranche.join(' -tranche '))
+      -an $(inputs.annotations.join(' -an '))
       || (>%2 echo 'Failed with max gaussians $(inputs.max_gaussians), trying ${return Math.max(inputs.max_gaussians-2, 1)}' && /gatk --java-options "-Xmx$(inputs.ram - 1)g -Xms$(Math.floor(inputs.ram / 2))g"
       VariantRecalibrator
       -V $(inputs.sites_only_variant_filtered_vcf.path)
@@ -61,44 +44,29 @@ arguments:
       -resource omni,known=false,training=true,truth=true,prior=12:$(inputs.omni_resource_vcf.path)
       -resource 1000G,known=false,training=true,truth=false,prior=10:$(inputs.one_thousand_genomes_resource_vcf.path)
       -resource dbsnp,known=true,training=false,truth=false,prior=7:$(inputs.dbsnp_resource_vcf.path)
-      -tranche 100.0
-      -tranche 99.95
-      -tranche 99.9
-      -tranche 99.8
-      -tranche 99.6
-      -tranche 99.5
-      -tranche 99.4
-      -tranche 99.3
-      -tranche 99.0
-      -tranche 98.0
-      -tranche 97.0
-      -tranche 90.0
-      -an QD
-      -an MQRankSum
-      -an ReadPosRankSum
-      -an FS
-      -an MQ
-      -an SOR
-      -an DP)
-
+      -tranche $(inputs.tranche.join(' -tranche '))
+      -an $(inputs.annotations.join(' -an '))
+      )
 inputs:
   sites_only_variant_filtered_vcf:
     type: File
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]
   hapmap_resource_vcf:
     type: File
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]
   omni_resource_vcf:
     type: File
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]
   one_thousand_genomes_resource_vcf:
     type: File
-    secondaryFiles: [.tbi]
+    secondaryFiles: [{pattern: '.tbi', required: true}]
   dbsnp_resource_vcf:
     type: File
-    secondaryFiles: [.idx]
+    secondaryFiles: [{pattern: '.idx', required: true}]
   max_gaussians: { type: 'int?', default: 6 }
-  cpu: { type: 'int?', default: 1, doc: "CPUs to allocate to this task" }
+  tranche: { type: 'string[]', doc: "The levels of truth sensitivity at which to slice the data, in percent." }
+  annotations: { type: 'string[]', doc: "The names of the annotations which should used for calculations." }
+  cpu: { type: 'int?', default: 2, doc: "CPUs to allocate to this task" }
   ram: { type: 'int?', default: 60, doc: "GB of RAM to allocate to this task" }
 outputs:
   model_report:
