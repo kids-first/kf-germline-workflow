@@ -13,7 +13,7 @@ requirements:
     ramMin: $(inputs.ram * 1000)
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
-    dockerPull: 'dmiller15/tidyverse:4.4.2-gatk-plotter' 
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/tidyverse:4.4.2-gatk-plotter'
   - class: InitialWorkDirRequirement
     listing:
       - entryname: gatk_plot_annotations.R
