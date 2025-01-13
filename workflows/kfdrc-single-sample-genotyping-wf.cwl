@@ -285,19 +285,20 @@ steps:
       gathervcf_cpu: vqsr_gathervcf_cpu
       gathervcf_ram: vqsr_gathervcf_ram
     out: [recalibrated_vcf]
-  gatk_gathervcfs:
-    run: ../tools/gatk_gathervcfs.cwl
+  gatk_gathervcfscloud_genotyped:
+    run: ../tools/gatk_gathervcfscloud.cwl
     when: $(inputs.low_data)
     in:
       low_data: filtering_defaults/low_data
       input_vcfs: gatk_genomicsdbimport_genotypegvcfs/genotyped_vcf
+      output_basename: { valueFrom: "genotyped" }
     out: [output]
   gatk_hardfiltering:
     run: ../subworkflows/kfdrc-gatk-hardfiltering.cwl
     when: $(inputs.low_data)
     in:
       low_data: filtering_defaults/low_data
-      input_vcf: gatk_gathervcfs/output
+      input_vcf: gatk_gathervcfscloud_genotyped/output
       output_basename: output_basename
       snp_hardfilters:
         source: [hardfilter_snp_filters, filtering_defaults/snp_hardfilter]

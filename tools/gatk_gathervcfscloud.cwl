@@ -1,9 +1,9 @@
 cwlVersion: v1.2
 class: CommandLineTool
-id: gatk_gathervcfs
+id: gatk_gathervcfscloud
 requirements:
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0'
+    dockerPull: 'broadinstitute/gatk:4.6.1.0'
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
@@ -14,15 +14,9 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx6g -Xms6g"
+      gatk --java-options "-Xmx$(Math.floor((inputs.ram - 1)*1000/1.074-1))m -Xms$(Math.floor((inputs.ram - 1)*1000/1.074-1))m"
       GatherVcfsCloud
-      --ignore-safety-checks
-      --gather-type BLOCK
-      --output $(inputs.output_basename + '.vcf.gz')
-  - position: 2
-    shellQuote: false
-    valueFrom: >-
-      && /gatk IndexFeatureFile -F $(inputs.output_basename + '.vcf.gz')
+      --output $(inputs.output_basename).vcf.gz
 inputs:
   input_vcfs:
     type:
@@ -30,14 +24,16 @@ inputs:
       items: File
       inputBinding:
         prefix: -I
+    secondaryFiles: [{pattern: '.tbi', required: true}]
     inputBinding:
       position: 1
   output_basename: string
+  extra_args: { type: 'string?', inputBinding: {position: 2},  doc: "Any extra arguments for this task." }
   cpu: { type: 'int?', default: 2, doc: "CPUs to allocate to this task." }
   ram: { type: 'int?', default: 7, doc: "GB of RAM to allocate to this task." }
 outputs:
   output:
     type: File
     outputBinding:
-      glob: $(inputs.output_basename + '.vcf.gz')
-    secondaryFiles: [.tbi]
+      glob: $(inputs.output_basename).vcf.gz
+    secondaryFiles: [{pattern: '.tbi', required: true}]
