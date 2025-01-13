@@ -17,6 +17,13 @@ arguments:
       gatk --java-options "-Xmx$(Math.floor((inputs.ram - 1)*1000/1.074-1))m -Xms$(Math.floor((inputs.ram - 1)*1000/1.074-1))m"
       GatherVcfsCloud
       --output $(inputs.output_basename).vcf.gz
+      $(inputs.extra_args ? inputs.extra_args : "")
+  - position: 10
+    shellQuote: false
+    valueFrom: >-
+     && gatk --java-options "-Xmx$(Math.floor((inputs.ram - 1)*1000/1.074-1))m -Xms$(Math.floor((inputs.ram - 1)*1000/1.074-1))m"
+     IndexFeatureFile
+     -I $(inputs.output_basename).vcf.gz
 inputs:
   input_vcfs:
     type:
@@ -28,7 +35,7 @@ inputs:
     inputBinding:
       position: 1
   output_basename: string
-  extra_args: { type: 'string?', inputBinding: {position: 2},  doc: "Any extra arguments for this task." }
+  extra_args: { type: 'string?', doc: "Any extra arguments for this task." }
   cpu: { type: 'int?', default: 2, doc: "CPUs to allocate to this task." }
   ram: { type: 'int?', default: 7, doc: "GB of RAM to allocate to this task." }
 outputs:

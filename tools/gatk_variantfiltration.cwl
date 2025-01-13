@@ -8,13 +8,13 @@ requirements:
     ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
+    dockerPull: 'broadinstitute/gatk:4.6.1.0'
 baseCommand: []
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx$(Math.floor(inputs.max_memory*1000/1.074-1))m
+      gatk --java-options "-Xmx$(Math.floor(inputs.max_memory*1000/1.074-1))m
       -XX:GCTimeLimit=50
       -XX:GCHeapFreeLimit=10"
       VariantFiltration

@@ -144,6 +144,8 @@ steps:
       value: r5.2xlarge
     in:
       tranches: gatk_snpsvariantrecalibratorscattered/tranches
+      mode: { valueFrom: "SNP" }
+      output_filename: { valueFrom: "snps.gathered.tranches" }
       cpu: gathertranche_cpu
       ram: gathertranche_ram
     out: [output]
