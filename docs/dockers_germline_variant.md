@@ -41,12 +41,14 @@ gatk_intervallisttobed.cwl|broadinstitute/gatk:4.4.0.0
 gatk_intervallisttools.cwl|broadinstitute/gatk:4.4.0.0
 gatk_makesitesonlyvcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_mergevcfs.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0
+gatk_plot_annotations.cwl|pgc-images.sbgenomics.com/d3b-bixu/tidyverse:4.4.2-gatk-plotter
 gatk_postprocessgermlinecnvcalls.cwl|broadinstitute/gatk:4.2.0.0
 gatk_preprocessintervals.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R
 gatk_selectvariants.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R
 gatk_snpsvariantrecalibratorcreatemodel.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_snpsvariantrecalibratorscattered.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_variantfiltration.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R
+gatk_variantstotable.cwl|broadinstitute/gatk:4.6.1.0
 generic_rename_outputs.cwl|None
 guess_bin_size.cwl|None
 kfdrc_peddy_tool.cwl|pgc-images.sbgenomics.com/d3b-bixu/peddy:latest
@@ -60,5 +62,6 @@ scatter_ploidy_calls_by_sample.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0
 script_dynamicallycombineintervals.cwl|pgc-images.sbgenomics.com/d3b-bixu/python:2.7.13
 strelka2_germline.cwl|pgc-images.sbgenomics.com/d3b-bixu/strelka:v2.9.10
 svaba.cwl|pgc-images.sbgenomics.com/d3b-bixu/svaba:1.1.0
+tar.cwl|None
 variant_effect_predictor_105.cwl|ensemblorg/ensembl-vep:release_105.0
 verifybamid_contamination_conditional.cwl|pgc-images.sbgenomics.com/d3b-bixu/verifybamid:1.0.2

@@ -15,13 +15,16 @@ gatk_gathervcfs.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_genomicsdbimport_genotypegvcfs.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_indelsvariantrecalibrator.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_makesitesonlyvcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
+gatk_plot_annotations.cwl|pgc-images.sbgenomics.com/d3b-bixu/tidyverse:4.4.2-gatk-plotter
 gatk_selectvariants.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R
 gatk_snpsvariantrecalibratorcreatemodel.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_snpsvariantrecalibratorscattered.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 gatk_variantfiltration.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R
+gatk_variantstotable.cwl|broadinstitute/gatk:4.6.1.0
 generic_rename_outputs.cwl|None
 kfdrc_peddy_tool.cwl|pgc-images.sbgenomics.com/d3b-bixu/peddy:latest
 normalize_vcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest
 picard_collectvariantcallingmetrics.cwl|pgc-images.sbgenomics.com/d3b-bixu/gatk:4.0.12.0
 script_dynamicallycombineintervals.cwl|pgc-images.sbgenomics.com/d3b-bixu/python:2.7.13
+tar.cwl|None
 variant_effect_predictor_105.cwl|ensemblorg/ensembl-vep:release_105.0
