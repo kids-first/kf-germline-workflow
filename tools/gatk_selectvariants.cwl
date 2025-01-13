@@ -5,10 +5,10 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: ${ return inputs.max_memory * 1000 }
+    ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
+    dockerPull: 'broadinstitute/gatk:4.6.1.0'
 baseCommand: [/gatk]
 arguments:
   - position: 1
@@ -22,7 +22,7 @@ arguments:
       -select-type $(inputs.selection)
       -O $(inputs.output_basename).$(inputs.selection.toLowerCase()).vcf.gz
       -V $(inputs.input_vcf.path)
-
+      $(inputs.extra_args ? inputs.extra_args : "")
 inputs:
   input_vcf: {type: 'File', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "A VCF file containing variants"}
   selection: {type: {type: enum, name: selection, symbols: ["SNP", "INDEL"]}, doc: "Select only a certain type of variants from the input file"}
