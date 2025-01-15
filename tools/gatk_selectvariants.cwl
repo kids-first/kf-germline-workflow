@@ -9,11 +9,12 @@ requirements:
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
     dockerPull: 'broadinstitute/gatk:4.6.1.0'
-baseCommand: [/gatk]
+baseCommand: []
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
+      gatk
       --java-options "-Xmx${ return Math.floor(inputs.max_memory*1000/1.074-1) }m
       -XX:GCTimeLimit=50
       -XX:GCHeapFreeLimit=10"

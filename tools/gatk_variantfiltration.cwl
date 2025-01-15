@@ -14,7 +14,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx$(Math.floor(inputs.max_memory*1000/1.074-1))m
+      gatk --java-options "-Xmx$(Math.floor(inputs.max_memory*1000/1.074-1))m
       -XX:GCTimeLimit=50
       -XX:GCHeapFreeLimit=10"
       VariantFiltration

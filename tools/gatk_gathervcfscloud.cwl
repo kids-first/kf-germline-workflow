@@ -18,6 +18,12 @@ arguments:
       GatherVcfsCloud
       --output $(inputs.output_basename).vcf.gz
       $(inputs.extra_args ? inputs.extra_args : "")
+  - position: 10
+    shellQuote: false
+    valueFrom: >-
+     && gatk --java-options "-Xmx$(Math.floor((inputs.ram - 1)*1000/1.074-1))m -Xms$(Math.floor((inputs.ram - 1)*1000/1.074-1))m"
+     IndexFeatureFile
+     -I $(inputs.output_basename).vcf.gz
 inputs:
   input_vcfs:
     type:
