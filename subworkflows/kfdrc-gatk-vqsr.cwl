@@ -58,7 +58,7 @@ inputs:
   gathervcf_ram: { type: 'int?', doc: "GB of RAM to allocate to GatherVcfsCloud." }
 
 outputs:
-  recalibrated_vcf: { type: 'File', secondaryFiles: [.tbi], outputSource: gatk_gatherfinalvcf/output }
+  recalibrated_vcf: { type: 'File', secondaryFiles: [.tbi], outputSource: gatk_gathervcfscloud_final/output }
 
 steps:
   gatk_filter_excesshet:
@@ -85,10 +85,11 @@ steps:
       output_filename:
         valueFrom: 'sites_only.variant_filtered.vcf.gz'
     out: [sites_vcf]
-  gatk_gathervcfs:
-    run: ../tools/gatk_gathervcfs.cwl
+  gatk_gathervcfscloud_sites:
+    run: ../tools/gatk_gathervcfscloud.cwl
     in:
       input_vcfs: gatk_makesitesonlyvcf/sites_vcf
+      output_basename: { valueFrom: "sites_only" }
     out: [output]
   gatk_snpsvariantrecalibratorcreatemodel:
     run: ../tools/gatk_snpsvariantrecalibratorcreatemodel.cwl
@@ -97,7 +98,7 @@ steps:
       hapmap_resource_vcf: hapmap_resource_vcf
       omni_resource_vcf: omni_resource_vcf
       one_thousand_genomes_resource_vcf: one_thousand_genomes_resource_vcf
-      sites_only_variant_filtered_vcf: gatk_gathervcfs/output
+      sites_only_variant_filtered_vcf: gatk_gathervcfscloud_sites/output
       max_gaussians: snp_max_gaussians
       tranche: snp_tranches
       annotations: snp_annotations
@@ -110,7 +111,7 @@ steps:
       axiomPoly_resource_vcf: axiomPoly_resource_vcf
       dbsnp_resource_vcf: dbsnp_vcf
       mills_resource_vcf: mills_resource_vcf
-      sites_only_variant_filtered_vcf: gatk_gathervcfs/output
+      sites_only_variant_filtered_vcf: gatk_gathervcfscloud_sites/output
       max_gaussians: indel_max_gaussians
       tranche: indel_tranches
       annotations: indel_annotations
@@ -143,6 +144,8 @@ steps:
       value: r5.2xlarge
     in:
       tranches: gatk_snpsvariantrecalibratorscattered/tranches
+      mode: { valueFrom: "SNP" }
+      output_filename: { valueFrom: "snps.gathered.tranches" }
       cpu: gathertranche_cpu
       ram: gathertranche_ram
     out: [output]
@@ -164,8 +167,8 @@ steps:
       cpu: apply_cpu
       ram: apply_ram
     out: [recalibrated_vcf]
-  gatk_gatherfinalvcf:
-    run: ../tools/gatk_gatherfinalvcf.cwl
+  gatk_gathervcfscloud_final:
+    run: ../tools/gatk_gathervcfscloud.cwl
     in:
       input_vcfs: gatk_applyrecalibration/recalibrated_vcf
       output_basename: output_basename

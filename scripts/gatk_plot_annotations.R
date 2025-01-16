@@ -27,7 +27,7 @@ makeDensityPlot <- function(dataframe, xvar, split, xmin=min(dataframe[xvar], na
 args <- commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 3) {
-    stop("Three arguments are required. First, an output_basename. Second, the input type. Third, the input table.", call.=FALSE)
+    stop("Three arguments are required. First, an ouptut_basename. Second, the input type. Third, the input table.", call.=FALSE)
 }
 
 output_basename <- args[1]
