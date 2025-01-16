@@ -202,7 +202,6 @@ outputs:
   peddy_html: {type: 'File[]', doc: 'html summary of peddy results', outputSource: peddy/output_html}
   peddy_csv: {type: 'File[]', doc: 'csv details of peddy results', outputSource: peddy/output_csv}
   peddy_ped: {type: 'File[]', doc: 'ped format summary of peddy results', outputSource: peddy/output_peddy}
-  hardfiltered_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], outputSource: gatk_hardfiltering/hardfiltered_vcf}
   annotation_plots: {type: 'File?', outputSource: gatk_hardfiltering/annotation_plots}
   vep_annotated_vcf: {type: 'File[]', outputSource: annotate_vcf/annotated_vcf}
 

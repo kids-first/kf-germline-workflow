@@ -279,7 +279,6 @@ outputs:
   peddy_html: {type: 'File[]', doc: 'html summary of peddy results', outputSource: single_sample_genotyping/peddy_html}
   peddy_csv: {type: 'File[]', doc: 'csv details of peddy results', outputSource: single_sample_genotyping/peddy_csv}
   peddy_ped: {type: 'File[]', doc: 'ped format summary of peddy results', outputSource: single_sample_genotyping/peddy_ped}
-  gatk_hardfiltered_vcf: {type: 'File?', doc: "VCF containing the all genotyping variants with their hardfilters", outputSource: single_sample_genotyping/hardfiltered_vcf}
   gatk_annotation_plots: {type: 'File?', doc: "TAR file containing plots of all annotations used for hardfiltering", outputSource: single_sample_genotyping/annotation_plots}
   freebayes_unfiltered_vcf: {type: 'File', outputSource: freebayes/unfiltered_vcf}
   strelka2_prepass_variants: {type: 'File', outputSource: strelka2/prepass_variants_vcf}
@@ -481,7 +480,7 @@ steps:
       cadd_indels: cadd_indels
       cadd_snvs: cadd_snvs
       intervar: intervar
-    out: [collectvariantcallingmetrics, peddy_html, peddy_csv, peddy_ped, vep_annotated_vcf, annotation_plots, hardfiltered_vcf]
+    out: [collectvariantcallingmetrics, peddy_html, peddy_csv, peddy_ped, vep_annotated_vcf, annotation_plots]
 hints:
 - class: "sbg:maxNumberOfParallelInstances"
   value: 3
