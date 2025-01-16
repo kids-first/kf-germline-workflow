@@ -202,7 +202,7 @@ outputs:
   peddy_html: {type: 'File[]', doc: 'html summary of peddy results', outputSource: peddy/output_html}
   peddy_csv: {type: 'File[]', doc: 'csv details of peddy results', outputSource: peddy/output_csv}
   peddy_ped: {type: 'File[]', doc: 'ped format summary of peddy results', outputSource: peddy/output_peddy}
-  hardfiltered_vcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], outputSource: gatk_hardfiltering/hardfiltered_vcf}
+  annotation_plots: {type: 'File?', outputSource: gatk_hardfiltering/annotation_plots}
   vep_annotated_vcf: {type: 'File[]', outputSource: annotate_vcf/annotated_vcf}
 
 steps:
@@ -214,7 +214,7 @@ steps:
         valueFrom: $(self.length)
       experiment_type: experiment_type
     out: [low_data, snp_tranches, indel_tranches, snp_annotations, indel_annotations, snp_ts_filter_level, indel_ts_filter_level,
-      snp_hardfilter, indel_hardfilter]
+      snp_hardfilter, indel_hardfilter, snp_plot_annots, indel_plot_annots]
   dynamicallycombineintervals:
     run: ../tools/script_dynamicallycombineintervals.cwl
     hints:
@@ -304,11 +304,13 @@ steps:
       indel_hardfilters:
         source: [hardfilter_indel_filters, filtering_defaults/indel_hardfilter]
         valueFrom: "$(self[0] != null ? self[0] : self[1])"
+      snp_plot_annots: filtering_defaults/snp_plot_annots
+      indel_plot_annots: filtering_defaults/indel_plot_annots
       snp_filtration_extra_args: hardfilter_snp_filter_extra_args
       indel_filtration_extra_args: hardfilter_indel_filter_extra_args
       filtration_cpu: hardfilter_filtertration_cpu
       filtration_ram: hardfilter_filtertration_ram
-    out: [hardfiltered_vcf]
+    out: [hardfiltered_vcf, annotation_plots]
   peddy:
     run: ../tools/kfdrc_peddy_tool.cwl
     doc: 'QC family relationships and sex assignment'

@@ -4,6 +4,7 @@ id: kfdrc-gatk-hardfiltering
 requirements:
 - class: StepInputExpressionRequirement
 - class: InlineJavascriptRequirement
+- class: SubworkflowFeatureRequirement
 doc: |-
   This workflow performs manual site-level variant filtration on an input VCF using the generic hard-filtering thresholds and example commands in the
   [documentation from Broad](https://gatk.broadinstitute.org/hc/en-us/articles/360035531112--How-to-Filter-variants-either-with-VQSR-or-by-hard-filtering#2).
@@ -14,6 +15,8 @@ doc: |-
 inputs:
   input_vcf: {type: 'File', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "Input VCF containing INDEL and SNP variants"}
   output_basename: {type: 'string', doc: "String value to use as the base for the filename of the output"}
+  snp_plot_annots: {type: 'string[]?', doc: "The name of a standard VCF field or an INFO field to include in the output table for SNPs"}
+  indel_plot_annots: {type: 'string[]?', doc: "The name of a standard VCF field or an INFO field to include in the output table for INDELs"}
   snp_hardfilters: {type: 'string', doc: "String value of hardfilters to set for SNPs in input_vcf" }
   indel_hardfilters: {type: 'string', doc: "String value of hardfilters to set for INDELs in input_vcf" }
   snp_filtration_extra_args: {type: 'string?', doc: "Any extra arguments for SNP VariantFiltration" }
@@ -22,6 +25,7 @@ inputs:
   filtration_ram: { type: 'int?', doc: "GB of RAM to allocate to GATK VariantFiltration" }
 
 outputs:
+  annotation_plots: {type: 'File', outputSource: gatk_plot_genotyping_annotations/annotation_plots}
   hardfiltered_vcf: {type: 'File', secondaryFiles: [{pattern: '.tbi', required: true}], outputSource: bcftools_concat_snps_indels/output}
 
 steps:
@@ -39,6 +43,15 @@ steps:
       output_basename: output_basename
       selection: {valueFrom: "INDEL"}
     out: [output]
+  gatk_plot_genotyping_annotations:
+    run: ../subworkflows/gatk_plot_genotyping_annotations.cwl
+    in:
+      snps_vcf: gatk_selectvariants_snps/output
+      indels_vcf: gatk_selectvariants_indels/output
+      output_basename: output_basename
+      snp_plot_annots: snp_plot_annots
+      indel_plot_annots: indel_plot_annots
+    out: [annotation_plots]
   gatk_variantfiltration_snps:
     run: ../tools/gatk_variantfiltration.cwl
     in:

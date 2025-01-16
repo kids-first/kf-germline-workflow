@@ -456,6 +456,7 @@ outputs:
   peddy_html: {type: 'File[]?', doc: 'html summary of peddy results', outputSource: snv/peddy_html}
   peddy_csv: {type: 'File[]?', doc: 'csv details of peddy results', outputSource: snv/peddy_csv}
   peddy_ped: {type: 'File[]?', doc: 'ped format summary of peddy results', outputSource: snv/peddy_ped}
+  gatk_annotation_plots: {type: 'File?', doc: "TAR file containing plots of all annotations used for hardfiltering", outputSource: snv/gatk_annotation_plots}
   vep_annotated_gatk_vcf: {type: 'File[]?', outputSource: snv/vep_annotated_gatk_vcf}
   vep_annotated_strelka_vcf: {type: 'File[]?', outputSource: snv/vep_annotated_strelka_vcf}
   vep_annotated_freebayes_vcf: {type: 'File[]?', outputSource: snv/vep_annotated_freebayes_vcf}
@@ -609,7 +610,8 @@ steps:
       run_freebayes: run_freebayes
       run_strelka: run_strelka
     out: [gatk_gvcf, gatk_gvcf_metrics, verifybamid_output, gatk_vcf_metrics, peddy_html, peddy_csv, peddy_ped, vep_annotated_gatk_vcf,
-      freebayes_unfiltered_vcf, vep_annotated_freebayes_vcf, vep_annotated_strelka_vcf, strelka2_prepass_variants, strelka2_gvcfs]
+      freebayes_unfiltered_vcf, vep_annotated_freebayes_vcf, vep_annotated_strelka_vcf, strelka2_prepass_variants, strelka2_gvcfs,
+      gatk_annotation_plots]
   sv:
     run: ../workflows/kfdrc-germline-sv-wf.cwl
     in:
