@@ -34,7 +34,7 @@ steps:
     in:
       input_vcf: indels_vcf
       fields: indel_plot_annots
-      output_filename: {valueFrom: "temp.snp.tsv"}
+      output_filename: {valueFrom: "temp.indel.tsv"}
     out: [output]
   gatk_plot_annotations_snps:
     run: ../tools/gatk_plot_annotations.cwl
@@ -47,7 +47,7 @@ steps:
   gatk_plot_annotations_indels:
     run: ../tools/gatk_plot_annotations.cwl
     in:
-      input_table: gatk_variantstotable_snps/output
+      input_table: gatk_variantstotable_indels/output
       input_type: {valueFrom: "INDEL"}
       output_basename: output_basename
       annotation_fields: indel_plot_annots

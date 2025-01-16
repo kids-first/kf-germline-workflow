@@ -121,7 +121,6 @@ For more information on the specific annotations, please see the documentation.
     - `peddy_html`: HTML metrics files from Peddy
     - `peddy_csv`: CSV metrics for het_check, ped_check, and sex_check from Peddy
     - `peddy_ped`: PED file with additional metrics information from Peddy
-    - `gatk_hardfiltered_vcf`: VCF containing the all genotyping variants with their hardfilters
     - `gatk_annotation_plots`: TAR file containing plots of all annotations used for hardfiltering
 - Strelka2
     - `strelka2_prepass_variants`: Raw variants output from Strelka2

@@ -1,6 +1,10 @@
 #!/usr/bin/env Rscript
 
 # plotting.R script loads ggplot and gridExtra libraries and defines functions to plot variant annotations
+# Usage:
+# Rscript gatk_plot_annotations.R <output_basename> <input_type> <input_file> <input_field_1> <input_field_2> ... <input_field_n>
+#     <output_basename> <input_type> and <input_file> are required
+#     <input_field_1> <input_field_2> ... <input_field_n> are optional overrides to the field names that will be plotted
 
 library(ggplot2)
 library(gridExtra)
@@ -23,7 +27,7 @@ makeDensityPlot <- function(dataframe, xvar, split, xmin=min(dataframe[xvar], na
 args <- commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 3) {
-    stop("Three arguments are required. First, an ouptut_basename. Second, the input type. Third, the input table.", call.=FALSE)
+    stop("Three arguments are required. First, an output_basename. Second, the input type. Third, the input table.", call.=FALSE)
 }
 
 output_basename <- args[1]
