@@ -140,7 +140,7 @@ inputs:
   genomicsdbimport_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenomicsDBImport"}
   genotypegvcfs_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenotypeGVCFs"}
   output_basename: string
-  tool_name: {type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files"}
+  tool_name: {type: 'string?', default: "single.gatk.genotyped.filtered.vep_105", doc: "File name string suffx to use for output files"}
 
   # VQSR Options
   vqsr_snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP VariantRecalibration. If a dataset gives fewer
@@ -335,7 +335,7 @@ steps:
           $(self.secondaryFiles.filter(function(e) {return e.nameext == '.dict'})[0])
       output_basename:
         source: output_basename
-        valueFrom: $(self).gatk.germline.hardfiltered
+        valueFrom: $(self).single.gatk.genotyped.filtered
       dbsnp_vcf: dbsnp_vcf
       wgs_evaluation_interval_list: wgs_evaluation_interval_list
     out: [output]
