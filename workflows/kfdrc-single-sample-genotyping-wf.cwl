@@ -106,10 +106,12 @@ inputs:
   input_vcfs: {type: 'File[]', doc: 'Input array of individual sample gVCF files'}
   experiment_type:
     type:
+    - 'null'
     - type: enum
       name: experiment_type
       symbols: ["WGS", "WXS", "Targeted Sequencing"]
     doc: "Experimental strategy used to sequence the data in the input_vcfs"
+    default: "WGS"
   axiomPoly_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz',
     "sbg:suggestedValue": {class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz,
       secondaryFiles: [{class: File, path: 6063901d357c3a53540ca81b, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}]}}
@@ -378,5 +380,5 @@ hints:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.1.1'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.2.0'
   label: github-release

@@ -466,7 +466,7 @@ steps:
       genomicsdbimport_extra_args: genomicsdbimport_extra_args
       output_basename: output_basename
       tool_name:
-        valueFrom: "single.vqsr.filtered.vep_105"
+        valueFrom: "single.gatk.genotyped.filtered.vep_105"
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
       clinvar_annotation_vcf: clinvar_annotation_vcf
       echtvar_anno_zips: echtvar_anno_zips
@@ -500,5 +500,5 @@ $namespaces:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.1.1'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.2.0'
   label: github-release

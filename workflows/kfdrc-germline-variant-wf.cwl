@@ -227,6 +227,7 @@ inputs:
         name: experiment_type
         symbols: ["WGS", "WXS", "Targeted Sequencing"]
     doc: "Experimental strategy used to sequence the data of the aligned_reads"
+    default: "WGS"
   output_basename: {type: 'string', doc: "String value to use for the basename of all outputs"}
   cnv_intervals_padding: {type: 'int?', doc: "Length (in bp) of the padding regions on each side of the intervals. This must be the
       same value used for all case samples."}
