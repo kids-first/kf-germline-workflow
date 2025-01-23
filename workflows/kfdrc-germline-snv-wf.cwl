@@ -164,7 +164,7 @@ inputs:
           path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}, {class: File, path: 60639016357c3a53540ca7af, name: Homo_sapiens_assembly38.fasta.fai}]}
   output_basename: {type: 'string', doc: "String to use as the base for output filenames"}
   biospecimen_name: {type: 'string', doc: "String name of biospcimen"}
-  input_reads: {type: 'File', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai',
+  input_reads: {type: 'File?', secondaryFiles: [{pattern: '.bai', required: false}, {pattern: '^.bai', required: false}, {pattern: '.crai',
         required: false}, {pattern: '^.crai', required: false}], doc: "Aligned reads files to be analyzed", "sbg:fileTypes": "BAM,CRAM"}
   input_gvcf: {type: 'File?', secondaryFiles: [{pattern: '.tbi', required: true}], doc: "gVCF associated with input_reads. Providing
       this value will skip gVCF creation for the GATK pipeline.", "sbg:fileTypes": "VCF.GZ"}
@@ -297,7 +297,7 @@ steps:
     out: [out_file_array]
   samtools_view:
     run: ../tools/samtools_view.cwl
-    when: $(inputs.input_reads.nameext == '.cram' && inputs.run_gatk)
+    when: $(inputs.input_reads != null && inputs.input_reads.nameext == '.cram' && inputs.run_gatk)
     in:
       run_gatk: run_gatk
       input_reads: input_reads
@@ -308,7 +308,7 @@ steps:
         valueFrom: $(1 == 1)
       output_filename:
         valueFrom: |
-          $(inputs.input_reads.nameroot).bam##idx##$(inputs.input_reads.nameroot).bam.bai
+          $(inputs.input_reads ? inputs.input_reads.nameroot : 'ph').bam##idx##$(inputs.input_reads ? inputs.input_reads.nameroot : 'ph').bam.bai
       cpu:
         valueFrom: $(8)
       ram:
@@ -423,7 +423,7 @@ steps:
       run_gatk: boolean_to_boolean_gvcf/out_bool
       input_bam:
         source: [samtools_view/output, input_reads]
-        pickValue: first_non_null
+        valueFrom: '$(self[0] ? self[0] : self[1])'
       indexed_reference_fasta: indexed_reference_fasta
       scattered_calling_interval_lists: scatter_regions/scattered_intervallists
       biospecimen_name: biospecimen_name
@@ -466,7 +466,7 @@ steps:
       genomicsdbimport_extra_args: genomicsdbimport_extra_args
       output_basename: output_basename
       tool_name:
-        valueFrom: "single.vqsr.filtered.vep_105"
+        valueFrom: "single.gatk.genotyped.filtered.vep_105"
       bcftools_annot_clinvar_columns: bcftools_annot_clinvar_columns
       clinvar_annotation_vcf: clinvar_annotation_vcf
       echtvar_anno_zips: echtvar_anno_zips
@@ -500,5 +500,5 @@ $namespaces:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.1.1'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.2.0'
   label: github-release

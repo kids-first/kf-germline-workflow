@@ -57,7 +57,7 @@ steps:
     in:
       output_filename:
         source: output_basename
-        valueFrom: '$(self).genotyping_annotation_plots.tar.gz'
+        valueFrom: '$(self).single.gatk.genotyped.annotation_plots.tar.gz'
       input_files:
         source: [gatk_plot_annotations_snps/plots, gatk_plot_annotations_indels/plots]
         valueFrom: '$(self[0].concat(self[1]))'

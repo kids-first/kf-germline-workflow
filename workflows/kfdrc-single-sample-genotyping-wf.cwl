@@ -106,10 +106,12 @@ inputs:
   input_vcfs: {type: 'File[]', doc: 'Input array of individual sample gVCF files'}
   experiment_type:
     type:
+    - 'null'
     - type: enum
       name: experiment_type
       symbols: ["WGS", "WXS", "Targeted Sequencing"]
     doc: "Experimental strategy used to sequence the data in the input_vcfs"
+    default: "WGS"
   axiomPoly_resource_vcf: {type: File, secondaryFiles: [{pattern: '.tbi', required: true}], doc: 'Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz',
     "sbg:suggestedValue": {class: File, path: 60639016357c3a53540ca7c7, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz,
       secondaryFiles: [{class: File, path: 6063901d357c3a53540ca81b, name: Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi}]}}
@@ -140,7 +142,7 @@ inputs:
   genomicsdbimport_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenomicsDBImport"}
   genotypegvcfs_extra_args: {type: 'string?', doc: "Any extra arguments to give to GenotypeGVCFs"}
   output_basename: string
-  tool_name: {type: 'string?', default: "single.vqsr.filtered.vep_105", doc: "File name string suffx to use for output files"}
+  tool_name: {type: 'string?', default: "single.gatk.genotyped.filtered.vep_105", doc: "File name string suffx to use for output files"}
 
   # VQSR Options
   vqsr_snp_max_gaussians: {type: 'int?', doc: "Interger value for max gaussians in SNP VariantRecalibration. If a dataset gives fewer
@@ -335,7 +337,7 @@ steps:
           $(self.secondaryFiles.filter(function(e) {return e.nameext == '.dict'})[0])
       output_basename:
         source: output_basename
-        valueFrom: $(self).gatk.germline.hardfiltered
+        valueFrom: $(self).single.gatk.genotyped.filtered
       dbsnp_vcf: dbsnp_vcf
       wgs_evaluation_interval_list: wgs_evaluation_interval_list
     out: [output]
@@ -378,5 +380,5 @@ hints:
 - VCF
 - VEP
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.1.1'
+- id: 'https://github.com/kids-first/kf-germline-workflow/releases/tag/v1.2.0'
   label: github-release
