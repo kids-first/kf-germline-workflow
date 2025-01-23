@@ -9,9 +9,9 @@ Variant Quality Score Recalibration (VQSR). Whole Exome and Targeted Sequencing
 samples will be filtered using GATK's recommended Hard Filter. See below for
 more information on both of these filtering processes. Note: it should be
 possible to run a whole exome cohort of 30 or more samples through this
-workflow. In that case, the workflow will use VQSR to process the sample.
+workflow. In that case, the workflow will use VQSR to process the cohort.
 No internal testing has been performed for this approach so be prepared to
-make adjustments to the workflow if you are attempting this approach.
+make adjustments to the workflow if you are attempting to run a cohort.
 
 While non-germline samples can be run through this workflow, be wary that the
 filtering process (VQSR/Hard Filtering) is specifically tuned for germline
